@@ -5,6 +5,7 @@ import { SIN_LABEL, HARM_LABEL, SIN_TEXT } from "./config.mjs";
 import * as C from "./conditions.mjs";
 import { t } from "./i18n.mjs";
 import { esc } from "./engine.mjs";
+import { REFS as MAN_REFS } from "./manualrefs.mjs";
 import { DURATIONS, timerOf, timerStart, timerPause, timerReset, timerNewTurn, timerSetSecs, fmt } from "./timer.mjs";
 
 /**
@@ -79,7 +80,7 @@ export function createBoardUI(ctx) {
       ${gm ? `<span class="tctl"><select id="x-secs" title="${esc(t("Time per turn"))}">${DURATIONS.map(d => `<option value="${d}" ${T.secs === d ? "selected" : ""}>${d ? `${d} s` : esc(t("No timer"))}</option>`).join("")}</select>
         ${T.secs ? `<button type="button" data-action="timerToggle">${esc(T.running ? t("Pause") : t("Start"))}</button><button type="button" data-action="timerReset">${esc(t("Reset"))}</button>
         <label class="chk"><input type="checkbox" id="x-auto" ${T.auto ? "checked" : ""}> ${esc(t("Auto"))}</label>` : ""}</span>` : ""}</div>` : "";
-    const head = `<div class="x-head"><div class="x-title"><b>${esc(t("Exchange"))} ${tr.exchange}</b>${tr.active ? "" : ` <small>${esc(t("No fight running."))}</small>`}</div>${timer}
+    const head = `<div class="x-head"><div class="x-title"><b>${esc(t("Exchange"))} ${tr.exchange}</b><button type="button" class="man-ref" data-action="manual" data-ref="${MAN_REFS.exchange}" title="${esc(t("Open this in the manual"))}" aria-label="${esc(t("Open this in the manual"))}">?</button>${tr.active ? "" : ` <small>${esc(t("No fight running."))}</small>`}</div>${timer}
       ${gm ? `<div class="x-btns">${tr.active
         ? `<button type="button" data-action="xNext" class="primary">${esc(t("Next Exchange"))}</button><button type="button" data-action="xEnd">${esc(t("End fight"))}</button>`
         : `<button type="button" data-action="xStart" class="primary">${esc(t("Start fight"))}</button>`}<button type="button" data-action="xFill">${esc(t("Fill from the table"))}</button></div>` : ""}</div>`;
