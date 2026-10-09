@@ -220,5 +220,11 @@ export const THREAT_ES = {
   "Picture changed": "Imagen cambiada",
   "That is not a picture.": "Eso no es una imagen.",
   "That picture could not be read.": "No se pudo leer esa imagen.",
-  "That picture is too detailed to keep small. Try another.": "Esa imagen es demasiado detallada para guardarla pequeña. Prueba con otra."
+  "That picture is too detailed to keep small. Try another.": "Esa imagen es demasiado detallada para guardarla pequeña. Prueba con otra.",
+  "Upload a picture, then move and zoom it so the frame holds the face. Or choose one that comes with the app.": "Sube una imagen y muévela y amplíala para que el marco recoja la cara. O elige una de las que trae la app.",
+  "Picture to crop": "Imagen que se va a recortar",
+  "Zoom": "Zoom",
+  "Tall frame": "Marco vertical",
+  "Square frame": "Marco cuadrado",
+  "Drag the picture to move it. What is inside the frame is kept.": "Arrastra la imagen para moverla. Se guarda lo que queda dentro del marco."
 };

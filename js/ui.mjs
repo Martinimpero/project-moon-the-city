@@ -511,18 +511,72 @@ function announceImages() {
 }
 async function portraitDialog(a) {
   const cur = a.portrait;
+  let crop = null;                                               // the picture being cropped: { bmp, iw, ih, c (z, ix, iy), F, ratio }
   const r = await ask({
     title: t("Picture: {name}", { name: a.name }), ok: t("Save"), wide: true,
-    body: `<p>${esc(t("Upload a picture (it is shrunk to stay small) or choose one that comes with the app."))}</p>
+    body: `<p>${esc(t("Upload a picture, then move and zoom it so the frame holds the face. Or choose one that comes with the app."))}</p>
       <div class="pm-row"><input type="file" name="file" accept="image/*"></div>
+      <div class="cropper" hidden>
+        <canvas width="${P.VIEW}" height="${P.VIEW}" aria-label="${esc(t("Picture to crop"))}"></canvas>
+        <div class="pm-row"><label>${esc(t("Zoom"))}</label><input type="range" name="zoom" min="100" max="${P.MAX_ZOOM * 100}" value="100">
+          <label class="chk"><input type="radio" name="shape" value="tall" checked> ${esc(t("Tall frame"))}</label><label class="chk"><input type="radio" name="shape" value="square"> ${esc(t("Square frame"))}</label></div>
+        <p class="pm-note">${esc(t("Drag the picture to move it. What is inside the frame is kept."))}</p>
+      </div>
       <div class="pm-row art">${TOKENS.map(n => `<label class="art-pick" title="${esc(n.replace(/_/g, " "))}"><input type="radio" name="art" value="tokens/${n}.png" ${cur === `tokens/${n}.png` ? "checked" : ""}><img src="tokens/${n}.png" alt="${esc(n.replace(/_/g, " "))}"></label>`).join("")}</div>
       ${cur ? `<div class="pm-row"><label class="chk"><input type="checkbox" name="remove"> ${esc(t("Remove the picture"))}</label></div>` : ""}`,
-    read: f => ({ file: f.elements.file.files[0] ?? null, art: f.elements.art.value, remove: !!f.elements.remove?.checked })
+    read: f => ({ file: f.elements.file.files[0] ?? null, art: f.elements.art.value, remove: !!f.elements.remove?.checked }),
+    setup: f => {
+      const box = f.querySelector(".cropper"), canvas = box.querySelector("canvas"), g = canvas.getContext("2d");
+      const draw = () => {
+        if (!crop) return;
+        const { bmp, iw, ih, c, F } = crop, s = P.minScale(iw, ih, F) * c.z;
+        g.clearRect(0, 0, P.VIEW, P.VIEW); g.fillStyle = "#14151b"; g.fillRect(0, 0, P.VIEW, P.VIEW);
+        g.drawImage(bmp, c.ix, c.iy, iw * s, ih * s);
+        g.fillStyle = "rgba(10,11,15,.62)";                                                  // dim everything outside the frame
+        g.fillRect(0, 0, P.VIEW, F.y); g.fillRect(0, F.y + F.h, P.VIEW, P.VIEW - F.y - F.h); g.fillRect(0, F.y, F.x, F.h); g.fillRect(F.x + F.w, F.y, P.VIEW - F.x - F.w, F.h);
+        g.strokeStyle = "#c9a227"; g.lineWidth = 2; g.strokeRect(F.x + 1, F.y + 1, F.w - 2, F.h - 2);
+      };
+      const setRatio = name => { if (!crop) return; crop.ratio = name; crop.F = P.frameFor(P.RATIOS[name]); crop.c = P.initialCrop(crop.iw, crop.ih, crop.F); f.elements.zoom.value = 100; draw(); crop.face?.(); };
+      f.elements.file.addEventListener("change", async () => {
+        const file = f.elements.file.files[0];
+        if (!file) { crop = null; box.hidden = true; return; }
+        try {
+          const bmp = await P.loadBitmap(file), iw = bmp.width || bmp.naturalWidth, ih = bmp.height || bmp.naturalHeight;
+          crop = { bmp, iw, ih, ratio: "tall", F: P.frameFor(P.RATIOS.tall), c: null };
+          crop.c = P.initialCrop(iw, ih, crop.F); box.hidden = false; f.elements.zoom.value = 100;
+          f.querySelectorAll('[name="art"]').forEach(x => { x.checked = false; });              // an uploaded picture replaces the chosen art
+          draw();
+          crop.face = async () => {                                                               // where the browser can find faces, start on the first one
+            try { if (!("FaceDetector" in globalThis)) return; const faces = await new FaceDetector({ fastMode: true, maxDetectedFaces: 1 }).detect(bmp);
+              if (faces[0] && crop?.bmp === bmp) { crop.c = P.faceCrop(faces[0].boundingBox, iw, ih, crop.F); f.elements.zoom.value = Math.round(crop.c.z * 100); draw(); } } catch { /* no face finder: keep the default */ }
+          };
+          crop.face();
+        } catch (err) { crop = null; box.hidden = true; f.elements.file.value = ""; toast(t(err?.message) || err?.message); }
+      });
+      f.querySelectorAll('[name="art"]').forEach(x => x.addEventListener("change", () => { f.elements.file.value = ""; crop = null; box.hidden = true; }));
+      f.querySelectorAll('[name="shape"]').forEach(x => x.addEventListener("change", () => setRatio(x.value)));
+      f.elements.zoom.addEventListener("input", () => { if (!crop) return; crop.c = P.zoomAbout(crop.c, crop.iw, crop.ih, crop.F, Number(f.elements.zoom.value) / 100); draw(); });
+      let drag = null;
+      canvas.addEventListener("pointerdown", e => { if (!crop) return; drag = { x: e.clientX, y: e.clientY, c: { ...crop.c } }; canvas.setPointerCapture(e.pointerId); });
+      canvas.addEventListener("pointermove", e => {
+        if (!drag || !crop) return;
+        const k = P.VIEW / canvas.getBoundingClientRect().width, s = P.minScale(crop.iw, crop.ih, crop.F) * crop.c.z;
+        crop.c = { z: crop.c.z, ...P.clampPan({ ix: drag.c.ix + (e.clientX - drag.x) * k, iy: drag.c.iy + (e.clientY - drag.y) * k }, crop.iw, crop.ih, s, crop.F) }; draw();
+      });
+      canvas.addEventListener("pointerup", () => { drag = null; }); canvas.addEventListener("pointercancel", () => { drag = null; });
+      canvas.addEventListener("wheel", e => {
+        if (!crop) return; e.preventDefault();
+        const rect = canvas.getBoundingClientRect(), k = P.VIEW / rect.width;
+        crop.c = P.zoomAbout(crop.c, crop.iw, crop.ih, crop.F, crop.c.z * (e.deltaY < 0 ? 1.1 : 1 / 1.1), { x: (e.clientX - rect.left) * k, y: (e.clientY - rect.top) * k });
+        f.elements.zoom.value = Math.round(crop.c.z * 100); draw();
+      }, { passive: false });
+    }
   });
   if (!r) return;
   try {
     let next;
     if (r.remove) next = "";
+    else if (r.file && crop) next = P.cropToData(crop.bmp, P.sourceRect(crop.c, crop.iw, crop.ih, crop.F));
     else if (r.file) next = await P.fileToPortrait(r.file);
     else if (r.art) next = r.art;
     else return;
