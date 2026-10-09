@@ -3,7 +3,9 @@
  * worked out as the part of the City outline nearer to its centre than to any other's (a Voronoi cell), so the schematic keeps the real map's rings without
  * copying its art. Pure geometry; cityui.mjs draws it. Coordinates are in a 1200 x 930 picture.
  */
-export const VIEW = { w: 1200, h: 930 };
+export const VIEW = { w: 1200, h: 928 };
+/** The picture the cells lie over (the map of the City, 1200 x 928). */
+export const IMAGE = "city/the-city.webp";
 /** Where each District's label sits. */
 export const CENTRES = {
   A: [557, 497], B: [522, 425], C: [643, 425], D: [637, 553], E: [487, 598], F: [412, 455], G: [490, 325], H: [685, 328], I: [772, 480],

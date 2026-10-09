@@ -28,10 +28,10 @@ export function createCityUI(ctx) {
     const plan = P.plan();
     const cells = Object.entries(plan).map(([l, c]) => {
       const w = Y.byLetter(l), on = l === picked;
-      return `<g class="city-cell ${on ? "on" : ""} ${w.status} ${hit.has(l) ? "" : "dim"}" data-action="cityPick" data-letter="${l}" tabindex="0" role="button" aria-label="${esc(w.name)}, ${esc(t("District {n}", { n: w.n }))}"><title>${esc(w.name)}</title><path d="${c.d}"/><text x="${c.at[0]}" y="${c.at[1] + 12}" class="l">${l}</text><text x="${c.at[0]}" y="${c.at[1] + 36}" class="n">${esc(t("District {n}", { n: w.n }))}</text></g>`;
+      return `<g class="city-cell ${on ? "on" : ""} ${w.status} ${hit.has(l) ? "" : "dim"}" data-action="cityPick" data-letter="${l}" tabindex="0" role="button" aria-label="${esc(w.name)}, ${esc(t("District {n}", { n: w.n }))}"><title>${esc(w.name)}</title><path d="${c.d}"/></g>`;
     }).join("");
     const z = Y.byLetter("Z");
-    return `<svg class="city-svg" viewBox="0 0 ${P.VIEW.w} ${P.VIEW.h}" role="group" aria-label="${esc(t("City"))}">${cells}</svg>
+    return `<svg class="city-svg" viewBox="0 0 ${P.VIEW.w} ${P.VIEW.h}" role="group" aria-label="${esc(t("City"))}"><image href="${P.IMAGE}" x="0" y="0" width="${P.VIEW.w}" height="${P.VIEW.h}" preserveAspectRatio="xMidYMid slice"/>${cells}</svg>
       <p class="city-z"><button type="button" class="city-tile ${picked === "Z" ? "on" : ""} unknown ${hit.has("Z") ? "" : "dim"}" data-action="cityPick" data-letter="Z" title="${esc(z.name)}"><b>Z</b><small>26</small></button> ${esc(t("District 26 is on no map."))}</p>`;
   }
   function paint() {

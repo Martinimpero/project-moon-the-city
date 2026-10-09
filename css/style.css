@@ -835,3 +835,12 @@ html:not([data-skin="classic"]) * { scrollbar-color: #3a3d4f #0f1015; }
 .city-cell.on text { fill: #14151a; }
 .city-cell.dim { opacity: .3; }
 .city-z { margin: 10px 0 4px; color: var(--pm-mute); font-size: 13px; display: flex; align-items: center; gap: 8px; }
+
+/* the map's own picture carries the letters; the cells above it only catch clicks and show the chosen District */
+.city-svg { background: #000; }
+.city-cell path { fill: transparent; stroke: none; }
+.city-cell:hover path, .city-cell:focus path { fill: rgba(242, 182, 50, .16); }
+.city-cell.on path { fill: rgba(242, 182, 50, .30); stroke: #f2b632; stroke-width: 4; }
+.city-cell.fallen path { stroke-dasharray: none; }
+.city-cell.dim path { fill: rgba(0, 0, 0, .65); }
+.city-cell.dim { opacity: 1; }
