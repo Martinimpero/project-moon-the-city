@@ -400,3 +400,15 @@ details.altlang summary { cursor: pointer; font: 700 11px var(--pm-head); letter
 .m-stage.tool-ping #mapsvg { cursor: crosshair; }
 
 #mapsvg .ping .plbl { font-family: var(--pm-head); font-weight: 800; letter-spacing: .06em; paint-order: stroke; stroke: #000; stroke-width: 6px; text-transform: uppercase; animation: pingdot 3.4s ease-out 1 both; }
+
+/* ================= staying connected ================= */
+#netbar { display: flex; align-items: center; justify-content: center; gap: 12px; background: #5a3a10; color: #ffe2b0; border-bottom: 2px solid var(--pm-warn); padding: 5px 12px; font: 700 13px var(--pm-head); letter-spacing: .08em; text-transform: uppercase; }
+#netbar[hidden] { display: none; }
+#netbar small { opacity: .75; }
+#netbar button { cursor: pointer; font: 700 11px var(--pm-head); letter-spacing: .12em; text-transform: uppercase; border: 1px solid #ffe2b0; background: transparent; color: #ffe2b0; border-radius: 2px; padding: 3px 10px; }
+.top-actions .room.warn { background: #5a3a10; border-color: var(--pm-warn); color: #ffe2b0; animation: pulse 1s infinite alternate; }
+.who-list { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.who-list li { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 4px 8px; border: 1px solid var(--pm-rule); background: rgba(255,255,255,.5); }
+.who-list button, .pm-modal [data-nettest] { cursor: pointer; font: 700 11px var(--pm-head); letter-spacing: .1em; text-transform: uppercase; border: 1px solid var(--pm-red); background: transparent; color: var(--pm-red); padding: 2px 9px; border-radius: 2px; }
+.pm-modal [data-nettest] { border-color: var(--pm-ink); color: var(--pm-ink); padding: 4px 12px; }
+.net-result div { margin: 2px 0; }

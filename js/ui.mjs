@@ -9,6 +9,7 @@ import * as S from "./store.mjs";
 import { state } from "./store.mjs";
 import { verdictCandidates } from "./voice.mjs";
 import { Room, newCode, cleanCode } from "./room.mjs";
+import { peerOptionsFor, parseIceServers, testConnection, DEFAULT_ICE } from "./net.mjs";
 import * as B from "./board.mjs";
 import * as C from "./conditions.mjs";
 import { createBoardUI } from "./boardui.mjs";
@@ -88,6 +89,15 @@ const boardUI = createBoardUI({
   setMap: m => { state.map = m; },
   post: html => post(html), ask: o => ask(o), toast: m => toast(m)
 });
+const SESSION_KEY = "project-moon-the-city/session";
+/** Remember the room we are in (not part of the exported save), so a reload goes back to it. A deliberate leave or a refusal forgets it. */
+function saveSession() {
+  try {
+    const snap = room?.session ? room.snapshot() : null;
+    if (snap) localStorage.setItem(SESSION_KEY, JSON.stringify(snap)); else localStorage.removeItem(SESSION_KEY);
+  } catch { /* private window */ }
+}
+const savedSession = () => { try { return JSON.parse(localStorage.getItem(SESSION_KEY) || "null"); } catch { return null; } };
 const PEER_URL = "https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js";
 
 const strip = a => JSON.parse(JSON.stringify(a, (k, v) => (k === "derived" || k === "remote" ? undefined : v)));
@@ -102,7 +112,12 @@ function loadPeer() {
   });
 }
 const handlers = {
-  onStatus: () => { renderChrome(); renderSidebar(); if (room?.status === "error" && room.error) toast(t(room.error)); },
+  onStatus: () => { saveSession(); renderChrome(); renderSidebar(); if (room?.status === "error" && room.error) toast(t(room.error)); },
+  onResumed: () => {
+    toast(t("Reconnected."));
+    if (room.role === "player") scheduleSync(); else { room.sendBoard(); room.broadcastTable(); }
+    renderChrome();
+  },
   onLog: (entry, quiet) => { if (S.addLog(entry.html, entry.id)) { renderLog(); if (!quiet) { flashLog(); sfx.forHtml(entry.html); } } },
   onTable: () => { if (remoteSel && !findRemote(remoteSel)) remoteSel = ""; renderSidebar(); if (remoteSel) renderMain(); },
   onEffect: (actorId, value) => {
@@ -233,8 +248,12 @@ function renderChrome() {
   $("#vol").value = Math.round(state.sound.vol * 100);
   $("#timer-chip").title = t("Turn timer");
   const rb = $("#b-room");
-  rb.textContent = room?.online ? `${t("Room")} ${room.code} · ${room.count}` : (room?.status === "connecting" ? t("Connecting...") : t("Room"));
+  rb.textContent = room?.online ? `${t("Room")} ${room.code} · ${room.count}` : (room?.reconnecting ? t("Reconnecting...") : (room?.status === "connecting" ? t("Connecting...") : t("Room")));
   rb.classList.toggle("live", !!room?.online);
+  rb.classList.toggle("warn", !!room?.reconnecting);
+  const nb = $("#netbar");
+  nb.hidden = !room?.reconnecting;
+  if (room?.reconnecting) nb.innerHTML = `<span>${esc(room.role === "host" ? t("Reopening room {code}...", { code: room.code }) : t("Lost the room. Reconnecting to {code}...", { code: room.code }))} <small>(${room.attempt || 1})</small></span><button type="button" data-action="stopRetry">${esc(t("Stop trying"))}</button>`;
   const chat = $("#chat");
   chat.hidden = !room?.online;
   $("#chat-text").placeholder = t("Say something to the table");
@@ -667,8 +686,9 @@ async function doDowntime(actors, crew) {
 
 /* ------------------------------------------------------------------ click actions */
 
-const READONLY_OK = new Set(["applyHurt", "rtab", "sound", "timerGo", ...Object.keys(boardUI.actions), ...Object.keys(handoutUI.actions), "view", "select", "selectRemote", "tab", "newCharacter", "newNpc", "newCrew", "pregens", "lang", "export", "import", "help", "room", "clearLog", "downtimeAll", "newSceneAll"]);
+const READONLY_OK = new Set(["stopRetry", "applyHurt", "rtab", "sound", "timerGo", ...Object.keys(boardUI.actions), ...Object.keys(handoutUI.actions), "view", "select", "selectRemote", "tab", "newCharacter", "newNpc", "newCrew", "pregens", "lang", "export", "import", "help", "room", "clearLog", "downtimeAll", "newSceneAll"]);
 const actions = {
+  stopRetry: () => { room?.leave(); room = null; saveSession(); render(); },
   applyHurt: async el => {
     if (!isGM()) return;
     const slot = state.tracker.slots.find(s => s.id === el.dataset.slot);
@@ -794,15 +814,29 @@ function helpHtml() {
 
 /* ---- the room dialog ---- */
 
-async function startRoom(mode, name, code) {
+const makeRoom = Peer => new Room({ Peer, handlers, peerOptions: iceOptions() });
+
+/** After a reload: go back to the room we were in. Keeps trying while the GM or the broker is away. */
+async function autoResume() {
+  const saved = savedSession();
+  if (!saved || new URLSearchParams(location.search).get("room")) return;
+  let Peer;
+  try { Peer = await loadPeer(); } catch { toast(t("Shared rooms need an internet connection (they load PeerJS).")); return; }
+  room = makeRoom(Peer);
+  state.name = saved.name || state.name;
+  room.resume(saved);
+  renderChrome();
+}
+
+async function startRoom(mode, name, code, { password = "" } = {}) {
   let Peer;
   try { Peer = await loadPeer(); } catch { toast(t("Shared rooms need an internet connection (they load PeerJS).")); return; }
   if (room) room.leave(true);
-  room = new Room({ Peer, handlers });
+  room = makeRoom(Peer);
   state.name = name; persist();
   renderChrome();
   try {
-    if (mode === "host") await room.host(code, name); else await room.join(code, name);
+    if (mode === "host") await room.host(code, name, { password }); else await room.join(code, name, { password });
   } catch {
     toast(t(room.error) || room.error); const r = room; room = null; r.leave(true); render(); return;
   }
@@ -811,16 +845,52 @@ async function startRoom(mode, name, code) {
   else scheduleSync();
 }
 
+const ICE_KEY = "project-moon-the-city/ice";
+const relayText = () => { try { return localStorage.getItem(ICE_KEY) || ""; } catch { return ""; } };
+function iceOptions() { return peerOptionsFor(relayText()); }
+
+/** The result of "test my connection", as plain sentences. */
+function connectionReport(r) {
+  const lines = [r.broker ? t("The room service answered in {ms} ms.", { ms: r.brokerMs }) : t("Could not reach the room service (PeerJS). Check your internet connection, or that this network does not block it.")];
+  lines.push({
+    relay: t("A relay is working, so rooms should connect even on strict networks."),
+    direct: t("Your network gave a public address, so direct rooms should work for most people. Some strict networks (schools, offices, mobile data) can still block them; a relay fixes that."),
+    blocked: t("Your network gave only a local address: direct rooms will probably fail. Try another network, or add a relay under Connection."),
+    none: t("Could not test the network (this browser may not allow it).")
+  }[r.verdict]);
+  return lines;
+}
+
 async function roomDialog() {
   if (room?.online) {
     const link = `${location.origin}${location.pathname}?room=${room.code}`;
-    const who = room.role === "host" ? [...room.peers].map(([, p]) => p.name) : [room.name, ...room.table.players.map(p => p.name)];
+    const host = room.role === "host";
+    const who = host ? [...room.peers].map(([pid, p]) => ({ pid, name: p.name })) : [{ name: room.name }, ...room.table.players.map(p => ({ name: p.name }))];
+    const controls = host ? `
+        <div class="pm-row"><label class="chk"><input type="checkbox" id="ctl-lock" ${room.locked ? "checked" : ""}> ${esc(t("Lock the room (nobody new can join; people who were already in can come back)"))}</label></div>
+        <div class="pm-row"><label>${esc(t("Password"))}</label><input type="text" id="ctl-pw" value="${esc(room.password)}" maxlength="40" placeholder="${esc(t("none"))}"></div>
+        <ul class="who-list">${who.map(p => `<li data-pid="${esc(p.pid)}"><span>${esc(p.name)}</span><button type="button" data-kick="${esc(p.pid)}">${esc(t("Remove"))}</button></li>`).join("") || `<li class="hint">${esc(t("Nobody else yet."))}</li>`}</ul>` :
+      `<p><b>${esc(t("Here now"))}:</b> ${esc(who.map(p => p.name).join(", "))}</p>`;
     const r = await ask({ title: t("Room {code}", { code: room.code }), ok: t("Leave room"), wide: true,
-      body: `<p>${esc(room.role === "host" ? t("You are the GM and host. Keep this page open: the room closes if you leave.") : t("You are in this room as {name}.", { name: room.name }))}</p>
+      body: `<p>${esc(host ? t("You are the GM and host. If your page closes or reloads, it reopens this room by itself and players come back; if you leave on purpose the room is closed.") : t("You are in this room as {name}. If the connection drops, this page keeps trying to get back in.", { name: room.name }))}</p>
         <div class="pm-row"><label>${esc(t("Code"))}</label><input type="text" readonly value="${esc(room.code)}" class="big"></div>
-        <div class="pm-row"><label>${esc(t("Link"))}</label><input type="text" readonly value="${esc(link)}" onfocus="this.select()"></div>
-        <p><b>${esc(t("Here now"))}:</b> ${esc(who.join(", ") || t("Nobody else yet."))}</p>`, read: () => true });
-    if (r) { room.leave(); room = null; received.length = 0; remoteBoard.tracker = B.newTracker(); remoteBoard.map = null; remoteBoard.image = null; render(); toast(t("You left the room.")); }
+        <div class="pm-row"><label>${esc(t("Link"))}</label><input type="text" readonly value="${esc(link)}" onfocus="this.select()"></div>${controls}`,
+      read: () => true,
+      setup: f => {
+        f.querySelector("#ctl-lock")?.addEventListener("change", e => room.setLocked(e.target.checked));
+        f.querySelector("#ctl-pw")?.addEventListener("change", e => { room.setPassword(e.target.value.trim()); toast(room.password ? t("Password set.") : t("Password removed.")); });
+        f.querySelectorAll("[data-kick]").forEach(b => b.addEventListener("click", () => {
+          const name = b.parentElement.querySelector("span").textContent;
+          if (room.kick(b.dataset.kick)) { b.parentElement.remove(); toast(t("{name} was removed from the room.", { name })); }
+        }));
+      } });
+    if (r) { room.leave(); room = null; saveSession(); received.length = 0; remoteBoard.tracker = B.newTracker(); remoteBoard.map = null; remoteBoard.image = null; render(); toast(t("You left the room.")); }
+    return;
+  }
+  if (room?.reconnecting) {
+    const stop = await ask({ title: t("Room {code}", { code: room.code }), ok: t("Stop trying"), wide: true, read: () => true,
+      body: `<p>${esc(room.role === "host" ? t("Reopening room {code}...", { code: room.code }) : t("Lost the room. Reconnecting to {code}...", { code: room.code }))} (${room.attempt || 1})</p><p class="pm-note">${esc(t("This keeps trying by itself for ten minutes. Nothing you have written is lost."))}</p>` });
+    if (stop) { room.leave(); room = null; saveSession(); render(); }
     return;
   }
   const startCode = cleanCode(new URLSearchParams(location.search).get("room"));
@@ -828,14 +898,34 @@ async function roomDialog() {
     <div class="pm-row"><label class="chk"><input type="radio" name="mode" value="host" ${startCode ? "" : "checked"}> ${esc(t("I am the GM: open a room"))}</label></div>
     <div class="pm-row"><label class="chk"><input type="radio" name="mode" value="join" ${startCode ? "checked" : ""}> ${esc(t("I am a player: join a room"))}</label></div>
     <div class="pm-row"><label>${esc(t("Your name"))}</label><input type="text" name="name" value="${esc(state.name)}" maxlength="30"></div>
-    <div class="pm-row"><label>${esc(t("Code"))}</label><input type="text" name="code" value="${esc(startCode || newCode())}" maxlength="8" class="big"></div>`;
+    <div class="pm-row"><label>${esc(t("Code"))}</label><input type="text" name="code" value="${esc(startCode || newCode())}" maxlength="8" class="big"></div>
+    <div class="pm-row"><label>${esc(t("Password"))}</label><input type="text" name="password" maxlength="40" placeholder="${esc(t("optional"))}"></div>
+    <details class="altlang"><summary>${esc(t("Connection"))}</summary>
+      <div class="pm-row"><button type="button" data-nettest>${esc(t("Test my connection"))}</button></div>
+      <div class="net-result pm-note" hidden></div>
+      <div class="pm-row"><label class="full">${esc(t("Relay (advanced, optional): one per line, like  turn:host:3478  username  password"))}</label><textarea name="relay" rows="3" spellcheck="false">${esc(relayText())}</textarea></div>
+      <p class="hint">${esc(t("Only needed if rooms will not connect on your network. Kept on this device only."))}</p></details>`;
   const r = await ask({ title: t("Shared room"), ok: t("Go"), wide: true, body,
-    read: f => ({ mode: f.elements.mode.value, name: f.elements.name.value.trim(), code: cleanCode(f.elements.code.value) }),
-    setup: f => f.querySelectorAll("[name=mode]").forEach(el => el.addEventListener("change", () => { f.elements.code.value = f.elements.mode.value === "host" ? newCode() : startCode; })) });
+    read: f => ({ mode: f.elements.mode.value, name: f.elements.name.value.trim(), code: cleanCode(f.elements.code.value), password: f.elements.password.value.trim(), relay: f.elements.relay.value }),
+    setup: f => {
+      f.querySelectorAll("[name=mode]").forEach(el => el.addEventListener("change", () => { f.elements.code.value = f.elements.mode.value === "host" ? newCode() : startCode; }));
+      f.querySelector("[data-nettest]").addEventListener("click", async ev => {
+        const out = f.querySelector(".net-result"); out.hidden = false; out.textContent = t("Testing...");
+        ev.target.disabled = true;
+        const Peer = await loadPeer().catch(() => null);
+        const opts = peerOptionsFor(f.elements.relay.value);
+        const result = await testConnection({ PeerCtor: Peer, iceServers: opts?.config.iceServers ?? DEFAULT_ICE });
+        out.innerHTML = connectionReport(result).map(l => `<div>${esc(l)}</div>`).join("");
+        ev.target.disabled = false;
+      });
+    } });
   if (!r) return;
   if (!r.name) { toast(t("Enter your name first.")); return; }
   if (r.code.length < 3) { toast(t("Enter a room code.")); return; }
-  await startRoom(r.mode, r.name, r.code);
+  const parsed = parseIceServers(r.relay);
+  if (parsed.errors.length) toast(t("Some relay lines were ignored (line {n}).", { n: parsed.errors[0].line }));
+  try { if (r.relay.trim()) localStorage.setItem(ICE_KEY, r.relay); else localStorage.removeItem(ICE_KEY); } catch { /* private window */ }
+  await startRoom(r.mode, r.name, r.code, { password: r.password });
 }
 
 function onChat(e) {
@@ -902,5 +992,6 @@ export function init() {
   window.addEventListener("beforeunload", () => S.save());
   $("#chat").addEventListener("submit", onChat);
   if (new URLSearchParams(location.search).get("room")) setTimeout(() => roomDialog(), 300);
+  else autoResume();
   render();
 }
