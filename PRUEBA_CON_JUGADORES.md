@@ -24,10 +24,10 @@
 ## 1. ⭐ Conectar (3 min)
 
 1. Los dos pulsan **Sala** → **Probar mi conexión**. Anota lo que dice cada uno (si sale un aviso en rojo, ya tenemos un dato).
-2. **DJ:** Sala → "Soy el DJ: abrir una sala". Escribe tu nombre, deja el código que sale y una **contraseña** (por ejemplo `luna`). Pulsa **Ir**.
+2. **DJ:** Sala → "Soy el DJ: abrir una sala". Escribe tu nombre, deja el código que sale y una **contraseña** (por ejemplo `luna`). Pulsa **Adelante**.
 3. **Jugador:** Sala → "Soy jugador: unirme a una sala". Su nombre, el código y la contraseña.
 
-**Debe pasar:** el botón de la cabecera pasa a poner "Sala CÓDIGO · 2" en los dos. El DJ ve a Dax en la lista de personajes con una marca de ajeno.
+**Debe pasar:** el botón de la cabecera pasa a poner "Sala CÓDIGO · 2" en los dos. El DJ ve a Dax en la lista de personajes, marcado como de otro jugador.
 **Prueba la contraseña:** que el jugador intente entrar con una contraseña mala; debe salir un aviso de contraseña incorrecta.
 
 ## 2. ⭐ Tiradas y registro (2 min)
@@ -67,7 +67,7 @@
 
 ## 7. Documentos y diario (3 min)
 
-1. DJ: pestaña **Documentos**, abre "El Cargamento de la Fila" y **Mostrar** solo a Dax. El jugador debe recibirlo. Luego el DJ lo **retira**: debe desaparecer del jugador.
+1. DJ: pestaña **Documentos**, en "El Cargamento de la Fila" elige que se muestre solo a Dax y pulsa **Mostrar**. El jugador debe recibirlo. Luego el DJ pulsa **Retirar**: debe desaparecer del jugador.
 2. DJ: vuelve a mostrarlo a todos. El jugador lo abre y lo lee en su idioma.
 3. Diario: el jugador escribe una entrada. El DJ debe verla con la firma del jugador. El jugador **no** debe poder borrar la entrada del DJ ("Lo que sabemos").
 
@@ -85,7 +85,7 @@
 
 ## 10. Móvil (2 min, el jugador)
 
-Con la web abierta en el móvil: ¿se leen las pestañas de abajo (Gente, Hoja, Mesa)? ¿se puede arrastrar y hacer zoom en el mapa con el dedo? ¿se puede escribir en los diálogos sin que el teclado tape el botón?
+Con la web abierta en el móvil: ¿se leen las pestañas de abajo (Personas, Ficha, Mesa)? ¿se puede arrastrar y hacer zoom en el mapa con el dedo? ¿se puede escribir en los diálogos sin que el teclado tape el botón?
 
 ## 11. Al final (1 min)
 
