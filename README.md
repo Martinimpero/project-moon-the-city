@@ -29,6 +29,15 @@ The right-hand pane has three tabs: **Log**, **Exchange** and **Map** (on a phon
 - **Map:** the GM picks one of the eight bundled maps (web copies of the vault's maps: `maps/`, made by `make_maps.py`) or uploads an image (shrunk to 1800 px and shared with the table). Grid, snap-to-square and square size are adjustable. Tokens: add one for a character or Threat (the picture is chosen from `tokens/` when a name matches), colour, size, optionally hidden from players. Drag tokens; drag the background to pan; wheel or +/- to zoom.
 - In a room, players see the GM's tracker and map (without hidden tokens) and can drag **only their own character's token**; the host checks that.
 
+## Conditions on the tracker
+Each row in the Exchange tab has **+ Condition** (GM). The seven Sins' signature conditions are there, plus your own (name, optional timer):
+- **Burn** (Wrath): Hurt at the end of each Exchange, for 3 Exchanges unless put out (x removes it). Adding Burn again renews it.
+- **Bleed** (Lust): Hurt whenever the target spends E.G.O. or acts under strain; no timer, the GM removes it when treated.
+- **Tremor** (Sloth): a delayed hit; bursts for Harm at the end of the Exchange after the one it was placed in.
+- **Rupture** (Gluttony), **Sinking** (Gloom, max 3), **Poise** (Pride), **Charge** (Envy): stacks, spent one at a time with the - button (Sinking: each stack is a die off the next roll; Poise: +1 die on the next Pride roll; Rupture: +1 Harm on the next hit; Charge: dice or Harm). Unspent Charge discharges as a Complication when the fight ends.
+**Next Exchange** applies the end-of-Exchange effects and posts them to the log ("Wren is burning and takes Hurt"); **End fight** discharges Charge and clears everything. Hover a condition to read its rule; players see them read-only. The tracker reports what happens and leaves applying Hurt or Harm to the GM, because the manual does not fix how Hurt stacks.
+The manual gives these effects but not how long they last, so the durations above are my defaults; change them in `js/conditions.mjs` or per condition when adding it.
+
 ## Turn timer
 In the **Exchange** tab the GM picks a time per turn (15 s to 3 min, or none). **Start / Pause / Reset** control it; with **Auto** on, each new turn (marking someone Acted, or a new Exchange) resets it to full and starts it. Everyone sees the same countdown in the Exchange tab and in a chip at the top that shows whose turn it is (it turns red in the last 10 seconds; click it to open the tab). There are ticks in the last five seconds and an alarm at zero. Running out does nothing by itself: the GM decides. Each browser keeps its own clock from the moment it receives the timer, and a player who joins late gets the time actually left.
 
@@ -48,8 +57,8 @@ Accounts, cloud save, per-player vision, dynamic lighting.
 
 ## Files
 - `index.html`, `css/style.css`: the page and look (same design as the rulebook).
-- `js/rules.mjs`: the pure rules (bands, E.G.O., Sins, Fit, Drift, Hail Mary, upkeep). `js/engine.mjs`: rolls, techniques, downtime. `js/model.mjs`, `js/store.mjs`: data and saving. `js/ui.mjs`: the interface. `js/room.mjs`: the shared-room protocol. `js/board.mjs`, `js/boardui.mjs`, `js/maplist.mjs`: the Exchange tracker and map. `js/handouts.mjs`, `js/handoutui.mjs`: handouts. `js/timer.mjs`: the turn timer. `js/sfx.mjs`: sounds. `js/es.mjs`, `js/ui_es.mjs`, `js/room_es.mjs`: Spanish.
-- `tests/`: `node --test tests/*.test.mjs` (needs Node 20+; 79 tests).
+- `js/rules.mjs`: the pure rules (bands, E.G.O., Sins, Fit, Drift, Hail Mary, upkeep). `js/engine.mjs`: rolls, techniques, downtime. `js/model.mjs`, `js/store.mjs`: data and saving. `js/ui.mjs`: the interface. `js/room.mjs`: the shared-room protocol. `js/board.mjs`, `js/boardui.mjs`, `js/maplist.mjs`: the Exchange tracker and map. `js/handouts.mjs`, `js/handoutui.mjs`: handouts. `js/timer.mjs`: the turn timer. `js/conditions.mjs`: conditions. `js/sfx.mjs`: sounds. `js/es.mjs`, `js/ui_es.mjs`, `js/room_es.mjs`: Spanish.
+- `tests/`: `node --test tests/*.test.mjs` (needs Node 20+; 89 tests).
 
 ## If you change the rules
 Edit `js/rules.mjs` (and the tests), then the text in `js/config.mjs`, `js/engine.mjs` and Spanish in `js/es.mjs`. Any new English text passed to `t("...")` must get a Spanish entry, or `tests/i18n.test.mjs` fails.

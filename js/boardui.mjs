@@ -1,7 +1,8 @@
 /** The Exchange tracker and the map: views and interaction. Built with `createBoardUI(ctx)` so it does not import ui.mjs. */
 import * as B from "./board.mjs";
 import { MAPS, TOKENS } from "./maplist.mjs";
-import { SIN_LABEL, HARM_LABEL } from "./config.mjs";
+import { SIN_LABEL, HARM_LABEL, SIN_TEXT } from "./config.mjs";
+import * as C from "./conditions.mjs";
 import { t } from "./i18n.mjs";
 import { esc } from "./engine.mjs";
 import { DURATIONS, timerOf, timerStart, timerPause, timerReset, timerNewTurn, timerSetSecs, fmt } from "./timer.mjs";
@@ -28,6 +29,30 @@ export function createBoardUI(ctx) {
     return "";
   }
 
+  /* ---- conditions ---- */
+  const condName = c => (c.type === "custom" ? c.name : SIN_TEXT[C.CONDITIONS[c.type].sin].keyword);
+  function condsHtml(slot, gm) {
+    const list = C.conditionsOf(slot);
+    if (!list.length && !gm) return "";
+    const chips = list.map(c => {
+      const def = C.CONDITIONS[c.type];
+      const label = `${esc(condName(c))}${def.stacks && c.stacks > 1 ? ` &times;${c.stacks}` : ""}${c.rounds > 0 ? ` (${c.rounds})` : ""}${c.type === "tremor" && c.delay > 0 ? " &hellip;" : ""}`;
+      const tip = [t(def.rule), c.note].filter(Boolean).join(" ");
+      return `<span class="cond sin-${def.sin || "none"}" title="${esc(tip)}"><b>${label}</b>${gm ? `${def.stacks ? `<button type="button" data-action="condStep" data-slot="${slot.id}" data-id="${c.id}" data-delta="-1" title="${esc(t("Spend one"))}">&minus;</button><button type="button" data-action="condStep" data-slot="${slot.id}" data-id="${c.id}" data-delta="1" title="${esc(t("Add one"))}">+</button>` : ""}<button type="button" data-action="condRemove" data-slot="${slot.id}" data-id="${c.id}" title="${esc(t("Remove"))}">&times;</button>` : ""}</span>`;
+    }).join("");
+    return `<div class="conds">${chips}${gm ? `<button type="button" class="condadd" data-action="condAdd" data-slot="${slot.id}">+ ${esc(t("Condition"))}</button>` : ""}</div>`;
+  }
+  function eventText(e) {
+    const name = e.slot.name, cond = condName(e.cond);
+    if (e.kind === "hurt") return t("{name} is burning and takes Hurt.", { name });
+    if (e.kind === "burst") return t("{cond} bursts on {name}: it deals Harm.", { cond, name });
+    if (e.kind === "discharge") return t("{name}'s unspent Charge ({n}) discharges as a Complication.", { name, n: e.cond.stacks });
+    return t("{cond} on {name} ends.", { cond, name });
+  }
+  function eventsCard(title, events) {
+    return `<div class="pm-card pm-conditions"><div class="pm-card-head">${esc(title)}</div><div class="pm-notes">${events.map(e => `<p>${esc(eventText(e))}</p>`).join("")}</div></div>`;
+  }
+
   function trackerHtml() {
     const { tracker: tr } = ctx.board();
     const gm = ctx.isGM();
@@ -36,6 +61,7 @@ export function createBoardUI(ctx) {
     const rows = tr.slots.map((s, i) => `<li class="slot ${s.kind} ${s.acted ? "acted" : ""} ${cur?.id === s.id && tr.active ? "now" : ""}">
       ${gm ? `<span class="mv"><button type="button" data-action="slotMove" data-id="${s.id}" data-delta="-1" ${i === 0 ? "disabled" : ""}>&uarr;</button><button type="button" data-action="slotMove" data-id="${s.id}" data-delta="1" ${i === tr.slots.length - 1 ? "disabled" : ""}>&darr;</button></span>` : ""}
       <span class="who"><b>${esc(s.name)}</b><small>${esc([kindLabel[s.kind], slotInfo(s)].filter(Boolean).join(" · "))}</small></span>
+      ${condsHtml(s, gm)}
       ${gm ? `<button type="button" class="act ${s.acted ? "on" : ""}" data-action="slotActed" data-id="${s.id}">${esc(s.acted ? t("Acted") : t("Waiting"))}</button><button type="button" data-action="slotRemove" data-id="${s.id}" title="${esc(t("Remove"))}">&times;</button>`
         : `<span class="state">${esc(s.acted ? t("Acted") : (cur?.id === s.id && tr.active ? t("Up now") : t("Waiting")))}</span>`}</li>`).join("");
     const others = ctx.state.actors.concat(ctx.remoteActors()).filter(a => (a.type === "character" || a.type === "npc") && !tr.slots.some(s => s.actorId === a.id));
@@ -61,11 +87,30 @@ export function createBoardUI(ctx) {
 
   const trackerActions = {
     xStart: () => { const tr = ctx.board().tracker; B.startFight(tr); if (!tr.slots.length) fill(); newTurn(tr); ctx.post(exchangeCard(tr)); ctx.changed(); },
-    xEnd: () => { const tr = ctx.board().tracker; B.endFight(tr); timerReset(timerOf(tr)); ctx.clock.sync(timerOf(tr)); ctx.post(`<div class="pm-card"><div class="pm-card-head">${esc(t("The fight is over."))}</div></div>`); ctx.changed(); },
-    xNext: () => { const tr = ctx.board().tracker; B.nextExchange(tr); newTurn(tr); ctx.post(exchangeCard(tr)); ctx.changed(); },
+    xEnd: () => { const tr = ctx.board().tracker; const ev = C.endScene(tr); if (ev.length) ctx.post(eventsCard(t("The scene ends"), ev)); B.endFight(tr); timerReset(timerOf(tr)); ctx.clock.sync(timerOf(tr)); ctx.post(`<div class="pm-card"><div class="pm-card-head">${esc(t("The fight is over."))}</div></div>`); ctx.changed(); },
+    xNext: () => { const tr = ctx.board().tracker; const ev = C.tickExchange(tr); if (ev.length) ctx.post(eventsCard(t("End of Exchange {n}", { n: tr.exchange }), ev)); B.nextExchange(tr); newTurn(tr); ctx.post(exchangeCard(tr)); ctx.changed(); },
     xFill: () => { fill(); ctx.changed(); },
     slotMove: el => { B.moveSlot(ctx.board().tracker, el.dataset.id, Number(el.dataset.delta)); ctx.changed(); },
     slotActed: el => { const tr = ctx.board().tracker; const s = B.toggleActed(tr, el.dataset.id); if (s?.acted && tr.active) newTurn(tr); ctx.changed(); },
+    condStep: el => { const s = ctx.board().tracker.slots.find(x => x.id === el.dataset.slot); if (s) { C.stepCondition(s, el.dataset.id, Number(el.dataset.delta)); ctx.changed(); } },
+    condRemove: el => { const s = ctx.board().tracker.slots.find(x => x.id === el.dataset.slot); if (s) { C.removeCondition(s, el.dataset.id); ctx.changed(); } },
+    condAdd: async el => {
+      const s = ctx.board().tracker.slots.find(x => x.id === el.dataset.slot); if (!s) return;
+      const opts = C.CONDITION_TYPES.map(k => `<option value="${k}">${esc(k === "custom" ? t("Other condition") : SIN_TEXT[C.CONDITIONS[k].sin].keyword)}</option>`).join("");
+      const r = await ctx.ask({ title: t("Add a condition to {name}", { name: s.name }), ok: t("Add"), wide: true,
+        body: `<div class="pm-row"><label>${esc(t("Condition"))}</label><select name="type">${opts}</select><label>${esc(t("Name"))}</label><input type="text" name="name" maxlength="30" placeholder="${esc(t("Stunned"))}" disabled></div>
+          <div class="pm-row"><label>${esc(t("Stacks"))}</label><input type="number" name="stacks" value="1" min="1" max="9"><label>${esc(t("Lasts (Exchanges)"))}</label><input type="number" name="rounds" min="0" max="12" placeholder="${esc(t("default"))}"></div>
+          <div class="pm-row"><label>${esc(t("Note"))}</label><input type="text" name="note" maxlength="80"></div>
+          <p class="pm-note rule"></p>`,
+        read: f => ({ type: f.elements.type.value, name: f.elements.name.value.trim(), stacks: f.elements.stacks.value, rounds: f.elements.rounds.value, note: f.elements.note.value.trim() }),
+        setup: f => {
+          const upd = () => { const k = f.elements.type.value; f.elements.name.disabled = k !== "custom"; f.querySelector(".rule").textContent = t(C.CONDITIONS[k].rule); };
+          f.elements.type.addEventListener("change", upd); upd();
+        } });
+      if (!r) return;
+      C.addCondition(s, r.type, r);
+      ctx.changed();
+    },
     timerToggle: () => { const T = timerOf(ctx.board().tracker); if (T.running) timerPause(T, ctx.clock.remaining(T)); else timerStart(T); ctx.clock.sync(T); ctx.changed(); },
     timerReset: () => { const T = timerOf(ctx.board().tracker); timerReset(T); ctx.clock.sync(T); ctx.changed(); },
     slotRemove: el => { B.removeSlot(ctx.board().tracker, el.dataset.id); ctx.changed(); },

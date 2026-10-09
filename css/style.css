@@ -357,3 +357,13 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .x-timer .tctl select { background: #22242e; color: #eceff4; border: 1px solid #3a3d4a; border-radius: 2px; padding: 4px 6px; font: 12px var(--pm-ui); }
 .x-timer .chk { font: 12px var(--pm-ui); color: #cfd6e6; display: inline-flex; align-items: center; gap: 4px; }
 @media (max-width: 820px) { .sound input[type=range] { display: none; } #timer-chip { max-width: 30vw; font-size: 13px; padding: 3px 7px; } }
+
+/* ================= conditions on the tracker ================= */
+.slot { flex-wrap: wrap; }
+.slot .conds { flex: 1 1 100%; display: flex; flex-wrap: wrap; gap: 4px; align-items: center; order: 5; }
+.cond { display: inline-flex; align-items: center; gap: 2px; background: color-mix(in srgb, var(--sc, #8d94a8) 28%, #14151b); border: 1px solid var(--sc, #8d94a8); border-radius: 2px; padding: 0 2px 0 7px; }
+.cond b { font: 800 12px var(--pm-head); letter-spacing: .08em; text-transform: uppercase; color: #fff; padding-right: 3px; }
+#pane-xchg .cond button { padding: 0 6px; border: none; background: transparent; line-height: 1.5; font-size: 13px; }
+#pane-xchg .cond button:hover { background: rgba(255,255,255,.15); }
+#pane-xchg button.condadd { padding: 1px 8px; border-style: dashed; color: #8d94a8; }
+.pm-conditions { border-left-color: #d63031; }
