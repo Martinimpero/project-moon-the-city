@@ -106,5 +106,10 @@ export const BOARD_ES = {
   "The words above are written in": "Las palabras de arriba están escritas en",
   "Optional. Cards that quote these words then read in each player's language.": "Opcional. Las tarjetas que citan estas palabras se leen entonces en el idioma de cada jugador.",
   "The same Acceptance in {lang} (optional; if empty, the same words show to everyone)": "La misma Aceptación en {lang} (opcional; si está vacía, todos ven las mismas palabras)",
+  "Click the map to point everyone to a spot": "Pulsa el mapa para señalar un punto a todos",
+  "Ping": "Señalar",
+  "Also centre everyone's view on the spot": "Centra también la vista de todos en ese punto",
+  "Look here": "Mirad aquí",
+  "The GM pinged the map": "El DJ ha señalado el mapa",
   "Red": "Rojo", "Orange": "Naranja", "Gold": "Dorado", "Green": "Verde", "Teal": "Turquesa", "Blue": "Azul", "Purple": "Morado", "White": "Blanco"
 };

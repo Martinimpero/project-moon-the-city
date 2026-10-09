@@ -79,6 +79,7 @@ export function createSfx({ AudioCtx = globalThis.AudioContext || globalThis.web
     bell: () => { const t = ctx.currentTime; [880, 1318.5].forEach((f, i) => tone(t + i * 0.01, f, 1.1, { gain: 0.14 / (i + 1), attack: 0.003 })); },
     handout: () => { const t = ctx.currentTime; click(t, 2600, 0.12, 0.08); click(t + 0.07, 3400, 0.1, 0.1); tone(t + 0.12, 659.25, 0.3, { gain: 0.1 }); },
     chat: () => { const t = ctx.currentTime; tone(t, 700, 0.08, { gain: 0.12, to: 1000 }); },
+    ping: () => { const t = ctx.currentTime; tone(t, 880, 0.5, { gain: 0.16, to: 1320, attack: 0.01 }); tone(t + 0.16, 1320, 0.6, { gain: 0.08, attack: 0.01 }); },
     tick: () => { click(ctx.currentTime, 1800, 0.22, 0.03); },
     alarm: () => { const t = ctx.currentTime; for (let i = 0; i < 3; i++) tone(t + i * 0.22, 440, 0.18, { type: "square", gain: 0.12, to: 400 }); },
     place: () => { click(ctx.currentTime, 900, 0.2, 0.04); }

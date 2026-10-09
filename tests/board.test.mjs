@@ -148,3 +148,43 @@ test("measuring counts the larger axis, so a diagonal square is one", () => {
   assert.equal(B.squaresBetween(m, { x: 0, y: 0 }, { x: 35, y: 0 }), 1);   // half a square rounds up to one
   assert.equal(B.squaresBetween(m, { x: 10, y: 10 }, { x: 10, y: 10 }), 0);
 });
+
+/* ---- map pings ---- */
+test("a ping stays on the map, belongs to that map, and fades", () => {
+  const m = B.newMap({ w: 2100, h: 1400, cell: 70 });
+  const p = B.makePing(m, 5000, -20, true, 1000);
+  assert.deepEqual([p.x, p.y, p.look, p.rev], [2100, 0, true, m.rev]);
+  assert.equal(B.makePing(m, NaN, 3), null); assert.equal(B.makePing(null, 1, 1), null);
+  assert.equal(B.pingAlive(p, 1000 + B.PING_MS - 1), true); assert.equal(B.pingAlive(p, 1000 + B.PING_MS), false);
+  assert.equal(B.pingFits(p, m), true);
+  assert.equal(B.pingFits(p, B.newMap({ w: 2100, h: 1400 })), false);          // another map: ignored
+  assert.equal(B.pingFits(p, null), false);
+});
+
+test("'look here' centres the view on the spot, keeps its zoom, and never leaves the map", () => {
+  const m = B.newMap({ w: 2100, h: 1400 });
+  assert.deepEqual(B.centreView({ x: 0, y: 0, w: 700, h: 400 }, m, 1000, 700), { w: 700, h: 400, x: 650, y: 500 });
+  assert.deepEqual(B.centreView({ x: 0, y: 0, w: 700, h: 400 }, m, 10, 10), { w: 700, h: 400, x: 0, y: 0 });          // clamped at the corner
+  assert.deepEqual(B.centreView({ x: 0, y: 0, w: 700, h: 400 }, m, 2100, 1400), { w: 700, h: 400, x: 1400, y: 1000 });
+  assert.deepEqual(B.centreView({ x: 0, y: 0, w: 9999, h: 9999 }, m, 5, 5), { w: 2100, h: 1400, x: 0, y: 0 });        // zoomed all the way out
+});
+
+test("room: only the host's ping goes out, and every player gets it", async () => {
+  const peers = new Map(); let n = 0;
+  class Em { constructor() { this.l = {}; } on(e, f) { (this.l[e] ??= []).push(f); } emit(e, ...a) { (this.l[e] ?? []).forEach(f => f(...a)); } }
+  class Conn extends Em { constructor(p) { super(); this.peer = p; } send(m) { const o = this.other; queueMicrotask(() => o.emit("data", JSON.parse(JSON.stringify(m)))); } close() { } }
+  class Peer extends Em {
+    constructor(id) { super(); this.id = id ?? `p${++n}`; queueMicrotask(() => { peers.set(this.id, this); this.emit("open", this.id); }); }
+    connect(t) { const m = new Conn(t); queueMicrotask(() => { const th = new Conn(this.id); m.other = th; th.other = m; peers.get(t).emit("connection", th); m.emit("open"); }); return m; }
+    destroy() { peers.delete(this.id); }
+  }
+  const got = { a: [], b: [] };
+  const gm = new Room({ Peer, handlers: { onLog() {} } });
+  const a = new Room({ Peer, handlers: { onLog() {}, onPing: p => got.a.push(p.id) } });
+  const b = new Room({ Peer, handlers: { onLog() {}, onPing: p => got.b.push(p.id) } });
+  await gm.host("PNG01", "GM"); await a.join("PNG01", "Ana"); await b.join("PNG01", "Ben");
+  const ping = B.makePing(B.newMap(), 100, 100, true);
+  gm.sendPing(ping); a.sendPing(ping);                                         // a player's call does nothing
+  await new Promise(r => setTimeout(r, 30));
+  assert.deepEqual(got, { a: [ping.id], b: [ping.id] });
+});

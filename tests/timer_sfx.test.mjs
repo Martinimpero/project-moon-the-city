@@ -101,7 +101,7 @@ function fakeAudio() {
 test("sound: every sound plays on a fake audio context; off and silent do nothing; no audio never throws", () => {
   const fa = fakeAudio();
   const sfx = createSfx({ AudioCtx: fa.Ctx, random: () => 0.5 });
-  for (const n of ["roll", "voice", "verdict", "bell", "handout", "chat", "tick", "alarm", "place"]) assert.equal(sfx.play(n, { band: "success", loud: true }), true, n);
+  for (const n of ["roll", "voice", "verdict", "bell", "handout", "chat", "tick", "alarm", "place", "ping"]) assert.equal(sfx.play(n, { band: "success", loud: true }), true, n);
   for (const band of ["critical", "success", "partial", "failure", "criticalFailure"]) assert.equal(sfx.play("roll", { band }), true, band);
   assert.equal(sfx.play("roll", { band: "success", hail: true }), true);
   assert.ok(fa.made.osc > 10 && fa.made.src > 10);

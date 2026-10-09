@@ -15,7 +15,9 @@ export function createBoardUI(ctx) {
   let view = null;               // {x, y, w, h}: the visible part of the map, in image pixels (local to this browser)
   let viewKey = "";
   let sel = "";                  // selected token id
-  let tool = "";                 // "" (pan), "measure", "reveal" or "cover"
+  let tool = "";                 // "" (pan), "measure", "ping", "reveal" or "cover"
+  let look = false;              // a ping also centres everyone's view
+  const pings = [];              // the pings on this map right now (short-lived)
   let radius = 3;                // squares revealed around a token
   const $ = ctx.$;
 
@@ -158,7 +160,8 @@ export function createBoardUI(ctx) {
       <button type="button" data-action="fogAll" data-v="1">${esc(t("Reveal all"))}</button><button type="button" data-action="fogAll" data-v="0">${esc(t("Cover all"))}</button>
       <button type="button" data-action="fogAround" ${sel && map.tokens.some(x => x.id === sel) ? "" : "disabled"} title="${esc(t("Reveal the squares around the selected token"))}">${esc(t("Around token"))}</button>
       <input type="number" id="m-rad" value="${radius}" min="1" max="12" title="${esc(t("Squares"))}">` : ""}</div>` : "";
-    const bar = gm ? `<div class="m-bar"><select id="m-pick">${options}</select>${map ? measureBtn : ""}
+    const pingBtn = `<button type="button" data-action="toolSet" data-tool="ping" class="${tool === "ping" ? "on" : ""}" title="${esc(t("Click the map to point everyone to a spot"))}">${esc(t("Ping"))}</button><label class="chk" title="${esc(t("Also centre everyone's view on the spot"))}"><input type="checkbox" id="m-look" ${look ? "checked" : ""}> ${esc(t("Look here"))}</label>`;
+    const bar = gm ? `<div class="m-bar"><select id="m-pick">${options}</select>${map ? measureBtn + pingBtn : ""}
       ${map ? `<label class="chk"><input type="checkbox" id="m-grid" ${map.grid ? "checked" : ""}> ${esc(t("Grid"))}</label><label class="chk"><input type="checkbox" id="m-snap" ${map.snap ? "checked" : ""}> ${esc(t("Snap"))}</label>
       <label class="chk">${esc(t("Square"))} <input type="number" id="m-cell" value="${map.cell}" min="10" max="400" step="1"></label>
       <button type="button" data-action="tokenAdd">+ ${esc(t("Token"))}</button>
@@ -180,7 +183,7 @@ export function createBoardUI(ctx) {
         <text class="lbl" y="${rr + 26}" font-size="22" text-anchor="middle">${esc(tk.name)}</text></g>`;
     }).join("");
     const svg = `<svg id="mapsvg" viewBox="${view.x} ${view.y} ${view.w} ${view.h}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
-      <rect width="${map.w}" height="${map.h}" fill="#20222a"/>${src ? `<image href="${esc(src)}" width="${map.w}" height="${map.h}"/>` : `<text x="${map.w / 2}" y="${map.h / 2}" fill="#9aa3b5" font-size="40" text-anchor="middle">${esc(t("Loading the map..."))}</text>`}${grid}${fogSvg(map, gm)}${tokens}</svg>`;
+      <rect width="${map.w}" height="${map.h}" fill="#20222a"/>${src ? `<image href="${esc(src)}" width="${map.w}" height="${map.h}"/>` : `<text x="${map.w / 2}" y="${map.h / 2}" fill="#9aa3b5" font-size="40" text-anchor="middle">${esc(t("Loading the map..."))}</text>`}${grid}${fogSvg(map, gm)}${tokens}${pingsSvg(map)}</svg>`;
     const zoom = `<div class="m-zoom"><button type="button" data-action="mapZoom" data-f="0.8">+</button><button type="button" data-action="mapZoom" data-f="1.25">&minus;</button><button type="button" data-action="mapFit">${esc(t("Fit"))}</button></div>`;
     const note = map.name ? `<div class="m-name">${esc(map.name)}</div>` : "";
     return `${bars}<div class="m-stage ${tool ? "tool-" + tool : ""}">${svg}${zoom}${note}</div>`;
@@ -191,6 +194,42 @@ export function createBoardUI(ctx) {
     if (!map.fog?.on) return "";
     const d = B.fogRects(map.fog).map(([x, y, w, h]) => `M${x} ${y}h${w}v${h}h${-w}z`).join("");
     return `<path class="fog" d="${d}" fill="#05060a" fill-opacity="${gm ? 0.6 : 1}" pointer-events="none"/>`;
+  }
+
+  /* ---- pings ---- */
+  const pingGroup = (p, map) => {
+    const r = (map.cell > 0 ? map.cell : 70) * 1.2, age = Math.max(0, Date.now() - p.at);
+    const ring = n => `<circle r="${r}" style="animation-delay:${n * 380 - age}ms"/>`;
+    return `<g class="ping" data-ping="${p.id}" transform="translate(${p.x} ${p.y})" pointer-events="none">${ring(0)}${ring(1)}${ring(2)}<circle class="dot" r="${r * 0.16}"/></g>`;
+  };
+  function pingsSvg(map) {
+    const now = Date.now();
+    for (let i = pings.length - 1; i >= 0; i--) if (!B.pingAlive(pings[i], now)) pings.splice(i, 1);
+    return pings.filter(p => B.pingFits(p, map)).map(p => pingGroup(p, map)).join("");
+  }
+  /** Show a ping (the GM's own, or one that arrived). A "look here" ping also centres the view, and for a player brings the map up. */
+  function showPing(p, { remote = false } = {}) {
+    const map = ctx.board().map;
+    if (!B.pingFits(p, map)) return;
+    pings.push(p);
+    ctx.sfx("ping");
+    if (p.look && view) view = B.centreView(view, map, p.x, p.y);
+    if (remote) { ctx.toast(t("The GM pinged the map")); if (p.look) ctx.showMap(); }
+    const svg = $("#mapsvg");
+    if (svg && !(p.look && view)) {
+      const tmp = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      tmp.innerHTML = pingGroup(p, map);
+      svg.appendChild(tmp.firstElementChild);
+    } else if (svg) { ctx.redrawMap(); }
+    setTimeout(() => { svg?.querySelector(`[data-ping="${p.id}"]`)?.remove(); }, B.PING_MS);
+  }
+  /** The GM clicks the map with the Ping tool. */
+  function sendPing(x, y) {
+    const map = ctx.board().map;
+    const p = B.makePing(map, x, y, look);
+    if (!p) return;
+    showPing(p);
+    ctx.sendPing(p);
   }
 
   /* ---- pointer interaction ---- */
@@ -209,6 +248,7 @@ export function createBoardUI(ctx) {
     const map = ctx.board().map;
     let drag = null;
     svg.addEventListener("pointerdown", e => {
+      if (tool === "ping" && ctx.isGM()) { const p = svgPoint(svg, e); sendPing(p.x, p.y); e.preventDefault(); return; }
       const g = e.target.closest(".tk");
       if (g) {
         const tk = map.tokens.find(x => x.id === g.dataset.id);
@@ -365,6 +405,7 @@ export function createBoardUI(ctx) {
     } else if (el.id === "m-grid") { ctx.board().map.grid = el.checked; ctx.changed(); }
     else if (el.id === "m-fog") { const m = ctx.board().map; if (!m.fog) m.fog = B.newFog(m); m.fog.on = el.checked; if (!el.checked && (tool === "reveal" || tool === "cover")) tool = ""; ctx.changed(); }
     else if (el.id === "m-rad") { radius = Math.max(1, Math.min(12, Number(el.value) || 3)); }
+    else if (el.id === "m-look") { look = el.checked; }
     else if (el.id === "m-snap") { ctx.board().map.snap = el.checked; ctx.changed(); }
     else if (el.id === "m-cell") { ctx.board().map.cell = Math.max(10, Math.min(400, Number(el.value) || 70)); ctx.changed(); }
   }
@@ -381,7 +422,7 @@ export function createBoardUI(ctx) {
     actions,
     renderTracker: () => { $("#pane-xchg").innerHTML = trackerHtml(); },
     renderMap: () => { $("#pane-map").innerHTML = mapHtml(); attach(); },
-    onChange, onUpload,
+    onChange, onUpload, showPing,
     resetView: () => { view = null; sel = ""; }
   };
 }

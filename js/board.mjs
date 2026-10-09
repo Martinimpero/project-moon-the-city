@@ -139,3 +139,20 @@ export async function shrinkImage(file, max = 1800, quality = 0.8) {
   canvas.getContext("2d").drawImage(bmp, 0, 0, w, h);
   return { src: canvas.toDataURL("image/jpeg", quality), w, h };
 }
+
+/* ---- map pings: a short-lived pulse the GM puts on the map for everyone to look at ---- */
+
+export const PING_MS = 3800;
+/** A ping at image coordinates, kept on the map. `look` also asks everyone's view to centre there. `rev` is the map it belongs to. */
+export function makePing(map, x, y, look = false, now = Date.now()) {
+  if (!map || !Number.isFinite(x) || !Number.isFinite(y)) return null;
+  return { id: uid(), rev: map.rev, x: Math.max(0, Math.min(map.w, x)), y: Math.max(0, Math.min(map.h, y)), look: !!look, at: now };
+}
+export const pingAlive = (p, now = Date.now()) => now - p.at < PING_MS;
+/** A ping that arrived from the GM is only for the map the viewer has. */
+export const pingFits = (p, map) => !!map && p.rev === map.rev;
+/** The view (x, y, w, h) re-centred on a point, keeping its size and staying on the map. */
+export function centreView(view, map, x, y) {
+  const w = Math.min(view.w, map.w), h = Math.min(view.h, map.h);
+  return { w, h, x: Math.max(0, Math.min(map.w - w, x - w / 2)), y: Math.max(0, Math.min(map.h - h, y - h / 2)) };
+}

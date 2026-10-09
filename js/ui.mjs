@@ -81,6 +81,9 @@ const boardUI = createBoardUI({
   changed: () => { persist(); renderBoard(); if (room?.role === "host") room.sendBoard(); },
   sendBoard: () => { if (room?.role === "host") room.sendBoard(); },
   redrawMap: () => renderBoard(),
+  sendPing: p => { if (room?.role === "host") room.sendPing(p); },
+  sfx: name => sfx.play(name),
+  showMap: () => { rtab = "map"; view = "log"; render(); },
   setMap: m => { state.map = m; },
   post: html => post(html), ask: o => ask(o), toast: m => toast(m)
 });
@@ -106,6 +109,7 @@ const handlers = {
     E.setPenalty(a, value); refresh(a); persist(); render();
   },
   onScene: () => { state.actors.filter(x => x.type === "character").forEach(E.newScene); persist(); render(); toast(t("The GM started a new scene.")); },
+  onPing: p => boardUI.showPing(p, { remote: true }),
   onBoard: b => { if (dragging()) return; remoteBoard.tracker = b.tracker; remoteBoard.map = b.map; clock.sync(timerOf(b.tracker)); renderBoard(); },
   onMapImg: (rev, src) => { remoteBoard.image = { rev, src }; renderBoard(); },
   onToken: (pid, id, x, y) => {

@@ -391,3 +391,10 @@ html[lang="es"] [data-bi2] > [lang="en"], html[lang="en"] [data-bi2] > [lang="es
 /* the character's words in the other language */
 details.altlang { margin: 8px 0 4px; border: 1px dashed var(--pm-rule); padding: 4px 10px 8px; background: rgba(255,255,255,.3); }
 details.altlang summary { cursor: pointer; font: 700 11px var(--pm-head); letter-spacing: .14em; text-transform: uppercase; color: var(--pm-red); padding: 3px 0; }
+
+/* ================= map pings ================= */
+#mapsvg .ping circle { fill: none; stroke: #c9a227; stroke-width: 7; transform-origin: 0 0; opacity: 0; animation: pingring 1.1s ease-out 3 both; }
+#mapsvg .ping circle.dot { fill: #fff; stroke: #c9a227; stroke-width: 4; animation: pingdot 3.4s ease-out 1 both; }
+@keyframes pingring { 0% { transform: scale(.15); opacity: 1; } 100% { transform: scale(1.5); opacity: 0; } }
+@keyframes pingdot { 0% { opacity: 1; } 85% { opacity: 1; } 100% { opacity: 0; } }
+.m-stage.tool-ping #mapsvg { cursor: crosshair; }
