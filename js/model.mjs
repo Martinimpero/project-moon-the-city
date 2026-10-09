@@ -25,6 +25,7 @@ export function characterDefaults() {
   return {
     concept: "", identity: "", occupation: "", affiliation: "", background: "",
     burden: "", fear: "", boundary: "", vice: "", desire: "", principle: "", ambition: "",
+    lang: "en", alt: { burden: "", fear: "", boundary: "" },       // the words above are in `lang`; `alt` has the three the Voice and Verdict quote, in the other language
     attributes: Object.fromEntries(R.ATTRIBUTES.map(a => [a, 1])),
     skills: Object.fromEntries(R.SKILLS.map(s => [s, 0])),
     ego: { value: 2, max: 2 }, stress: 1, harm: 0, broken: 0, resources: 2, grade: 9,

@@ -102,5 +102,9 @@ export const BOARD_ES = {
   "{name} takes Hurt.": "{name} sufre Golpeado.",
   "Harm becomes at least Hurt": "El Daño pasa a ser al menos Golpeado",
   "{name} burns, but Harm is already {harm}: no change.": "{name} arde, pero el Daño ya es {harm}: sin cambios.",
+  "The same words in {lang} (for the Voice and the Verdict)": "Las mismas palabras en {lang} (para la Voz y el Veredicto)",
+  "The words above are written in": "Las palabras de arriba están escritas en",
+  "Optional. Cards that quote these words then read in each player's language.": "Opcional. Las tarjetas que citan estas palabras se leen entonces en el idioma de cada jugador.",
+  "The same Acceptance in {lang} (optional; if empty, the same words show to everyone)": "La misma Aceptación en {lang} (opcional; si está vacía, todos ven las mismas palabras)",
   "Red": "Rojo", "Orange": "Naranja", "Gold": "Dorado", "Green": "Verde", "Teal": "Turquesa", "Blue": "Azul", "Purple": "Morado", "White": "Blanco"
 };

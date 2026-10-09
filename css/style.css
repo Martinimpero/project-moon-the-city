@@ -387,3 +387,7 @@ html[lang="es"] [data-bi] [lang="en"], html[lang="en"] [data-bi] [lang="es"] { d
 
 /* a log card built in both languages (data-bi2 wraps an English and a Spanish copy): show the reader's */
 html[lang="es"] [data-bi2] > [lang="en"], html[lang="en"] [data-bi2] > [lang="es"] { display: none; }
+
+/* the character's words in the other language */
+details.altlang { margin: 8px 0 4px; border: 1px dashed var(--pm-rule); padding: 4px 10px 8px; background: rgba(255,255,255,.3); }
+details.altlang summary { cursor: pointer; font: 700 11px var(--pm-head); letter-spacing: .14em; text-transform: uppercase; color: var(--pm-red); padding: 3px 0; }

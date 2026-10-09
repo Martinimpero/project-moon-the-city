@@ -70,8 +70,12 @@ export function importPregens() {
   const added = [];
   for (const p of PREGENS) {
     if (state.actors.some(a => a.name === p.name || a.name === p.name)) continue;
-    const es = state.lang === "es" ? PREGENS_ES.find(x => x.name === p.name) : null;
-    const actor = newActor("character", p.name, es ? { ...p.system, ...es.text } : p.system, es ? es.items : p.items);
+    const esData = PREGENS_ES.find(x => x.name === p.name);
+    const es = state.lang === "es" ? esData : null;
+    // the words the Voice and Verdict quote are kept in both languages: `lang` is the main one, `alt` the other
+    const pickWords = o => ({ burden: o?.burden ?? "", fear: o?.fear ?? "", boundary: o?.boundary ?? "" });
+    const base = es ? { ...p.system, ...es.text, lang: "es", alt: pickWords(p.system) } : { ...p.system, lang: "en", alt: pickWords(esData?.text) };
+    const actor = newActor("character", p.name, base, es ? es.items : p.items);
     refresh(actor);
     addActor(actor);
     added.push(p.name);

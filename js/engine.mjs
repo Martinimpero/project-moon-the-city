@@ -5,7 +5,7 @@
  */
 import * as R from "./rules.mjs";
 import { SIN_LABEL, SKILL_LABEL, ATTRIBUTE_LABEL, SIN_TEXT, SIGNATURE, BOND_TYPE_LABEL } from "./config.mjs";
-import { verdictCandidates, verdictCardHtml, flashpointShape, voiceText } from "./voice.mjs";
+import { verdictCandidates, verdictCardHtml, flashpointShape, voiceText, bothSides } from "./voice.mjs";
 import { t, tNow, localized } from "./i18n.mjs";
 import { refresh, newItem, gearOf, bondsOf } from "./model.mjs";
 
@@ -61,7 +61,7 @@ export function voiceTransition(before, actor) {
 export function voiceCardHtml(actor, level) {
   const v = voiceText({ ...actor.system, alignment: actor.derived.alignment }, level);
   return `<div class="pm-card pm-voicecard ${v.loud ? "loud" : ""}"><div class="pm-card-head">${esc(actor.name)} &middot; ${esc(t("The Voice"))}</div>
-    <div class="pm-notes"><p class="pm-voice">${esc(v.player)}</p><p class="hint"><b>GM:</b> ${esc(v.gm)}</p></div></div>`;
+    <div class="pm-notes"><p class="pm-voice">${esc(v.player)}</p><p class="hint"><b>${esc(t("GM"))}:</b> ${esc(v.gm)}</p></div></div>`;
 }
 
 /* ------------------------------------------------------------------ the roll */
@@ -224,9 +224,9 @@ export function hailMary(actor, input, rng = defaultRng()) {
   const s = actor.system, d = actor.derived;
   if (input.dig && d.egoCurrent < 2) return { error: t("Digging deep needs at least 2 E.G.O.") };
   const before = { ...d };
-  const acceptance = String(input.acceptance ?? "").trim();
-  const accepted = acceptance.length > 0;
-  const verdictHtml = verdictCardHtml(actor.name, String(input.verdict ?? "").trim(), acceptance, d.alignment);
+  const acceptance = bothSides(input.acceptance);                 // each of these is a string or { en, es }
+  const accepted = acceptance.en.length > 0;
+  const verdictHtml = verdictCardHtml(actor.name, input.verdict, input.acceptance, d.alignment);
 
   const difficulty = R.hailMaryDifficulty({ base: Number(input.base) || 2, digDeep: !!input.dig, fraying: d.fraying, drastic: !!input.drastic });
   const pool = Math.max(0, s.attributes.resolve + (s.skills[input.skill] ?? 0) + (input.bond ? 1 : 0) - s.broken - d.harmPenalty);
@@ -238,7 +238,7 @@ export function hailMary(actor, input, rng = defaultRng()) {
   else if (band === "success" || band === "critical") notes.push(esc(t("The denial holds: the Verdict is answered.")));
   if (band === "partial" && accepted) notes.push(esc(t("Half-believing the Verdict.")));
   if (band === "failure" || band === "criticalFailure") notes.push(esc(t("The Verdict is louder than they are.")));
-  if (!input.desire) notes.push(`<b>GM:</b> ${esc(t("no sincere Desire is on the line, so this may not be a Hail Mary moment (Part IV §4). It can't be a tragedy the character already thought they deserved."))}`);
+  if (!input.desire) notes.push(`<b>${esc(t("GM"))}:</b> ${esc(t("no sincere Desire is on the line, so this may not be a Hail Mary moment (Part IV §4). It can't be a tragedy the character already thought they deserved."))}`);
   const stressGain = band === "critical" || band === "success" ? 1 : 2;
   s.stress = Math.min(5, s.stress + stressGain);
   if (input.dig) s.ego.value = 0;

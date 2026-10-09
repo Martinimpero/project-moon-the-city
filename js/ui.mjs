@@ -341,6 +341,11 @@ function characterTab(a, tab) {
       <label>${esc(t("Vice"))} <span class="inline-row">${txt("system.vice", s.vice)}<button type="button" data-action="invokeVice" title="${esc(t("+1 E.G.O., once per scene, inside the refund cap"))}">${esc(t("Invoke"))}</button></span></label>
       <label>${esc(t("Desire"))} ${txt("system.desire", s.desire)}</label><label>${esc(t("Principle"))} ${txt("system.principle", s.principle)}</label><label>${esc(t("Ambition"))} ${txt("system.ambition", s.ambition)}</label>
       <label>${esc(t("Broken Boundaries"))} ${num("system.broken", s.broken, 0, 3)}</label><label>${esc(t("Scars"))} ${txt("system.scars", s.scars)}</label></div>
+      <details class="altlang"><summary>${esc(t("The same words in {lang} (for the Voice and the Verdict)", { lang: H.LANG_NAME[H.otherLang(s.lang)] }))}</summary>
+        <div class="pm-grid2"><label>${esc(t("The words above are written in"))} <select data-path="system.lang">${opts({ en: H.LANG_NAME.en, es: H.LANG_NAME.es }, s.lang)}</select></label>
+          <label class="wide">${esc(t("Burden"))} <textarea data-path="system.alt.burden" rows="2">${esc(s.alt.burden)}</textarea></label>
+          <label>${esc(t("Fear"))} ${txt("system.alt.fear", s.alt.fear)}</label><label>${esc(t("Boundary"))} ${txt("system.alt.boundary", s.alt.boundary)}</label></div>
+        <p class="hint">${esc(t("Optional. Cards that quote these words then read in each player's language."))}</p></details>
       <h3>${esc(t("Traumas"))} <button type="button" data-action="createItem" data-type="trauma">${esc(t("Add"))}</button></h3>
       <ul class="pm-list">${tr.map(item).join("") || `<li class="hint">${esc(t("No Traumas yet."))}</li>`}</ul>`;
   }
@@ -547,11 +552,16 @@ function useUpConditions(actorId, types) {
 function flashLog() { const el = $("#log"); el.classList.remove("ping"); void el.offsetWidth; el.classList.add("ping"); }
 
 async function doHailMary(actor) {
-  const c = verdictCandidates({ ...actor.system, alignment: actor.derived.alignment });
+  // the starting Verdicts, written out in each language
+  const cands = bi(() => verdictCandidates({ ...actor.system, alignment: actor.derived.alignment }));
+  const cEn = cands.map(x => expandMarkers(x, "en")), cEs = cands.map(x => expandMarkers(x, "es"));
+  const c = state.lang === "es" ? cEs : cEn;
   const body = `<p>${t("The Voice becomes the <b>Verdict</b>: what the Wound has always said about this character, in the words of their Fear and in {sin}'s voice. The GM speaks it (edit it freely). The player answers with the <b>Acceptance</b>: who the character is underneath.", { sin: esc(SIN_LABEL[actor.derived.alignment] ?? t("their Sin")) })}</p>
-    <div class="pm-row"><label class="full">${esc(t("Verdict"))}</label><textarea name="verdict" rows="3">${esc(c[0] ?? "")}</textarea></div>
+    <div class="pm-row"><label class="full">${esc(t("Verdict"))} (English)</label><textarea name="verdictEn" rows="3">${esc(cEn[0] ?? "")}</textarea></div>
+    <div class="pm-row"><label class="full">${esc(t("Verdict"))} (Español)</label><textarea name="verdictEs" rows="3">${esc(cEs[0] ?? "")}</textarea></div>
     ${c.length > 1 ? `<p class="pm-note">${esc(t("Other starting points:"))} ${c.slice(1).map(x => `&ldquo;${esc(x)}&rdquo;`).join(" / ")}</p>` : ""}
-    <div class="pm-row"><label class="full">${esc(t("Acceptance (the player's answer, in their own words)"))}</label><textarea name="acceptance" rows="2"></textarea></div>
+    <div class="pm-row"><label class="full">${esc(t("Acceptance (the player's answer, in their own words)"))} (${state.lang === "es" ? "Español" : "English"})</label><textarea name="acceptance" rows="2"></textarea></div>
+    <div class="pm-row"><label class="full">${esc(t("The same Acceptance in {lang} (optional; if empty, the same words show to everyone)", { lang: state.lang === "es" ? "English" : "Español" }))}</label><textarea name="acceptanceAlt" rows="2"></textarea></div>
     <div class="pm-row"><label>${esc(t("Skill"))}</label><select name="skill">${opts(SKILL_LABEL, "empathy")}</select><label>${esc(t("Base Difficulty"))}</label><select name="base"><option value="2">2</option><option value="3">3</option></select></div>
     <div class="pm-row"><label class="chk"><input type="checkbox" name="desire" checked> ${esc(t("A sincere Desire is on the line (the Boundary now contradicts it)"))}</label></div>
     <div class="pm-row"><label class="chk"><input type="checkbox" name="dig"> ${esc(t("Dig deep (spend all E.G.O., +1 Difficulty; needs 2+)"))}</label></div>
@@ -560,7 +570,7 @@ async function doHailMary(actor) {
     <p class="pm-note">${esc(t("Leave the Acceptance empty if the player can't or won't say it: a Success then becomes a Partial Distortion."))}</p>`;
   const input = await ask({
     title: t("Hail Mary: {name}", { name: actor.name }), body, ok: t("Speak the Verdict and roll"), wide: true,
-    read: f => ({ verdict: f.elements.verdict.value, acceptance: f.elements.acceptance.value, skill: f.elements.skill.value, base: Number(f.elements.base.value), desire: f.elements.desire.checked, dig: f.elements.dig.checked, drastic: f.elements.drastic.checked, bond: f.elements.bond.checked })
+    read: f => ({ verdict: { en: f.elements.verdictEn.value, es: f.elements.verdictEs.value }, acceptance: state.lang === "es" ? { es: f.elements.acceptance.value, en: f.elements.acceptanceAlt.value } : { en: f.elements.acceptance.value, es: f.elements.acceptanceAlt.value }, skill: f.elements.skill.value, base: Number(f.elements.base.value), desire: f.elements.desire.checked, dig: f.elements.dig.checked, drastic: f.elements.drastic.checked, bond: f.elements.bond.checked })
   });
   if (!input) return;
   const before = { ...actor.derived };

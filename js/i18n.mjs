@@ -49,6 +49,15 @@ export function t(key, data) {
   }
   return fill(isSpanish() ? (ES[key] ?? key) : key, data);
 }
+/**
+ * Text that exists in both languages already (a handout, a character's Fear written twice): inside a bilingual card it becomes a marker
+ * carrying both, anywhere else it is whichever suits the app's language.
+ */
+export function pair(en, es) {
+  if (!es || es === en) return en;
+  if (!en) return es;
+  return bilingualDepth > 0 ? `\u0001${en}\u0002${es}\u0003` : (isSpanish() ? es : en);
+}
 /** Like t(), but always one language (the app's), even inside a bilingual card: for text that is stored, such as an item's name. */
 export function tNow(key, data) {
   return fill(isSpanish() ? (ES[key] ?? key) : key, data);
