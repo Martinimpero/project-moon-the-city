@@ -14,14 +14,14 @@
    "ref": "sorel",
    "name": "Clerk Sorel",
    "system": {
-    "concept": "Clerk, Gantry & Sons (Office)",
+    "concept": "Clerk Anwen Sorel, The Ninth Registry (Office)",
     "grade": 9,
     "isGroup": false,
     "alignment": "gloom",
-    "want": "Keep the Office's quota books balanced so nobody looks at the cuts.",
-    "bondHook": "Obligation from the PC side (the PCs need his sign-off); a Trust Bond can grow if they cover for a late filing.",
-    "detail": "Always has ink on his left cuff and never says a client's real name aloud.",
-    "notes": ""
+    "want": "To feel like her job matters to someone.",
+    "bondHook": "Affection, forming from the PC's side first, if they treat her like a person. The PCs also need her sign-off (Obligation from their side); a Trust Bond can grow if they cover for a late filing.",
+    "detail": "She narrates every stamp she applies under her breath, like a small ritual.",
+    "notes": "Use: She hands over the Contract in Session 01 and mentions the Registry's cut. For anyone who treats her like a person instead of an obstacle, she will quietly round a job up to a better Risk tier."
    }
   },
   {
@@ -372,7 +372,7 @@
   },
   {
    "title": "S01 Scene 1. The briefing - Fixer Office",
-   "text": "Map: Fixer_Office_Small_Storefront.png\n- Clerk Sorel hands over the Contract and mentions the Office's cut. The Stranger arrives.\n- Social Conflict: negotiate the Complication Clause (Presence + Persuasion against the Stranger's Presence + Deception 4). State the stakes first (Social Conflict): full = Heat shared; partial = Heat shared, payment cut; failure = all Heat on the crew.\n- Curveballs (pick one or two): Empathy to read what the Stranger is hiding; Investigation for the fine print; Corporate Knowledge: the crate has a Halcyon stamp (Lena)."
+   "text": "Map: Fixer_Office_Small_Storefront.png\n- Clerk Sorel (The Ninth Registry's clerk) hands over the Contract and mentions the Registry's 30% cut. The Stranger arrives.\n- Social Conflict: negotiate the Complication Clause (Presence + Persuasion against the Stranger's Presence + Deception 4). State the stakes first (Social Conflict): full = Heat shared; partial = Heat shared, payment cut; failure = all Heat on the crew.\n- Curveballs (pick one or two): Empathy to read what the Stranger is hiding; Investigation for the fine print; Corporate Knowledge: the crate has a Halcyon stamp (Lena)."
   },
   {
    "title": "S01 Scene 2. The Row - Threadmill Row",
