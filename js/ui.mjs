@@ -113,6 +113,12 @@ const handlers = {
     B.moveToken(map, id, x, y); persist(); renderBoard(); room.sendBoard();
   },
   hostBoard: () => { const T = timerOf(state.tracker); return { tracker: { ...state.tracker, timer: { ...T, left: T.running ? Math.ceil(clock.remaining(T)) : T.left } }, map: B.mapForPlayers(state.map), mapImage: state.map && !state.map.bundled && state.map.src ? { rev: state.map.rev, src: state.map.src } : null  }; },
+  onHarm: (actorId, delta) => {
+    const a = S.byId(actorId);
+    if (!a || a.type !== "character" || delta < 1) return;
+    mutate(a, () => { a.system.harm = C.hurtResult(a.system.harm + delta - 1).harm; });
+    toast(t("{name} takes Hurt: Harm is now {harm}.", { name: a.name, harm: HARM_LABEL[a.system.harm] }));
+  },
   onCond: (pid, actorId, types) => {
     // a player's roll used these up: Sinking on anyone it was rolled against or on, Poise only on their own characters
     const peer = room?.peers.get(pid);
@@ -177,6 +183,7 @@ const confirmDlg = (title, message, ok = t("OK")) => ask({ title, body: `<p>${me
 
 export function render() {
   document.documentElement.lang = state.lang;
+  document.body.classList.toggle("is-gm", isGM());
   document.body.dataset.view = view;
   renderChrome();
   renderSidebar();
@@ -633,8 +640,22 @@ async function doDowntime(actors, crew) {
 
 /* ------------------------------------------------------------------ click actions */
 
-const READONLY_OK = new Set(["rtab", "sound", "timerGo", ...Object.keys(boardUI.actions), ...Object.keys(handoutUI.actions), "view", "select", "selectRemote", "tab", "newCharacter", "newNpc", "newCrew", "pregens", "lang", "export", "import", "help", "room", "clearLog", "downtimeAll", "newSceneAll"]);
+const READONLY_OK = new Set(["applyHurt", "rtab", "sound", "timerGo", ...Object.keys(boardUI.actions), ...Object.keys(handoutUI.actions), "view", "select", "selectRemote", "tab", "newCharacter", "newNpc", "newCrew", "pregens", "lang", "export", "import", "help", "room", "clearLog", "downtimeAll", "newSceneAll"]);
 const actions = {
+  applyHurt: async el => {
+    if (!isGM()) return;
+    const slot = state.tracker.slots.find(s => s.id === el.dataset.slot);
+    if (!slot) return toast(t("That combatant is no longer in the order."));
+    if (!C.takeHurtDue(slot)) return toast(t("No Hurt is waiting for {name}.", { name: slot.name }));
+    const actor = slot.actorId ? findActor(slot.actorId) : null;
+    const res = actor ? C.hurtResult(actor.system.harm) : null;
+    if (res?.reachesMaimed && !(await confirmDlg(t("Maimed / Dying"), t("{name} is Wounded. One more Hurt puts them at Maimed / Dying, out of the scene. Apply it?", { name: slot.name }), t("Apply Hurt")))) { slot.hurtDue += 1; return; }
+    if (!actor) toast(t("{name} has no sheet here. Mark the Harm yourself.", { name: slot.name }));
+    else if (actor.remote) { if (!room.sendHarm(actor.id, 1)) { slot.hurtDue += 1; return toast(t("Could not reach {name}'s player.", { name: actor.name })); } }
+    else mutate(actor, () => { actor.system.harm = res.harm; });
+    post(`<div class="pm-card pm-conditions"><div class="pm-card-head">${esc(slot.name)}</div><div class="pm-notes"><p>${esc(actor ? t("{name} takes Hurt: Harm is now {harm}.", { name: slot.name, harm: HARM_LABEL[res.harm] }) : t("{name} takes Hurt.", { name: slot.name }))}</p></div></div>`);
+    persist(); renderBoard(); if (room?.role === "host") room.sendBoard();
+  },
   sound: () => { state.sound.on = !state.sound.on; sfx.settings.on = state.sound.on; persist(); renderChrome(); sfx.play("place"); },
   timerGo: () => { rtab = "xchg"; view = "log"; render(); },
   ...boardUI.actions,

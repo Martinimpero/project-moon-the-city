@@ -65,6 +65,7 @@ export function tickExchange(tracker) {
     for (const cond of [...conditionsOf(slot)]) {
       if (cond.type === "burn") {
         events.push({ slot, cond: { ...cond }, kind: "hurt" });
+        slot.hurtDue = (slot.hurtDue || 0) + 1;                       // waiting for the GM's one-click Apply Hurt
         cond.rounds -= 1;
         if (cond.rounds <= 0) { removeCondition(slot, cond.id); events.push({ slot, cond: { ...cond }, kind: "fade" }); }
       } else if (cond.type === "tremor") {
@@ -105,4 +106,22 @@ export function clearForActor(tracker, actorId, types) {
   const before = conditionsOf(slot).length;
   slot.conditions = conditionsOf(slot).filter(c => !types.includes(c.type));
   return slot.conditions.length !== before;
+}
+
+/* ---- applying Hurt ---- */
+
+/**
+ * One Hurt, taken: "A landed hit advances Harm one tier" (Part VI §2), so Hurt advances Harm one tier, to a top of 4 (Maimed / Dying).
+ * Returns { harm, from, reachesMaimed } for a given current tier.
+ */
+export function hurtResult(currentHarm) {
+  const from = Math.max(0, Math.min(4, Math.floor(Number(currentHarm) || 0)));
+  const harm = Math.min(4, from + 1);
+  return { from, harm, reachesMaimed: harm === 4 && from < 4 };
+}
+/** Use up one waiting Hurt on a slot. Returns false if none was waiting. */
+export function takeHurtDue(slot) {
+  if (!(slot.hurtDue > 0)) return false;
+  slot.hurtDue -= 1;
+  return true;
 }

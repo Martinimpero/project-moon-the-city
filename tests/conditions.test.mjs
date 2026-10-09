@@ -171,3 +171,52 @@ test("room: a player's used-up conditions reach the host", async () => {
   await new Promise(r => setTimeout(r, 20));
   assert.deepEqual(got, [["a1", ["sinking", "poise"]]]);
 });
+
+/* ---- Apply Hurt ---- */
+test("Burn leaves one Hurt waiting per Exchange, and taking them is counted", () => {
+  const tr = B.newTracker(); const s = B.addSlot(tr, { name: "Dax", kind: "pc", actorId: "d1" });
+  C.addCondition(s, "burn");
+  C.tickExchange(tr); C.tickExchange(tr);
+  assert.equal(s.hurtDue, 2);
+  assert.equal(C.takeHurtDue(s), true); assert.equal(C.takeHurtDue(s), true); assert.equal(C.takeHurtDue(s), false);
+  assert.equal(s.hurtDue, 0);
+});
+
+test("a Hurt advances Harm one tier, to a top of Maimed, and says when that is reached", () => {
+  assert.deepEqual(C.hurtResult(0), { from: 0, harm: 1, reachesMaimed: false });
+  assert.deepEqual(C.hurtResult(2), { from: 2, harm: 3, reachesMaimed: false });
+  assert.deepEqual(C.hurtResult(3), { from: 3, harm: 4, reachesMaimed: true });
+  assert.deepEqual(C.hurtResult(4), { from: 4, harm: 4, reachesMaimed: false });
+  assert.equal(C.hurtResult("junk").harm, 1);
+});
+
+test("the Burn line in the log has a GM-only Apply Hurt button; the Hurt due survives saving", () => {
+  const tr = B.newTracker(); const s = B.addSlot(tr, { name: "Dax", kind: "pc" });
+  C.addCondition(s, "burn"); C.tickExchange(tr);
+  S.state.actors = []; S.state.tracker = tr;
+  const text = JSON.stringify(S.exportData()); S.state.tracker = B.newTracker(); S.importData(text);
+  assert.equal(S.state.tracker.slots[0].hurtDue, 1);
+});
+
+test("room: the GM's Hurt reaches the player who owns the character, and nobody else", async () => {
+  const peers = new Map(); let n = 0;
+  class Em { constructor() { this.l = {}; } on(e, f) { (this.l[e] ??= []).push(f); } emit(e, ...a) { (this.l[e] ?? []).forEach(f => f(...a)); } }
+  class Conn extends Em { constructor(p) { super(); this.peer = p; } send(m) { const o = this.other; queueMicrotask(() => o.emit("data", JSON.parse(JSON.stringify(m)))); } close() { } }
+  class Peer extends Em {
+    constructor(id) { super(); this.id = id ?? `p${++n}`; queueMicrotask(() => { peers.set(this.id, this); this.emit("open", this.id); }); }
+    connect(t) { const m = new Conn(t); queueMicrotask(() => { const th = new Conn(this.id); m.other = th; th.other = m; peers.get(t).emit("connection", th); m.emit("open"); }); return m; }
+    destroy() { peers.delete(this.id); }
+  }
+  const hits = { ana: [], ben: [] };
+  const gm = new Room({ Peer, handlers: { onLog() {} } });
+  const ana = new Room({ Peer, handlers: { onLog() {}, onHarm: (id, d) => hits.ana.push([id, d]) } });
+  const ben = new Room({ Peer, handlers: { onLog() {}, onHarm: (id, d) => hits.ben.push([id, d]) } });
+  await gm.host("HRT01", "GM"); await ana.join("HRT01", "Ana"); await ben.join("HRT01", "Ben");
+  ana.sendSheets([{ id: "a-pc", name: "Wren" }]); ben.sendSheets([{ id: "b-pc", name: "Dax" }]);
+  await new Promise(r => setTimeout(r, 30));
+  assert.equal(gm.sendHarm("b-pc", 1), true);
+  assert.equal(gm.sendHarm("nobody", 1), false);
+  await new Promise(r => setTimeout(r, 30));
+  assert.deepEqual(hits, { ana: [], ben: [["b-pc", 1]] });
+  assert.equal(ana.sendHarm("a-pc", 1), false);                      // only the host can do this
+});

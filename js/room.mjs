@@ -5,6 +5,7 @@
  * Messages (plain objects, field `k` is the kind):
  *   player -> host: hello {name}, sheets {actors}, log {entry}, effect {actorId, value}, token {id, x, y}, cond {actorId, types}
  *   host -> player: history {entries}, log {entry}, table {table}, effect {actorId, value}, scene {},
+ *                   harm {actorId, delta} (the GM applies Hurt to a player's character),
  *                   handout {h} / unhandout {id} (a handout the GM shows or takes back),
  *                   board {tracker, map} (the Exchange tracker and the map without hidden tokens), mapimg {rev, src} (a custom map image)
  * `entry` = { id, html, private?, to? }. Private entries stay with the player and the host.
@@ -121,6 +122,7 @@ export class Room {
     else if (msg.k === "table") { this.table = msg.table ?? { players: [], npcs: [] }; this.table.players = (this.table.players ?? []).filter(p => p.pid !== this.myId); this.h.onTable?.(this.table); }
     else if (msg.k === "effect") this.h.onEffect?.(msg.actorId, msg.value);
     else if (msg.k === "scene") this.h.onScene?.();
+    else if (msg.k === "harm") this.h.onHarm?.(msg.actorId, Number(msg.delta) || 0);
     else if (msg.k === "handout" && msg.h) this.h.onHandout?.(msg.h);
     else if (msg.k === "unhandout") this.h.onUnhandout?.(msg.id);
     else if (msg.k === "board") this.h.onBoard?.(msg.board);
@@ -177,6 +179,12 @@ export class Room {
       } catch { /* closed */ }
     }
     if (b.mapImage) this.lastImgRev = b.mapImage.rev;
+  }
+  /** Host: tell whoever owns this character that it takes Hurt (Harm advances `delta` tiers). Returns false if nobody here owns it. */
+  sendHarm(actorId, delta = 1) {
+    if (this.role !== "host" || !this.online) return false;
+    for (const [, p] of this.peers) if (p.actors.some(a => a.id === actorId)) { try { p.conn.send({ k: "harm", actorId, delta }); return true; } catch { return false; } }
+    return false;
   }
   /** Host: show a handout to the table, or take it back. */
   sendHandout(h) { if (this.role === "host" && this.online) this._sendAll({ k: "handout", h }); }
