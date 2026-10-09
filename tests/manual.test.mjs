@@ -91,3 +91,11 @@ test("each section of the Screen links to the appendix it summarises", async () 
     assert.equal(r.part, "apx"); assert.match(title, want[s.id], s.id);
   }
 });
+
+test("the map, downtime, help, NPC and table links point at matching sections", () => {
+  const title = ref => { const r = R.parseRef(ref, index); return index.parts.find(p => p.id === r.part).en.sections[r.sec - 1]; };
+  assert.match(title(R.REFS.map), /Group and Environmental/); assert.match(title(R.REFS.downtime), /Downtime/); assert.match(title(R.REFS.helping), /Helping/);
+  assert.match(title(R.REFS.npcBuild), /NPC/); assert.match(title(R.REFS.creation), /Character Creation/); assert.match(title(R.REFS.tally), /Drift/);
+  assert.match(title(R.REFS.tbContract), /Contract/); assert.match(title(R.REFS.tbAbnormality), /Abnormality/); assert.match(title(R.REFS.tbNpc), /NPC/); assert.match(title(R.REFS.tbComplication), /Detail/);
+  assert.deepEqual(R.parseRef("primer", index), { part: "primer", sec: 0 });
+});

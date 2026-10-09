@@ -7,6 +7,7 @@ import { SIN_LABEL, SKILL_LABEL, ATTRIBUTE_LABEL, BOND_TYPE_LABEL, GEAR_KIND_LAB
 import { ATTRIBUTES, SKILLS, SINS, DEFAULT_ATTRIBUTE } from "./rules.mjs";
 import { t, currentLang } from "./i18n.mjs";
 import { esc } from "./engine.mjs";
+import { refButton } from "./manualrefs.mjs";
 
 const STEP_TITLE = {
   name: "Who is this?", who: "Where from, and how do you survive?", ties: "The people and the cause", wound: "Your Wound",
@@ -104,7 +105,7 @@ export function openWizard() {
       const k = key(), last = step === C.STEPS.length - 1;
       const bar = C.STEPS.map((s, i) => `<button type="button" class="dot ${i === step ? "now" : ""} ${i < step ? "past" : ""} ${C.problemsFor(b, s).some(p => p.severity === "error") ? "bad" : ""}" data-go="${s}" title="${esc(t(STEP_TITLE[s]))}"></button>`).join("");
       dlg.innerHTML = `<form method="dialog" class="pm-dialog wz" novalidate>
-        <header><h2>${esc(t("New character"))} <small>${step + 1} / ${C.STEPS.length}: ${esc(t(STEP_TITLE[k]))}</small></h2><div class="wz-bar">${bar}</div></header>
+        <header><h2>${esc(t("New character"))}${refButton("creation", t("Open this in the manual"))} <small>${step + 1} / ${C.STEPS.length}: ${esc(t(STEP_TITLE[k]))}</small></h2><div class="wz-bar">${bar}</div></header>
         <div class="pm-dlg-body">${screens[k]()}${k === "review" ? "" : `<ul class="wz-issues soft">${issues()}</ul>`}</div>
         <footer><button type="button" class="ghost" data-skip>${esc(t("Skip the guide: blank sheet"))}</button><span class="spacer"></span>
           <button type="button" class="ghost" data-cancel>${esc(t("Cancel"))}</button>

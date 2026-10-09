@@ -29,6 +29,8 @@ export const REFS = {
   sins: "p10#1", resonance: "p10#2", wheel: "p10#3", fit: "p10#4", drift: "p10#6",
   grade: "p9#1", unlocks: "p9#2", threat: "p9#4", growth: "p9#7",
   glossary: "apx#11", conditions: "p10#7", contracts: "p5#4", offices: "p7#5", occupation: "p3#5", riding: "p10#4",
+  map: "p6#6", downtime: "p8#10", helping: "p2#3", npcBuild: "p8#2", creation: "p3#3", tally: "p10#6",
+  tbContract: "p8#3", tbAbnormality: "p8#7", tbNpc: "p8#2", tbComplication: "p10#7",
   scRoll: "apx#2", scEgo: "apx#3", scClocks: "apx#4", scThreat: "apx#5", scTemplates: "apx#6", scSins: "apx#7", scGear: "apx#8"
 };
 

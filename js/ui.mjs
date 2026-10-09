@@ -686,7 +686,7 @@ function renderSidebar() {
     </div>
     <ul class="actor-list">${list || `<li class="hint pad">${esc(t("Nobody yet. Add the pregens, or make a character."))}</li>`}</ul>
     ${remoteHtml()}
-    <div class="side-foot"><button type="button" data-action="downtimeAll">${esc(t("Run downtime for all"))}</button><button type="button" data-action="newSceneAll">${esc(t("New scene for all"))}</button>${isGM() ? `<button type="button" data-action="awardMarks">${esc(t("Award Marks"))}</button>` : ""}<button type="button" data-action="finish" class="finish">${esc(t("Finish session"))}</button></div>`;
+    <div class="side-foot"><div class="rowref"><button type="button" data-action="downtimeAll">${esc(t("Run downtime for all"))}</button>${ref("downtime")}</div><button type="button" data-action="newSceneAll">${esc(t("New scene for all"))}</button>${isGM() ? `<div class="rowref"><button type="button" data-action="awardMarks">${esc(t("Award Marks"))}</button>${ref("growth")}</div>` : ""}<button type="button" data-action="finish" class="finish">${esc(t("Finish session"))}</button></div>`;
 }
 
 function remoteHtml() {
@@ -717,7 +717,7 @@ function renderMain() {
   const winAv = bar.querySelector(".win-av"), winPic = a ? portraitOf(a) : "";
   winAv.style.backgroundImage = winPic ? `url("${winPic}")` : ""; winAv.textContent = winPic || !a ? "" : B.initials(a.name);
   bar.querySelector(".win-sub").textContent = !a ? "" : (a.type === "character" ? `E.G.O. ${a.derived.egoCurrent}/${a.system.ego.max} \u00B7 ${HARM_LABEL[a.system.harm]}` : (a.type === "npc" ? `${t("Grade")} ${a.system.grade}` : t("Crew")));
-  if (!a) { el.innerHTML = `<div class="empty"><h2>${esc(t("Welcome to the City"))}</h2><p>${esc(t("Add the four pregenerated characters, or make your own. Roll from the sheet; the log keeps every result."))}</p><p><button type="button" class="primary" data-action="pregens">${esc(t("Add the 4 pregens"))}</button></p></div>`; return; }
+  if (!a) { el.innerHTML = `<div class="empty"><h2>${esc(t("Welcome to the City"))}</h2><p>${esc(t("Add the four pregenerated characters, or make your own. Roll from the sheet; the log keeps every result."))}</p><p><button type="button" class="primary" data-action="pregens">${esc(t("Add the 4 pregens"))}</button> <button type="button" data-action="manual" data-ref="primer">${esc(t("Read the Player primer"))}</button></p></div>`; return; }
   const scroll = el.querySelector(".pm-body")?.scrollTop ?? 0;
   el.innerHTML = a.type === "character" ? characterSheet(a) : (a.type === "npc" ? npcSheet(a) : crewSheet(a));
   el.classList.toggle("readonly", !!a.remote);
@@ -799,7 +799,7 @@ function characterTab(a, tab) {
       <label class="wide">${esc(t("Burden"))} <textarea data-path="system.burden" rows="2">${esc(s.burden)}</textarea></label>
       <label>${esc(t("Fear"))} ${txt("system.fear", s.fear)}</label><label>${esc(t("Boundary"))} ${txt("system.boundary", s.boundary)}</label>
       <label>${esc(t("Vice"))}${ref("vice")} <span class="inline-row">${txt("system.vice", s.vice)}<button type="button" data-action="invokeVice" title="${esc(t("+1 E.G.O., once per scene, inside the refund cap"))}">${esc(t("Invoke"))}</button></span></label>
-      <label>${esc(t("Desire"))} ${txt("system.desire", s.desire)}</label><label>${esc(t("Principle"))} ${txt("system.principle", s.principle)}</label><label>${esc(t("Ambition"))} ${txt("system.ambition", s.ambition)}</label>
+      <label>${esc(t("Desire"))}${ref("identity")} ${txt("system.desire", s.desire)}</label><label>${esc(t("Principle"))} ${txt("system.principle", s.principle)}</label><label>${esc(t("Ambition"))} ${txt("system.ambition", s.ambition)}</label>
       <label>${esc(t("Broken Boundaries"))} ${num("system.broken", s.broken, 0, 3)}</label><label>${esc(t("Scars"))}${ref("distortion")} ${txt("system.scars", s.scars)}</label></div>
       <details class="altlang"><summary>${esc(t("The same words in {lang} (for the Voice and the Verdict)", { lang: H.LANG_NAME[H.otherLang(s.lang)] }))}</summary>
         <div class="pm-grid2"><label>${esc(t("The words above are written in"))} <select data-path="system.lang">${opts({ en: H.LANG_NAME.en, es: H.LANG_NAME.es }, s.lang)}</select></label>
@@ -851,7 +851,7 @@ function characterTab(a, tab) {
       <label>${esc(t("Under a Sin (not Riding)"))} <select data-path="system.under">${opts(sc, s.under)}</select></label>
       <label>${esc(t("Riding"))}${ref("riding")} <select data-path="system.riding">${opts(sc, s.riding)}</select></label>
       <label>${esc(t("Strained by a Scar"))} <select data-path="system.strained">${opts(sc, s.strained)}</select></label></div>
-      <div class="scroll-x"><table class="pm-sins"><thead><tr><th>${esc(t("Sin"))}${ref("sins")}</th><th>${esc(t("Resonance"))}${ref("resonance")}</th><th>${esc(t("Tally"))}</th><th>${esc(t("Wheel"))}${ref("wheel")}</th><th>${esc(t("Fit (when Under)"))}${ref("fit")}</th><th></th></tr></thead>${rows}</table></div>
+      <div class="scroll-x"><table class="pm-sins"><thead><tr><th>${esc(t("Sin"))}${ref("sins")}</th><th>${esc(t("Resonance"))}${ref("resonance")}</th><th>${esc(t("Tally"))}${ref("tally")}</th><th>${esc(t("Wheel"))}${ref("wheel")}</th><th>${esc(t("Fit (when Under)"))}${ref("fit")}</th><th></th></tr></thead>${rows}</table></div>
       <p><button type="button" data-action="drift">${esc(t("End-of-fourth-session Drift"))}</button>${ref("drift")}</p>`;
   }
   if (tab === "gear") {
@@ -883,7 +883,7 @@ function npcSheet(a) {
       <label>${esc(t("Sin"))} <select data-path="system.alignment">${opts({ ...sinChoices() }, s.alignment, t("None"))}</select></label>
       <label>${esc(t("Harm"))} <select data-path="system.harm" data-num>${opts(harmChoices(), s.harm)}</select></label>
       <label>${esc(t("Threat Clock"))}${ref("threat")} <select data-path="system.threat" data-num>${opts(threat, s.threat)}</select></label>
-      <label>${esc(t("Want"))} ${txt("system.want", s.want)}</label><label>${esc(t("Bond hook"))} ${txt("system.bondHook", s.bondHook)}</label>
+      <label>${esc(t("Want"))}${ref("npcBuild")} ${txt("system.want", s.want)}</label><label>${esc(t("Bond hook"))} ${txt("system.bondHook", s.bondHook)}</label>
       <label class="wide">${esc(t("Detail"))} ${txt("system.detail", s.detail)}</label></div>
       <h3>${esc(t("Notes"))}</h3><textarea class="pm-notes-area" data-path="system.notes" rows="8">${esc(s.notes)}</textarea></section></div>`;
 }
@@ -920,14 +920,14 @@ function crewSheet(a) {
       <label>${esc(t("Function"))} ${txt("system.officeFunction", s.officeFunction)}</label><label>${esc(t("The Grind"))} ${txt("system.grind", s.grind)}</label>
       <label>${esc(t("Person Behind the Desk"))} ${txt("system.personBehindDesk", s.personBehindDesk)}</label>
       <label><input type="checkbox" data-path="system.associate" ${s.associate ? "checked" : ""}> ${esc(t("Associate Office (can't refuse assignments)"))}</label>
-      <label>${esc(t("Crew Bond"))} <select data-path="system.crewBondType">${opts({ trust: t("Trust"), obligation: t("Obligation") }, s.crewBondType)}</select></label>
+      <label>${esc(t("Crew Bond"))}${ref("crew")} <select data-path="system.crewBondType">${opts({ trust: t("Trust"), obligation: t("Obligation") }, s.crewBondType)}</select></label>
       <label>${esc(t("Strength (0 = Fractured)"))} ${num("system.crewBond", s.crewBond, 0, 3)}</label>
       <label>${esc(t("Fund (0 to 5)"))} ${num("system.fund", s.fund, 0, 5)}</label></div>
     <h3>${esc(t("Members"))}${ref("crew")} <button type="button" data-action="editMembers">${esc(t("Choose"))}</button> <button type="button" data-action="downtime">${esc(t("Run downtime upkeep"))}</button></h3>
     <table class="pm-ledger"><thead><tr><th>${esc(t("Character"))}</th><th>${esc(t("Grade"))}</th><th>${esc(t("Resources"))}</th><th>E.G.O.</th><th>${esc(t("Stress"))}</th></tr></thead>${rows || `<tr><td colspan="5" class="hint">${esc(t("No characters yet."))}</td></tr>`}</table>
     <h3>${esc(t("Assets"))}${ref("crew")}</h3><ul class="pm-list">${assets}</ul><p class="hint">${esc(t("With three or more Assets the Fund pays 1 each downtime phase to keep them up."))}</p>
     <h3>${esc(t("Heat and other Clocks"))}${ref("heat")} <button type="button" data-action="addClock">${esc(t("Add Clock"))}</button></h3><div class="pm-clocks">${clocks || `<p class="hint">${esc(t("No Clocks."))}</p>`}</div>
-    <h3>${esc(t("Ledger"))} <button type="button" data-action="addLedger">${esc(t("Add entry"))}</button></h3>
+    <h3>${esc(t("Ledger"))}${ref("contracts")} <button type="button" data-action="addLedger">${esc(t("Add entry"))}</button></h3>
     <table class="pm-ledger"><thead><tr><th>${esc(t("Client"))}</th><th>${esc(t("Risk"))}</th><th>${esc(t("Paid"))}</th><th>${esc(t("Report"))}</th><th></th></tr></thead>${ledger || `<tr><td colspan="5" class="hint">${esc(t("No Contracts yet."))}</td></tr>`}</table>
     <h3>${esc(t("Notes"))}</h3><textarea class="pm-notes-area" data-path="system.notes" rows="6">${esc(s.notes)}</textarea></section></div>`;
 }
@@ -983,7 +983,7 @@ function rollDialog(actor, preset, others, conds = { sinking: 0, poise: 0 }) {
     <div class="pm-row"><label>${esc(t("Roll is"))}</label><select name="context">${opts({ attack: t("an attack"), defense: t("a defense"), other: t("something else") }, preset.context ?? "other")}</select>
       <label>${esc(t("Attuned gear"))}</label><select name="gear"><option value="">${esc(t("None"))}</option>${gear.map(g => `<option value="${g.id}">${esc(g.name)} (${esc(SIN_LABEL[g.system.sin])} ${esc(GEAR_KIND_LABEL[g.system.kind])})</option>`).join("")}</select></div>
     <div class="pm-row"><label>${esc(t("E.G.O. dice (have {n})", { n: d.egoCurrent }))}</label><input type="number" name="ego" value="0" min="0" max="${d.egoCurrent}">
-      <label>${esc(t("Help dice"))}</label><input type="number" name="help" value="0" min="0" max="10">
+      <label>${esc(t("Help dice"))}${ref("helping")}</label><input type="number" name="help" value="0" min="0" max="10">
       <label>${esc(t("Other +/-"))}</label><input type="number" name="modifier" value="0" min="-5" max="5"></div>
     <div class="pm-row"><label>${esc(t("Spend a Bond (+1 die)"))}</label><select name="bond"><option value="">${esc(t("No Bond"))}</option>${bonds.map(b => `<option value="${b.id}">${esc(BOND_TYPE_LABEL[b.system.type])} ${b.system.strength}: ${esc(b.system.person || b.name)}</option>`).join("")}</select></div>
     ${E.techniqueAvailable(actor, "envy") ? `<div class="pm-row"><label class="chk"><input type="checkbox" name="borrowedFace"> ${esc(t("Borrowed Face: copy their Sin tag (+1 die, matchup neutral)"))}</label></div>` : ""}

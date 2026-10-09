@@ -734,3 +734,10 @@ dialog.wizard { width: min(720px, 98vw); }
 .sc { position: relative; }
 .sc-head { padding-right: 36px; }
 .sc > .man-ref { position: absolute; top: 6px; right: 8px; margin: 0; }
+.rowref { display: flex; gap: 4px; align-items: center; }
+.rowref > button:first-child { flex: 1 1 auto; }
+.rowref .man-ref { flex: 0 0 auto; border-color: #8d94a8; color: #8d94a8; margin: 0; }
+.rowref .man-ref:hover { border-color: var(--pm-gold); color: #fff; }
+.wizard .man-ref { vertical-align: middle; }
+.side-foot .man-ref, #stage .man-ref { width: 17px; height: 17px; padding: 0; border-radius: 50%; font: 800 11px var(--pm-ui); letter-spacing: 0; background: transparent; }
+#stage .man-ref { border: 1px solid #8d94a8; color: #8d94a8; margin-left: 6px; }

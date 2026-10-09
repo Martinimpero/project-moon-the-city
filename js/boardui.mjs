@@ -6,6 +6,7 @@ import * as C from "./conditions.mjs";
 import { t } from "./i18n.mjs";
 import { esc } from "./engine.mjs";
 import { REFS as MAN_REFS, refButton } from "./manualrefs.mjs";
+const MAP_REF = () => refButton("map", t("Open this in the manual"));
 import { DURATIONS, timerOf, timerStart, timerPause, timerReset, timerNewTurn, timerSetSecs, fmt } from "./timer.mjs";
 
 /**
@@ -229,8 +230,8 @@ export function createBoardUI(ctx) {
       <button type="button" data-action="toolSet" data-tool="erase" class="${tool === "erase" ? "on" : ""}" title="${esc(t("Click a drawing or a note to remove it"))}">${esc(t("Erase"))}</button>
       <span class="swatches">${B.MARK_COLORS.map(c => `<button type="button" class="sw ${c === markColor ? "on" : ""}" data-action="markColor" data-c="${c}" style="background:${c}" aria-label="${c}"></button>`).join("")}</span>
       <label class="chk" title="${esc(t("Drawings are seen by the players when this is ticked"))}"><input type="checkbox" id="m-mshown" ${markShown ? "checked" : ""}> ${esc(t("Players see drawings and areas"))}</label>
-      <button type="button" data-action="marksClear">${esc(t("Clear drawings"))}</button></div>` : "";
-    const bars = gm ? sceneBar() + bar + markBar + fogBar : (map ? `<div class="m-bar">${measureBtn}${pingOnly}</div>` : "");
+      <button type="button" data-action="marksClear">${esc(t("Clear drawings"))}</button>${MAP_REF()}</div>` : "";
+    const bars = gm ? sceneBar() + bar + markBar + fogBar : (map ? `<div class="m-bar">${measureBtn}${pingOnly}${MAP_REF()}</div>` : "");
     if (!map) return `${gm ? sceneBar() + bar : ""}<p class="hint pad">${esc(gm ? t("Pick a map for this scene.") : t("The GM has not shown a map."))}</p>`;
     const src = mapSrc();
     if (!view || viewKey !== map.rev) fit(map);

@@ -2,6 +2,10 @@
 import * as X from "./tables.mjs";
 import { t, tIn, pair } from "./i18n.mjs";
 import { esc } from "./engine.mjs";
+import { refButton } from "./manualrefs.mjs";
+
+/** Each random table belongs to a section of Part VIII (or the Sins). */
+const REF_OF = { contract: "tbContract", abnormality: "tbAbnormality", npc: "tbNpc", complication: "tbComplication" };
 import { SIN_TEXT_RAW } from "./config.mjs";
 
 /** ctx: { $, lang(), rng?, post(html builder), addNote(title, text), toast(msg) } */
@@ -17,7 +21,7 @@ export function createTablesUI(ctx) {
     const picks = results[tb.id];
     const body = picks ? `<ul class="tb-res">${tb.parts.map(p => `<li><span class="tb-k">${esc(label(p))}</span><span class="tb-v">${esc(text(X.itemOf(tb, picks, p.key)))}</span><button type="button" data-action="tbPart" data-table="${tb.id}" data-key="${p.key}" title="${esc(t("Roll this part again"))}" aria-label="${esc(t("Roll this part again"))}">&#127922;</button></li>`).join("")}</ul>
       <div class="tb-acts"><button type="button" data-action="tbShow" data-table="${tb.id}">${esc(t("Show to the table"))}</button><button type="button" data-action="tbNote" data-table="${tb.id}">${esc(t("Keep as a note"))}</button></div>` : "";
-    return `<section class="tb"><div class="tb-head"><h3>${esc(label(tb))}</h3><button type="button" class="primary" data-action="tbRoll" data-table="${tb.id}">${esc(picks ? t("Roll again") : t("Roll"))}</button></div>
+    return `<section class="tb"><div class="tb-head"><h3>${esc(label(tb))}${REF_OF[tb.id] ? refButton(REF_OF[tb.id], t("Open this in the manual")) : ""}</h3><button type="button" class="primary" data-action="tbRoll" data-table="${tb.id}">${esc(picks ? t("Roll again") : t("Roll"))}</button></div>
       <p class="hint">${esc(label(tb.note))}</p>${body}</section>`;
   }
   const render = () => { $("#pane-tb").innerHTML = X.TABLES.map(section).join(""); };

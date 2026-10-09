@@ -9,6 +9,7 @@ export const MANUAL_ES = {
   "The manual could not be loaded. It needs the page to be opened from its web address, not from a file.": "No se pudo cargar el manual. Hace falta abrir la página desde su dirección web, no desde un archivo.",
   "This part could not be loaded. Check the connection and try again.": "No se pudo cargar esta parte. Revisa la conexión e inténtalo de nuevo.",
   "Searching\u2026": "Buscando\u2026",
+  "Read the Player primer": "Leer la guía del jugador",
   "Nothing found.": "No se encontró nada.",
   "Manual opens the rulebook beside the sheet. The small ? on the sheet opens it at the section about that.": "Manual abre el libro de reglas junto a la ficha. La pequeña ? de la ficha lo abre en la sección que habla de eso."
 };
