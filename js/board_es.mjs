@@ -50,5 +50,14 @@ export const BOARD_ES = {
   "Squares": "Casillas",
   "square": "casilla",
   "squares": "casillas",
+  "Sound on": "Sonido activado",
+  "Sound off": "Sonido apagado",
+  "Turn timer": "Temporizador de turno",
+  "Time per turn": "Tiempo por turno",
+  "No timer": "Sin temporizador",
+  "Pause": "Pausa",
+  "Start": "Iniciar",
+  "Reset": "Reiniciar",
+  "Auto": "Auto",
   "Red": "Rojo", "Orange": "Naranja", "Gold": "Dorado", "Green": "Verde", "Teal": "Turquesa", "Blue": "Azul", "Purple": "Morado", "White": "Blanco"
 };

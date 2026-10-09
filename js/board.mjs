@@ -3,10 +3,11 @@
  * one Threat action, one named-opponent action", so this tracks who has acted, not initiative).
  */
 import { uid } from "./model.mjs";
+import { newTimer } from "./timer.mjs";
 
 /* ------------------------------------------------------------------ Exchange tracker */
 
-export const newTracker = () => ({ active: false, exchange: 1, slots: [] });
+export const newTracker = () => ({ active: false, exchange: 1, slots: [], timer: newTimer() });
 
 export function addSlot(tr, { name, kind = "other", actorId = "" }) {
   if (actorId && tr.slots.some(s => s.actorId === actorId)) return null;

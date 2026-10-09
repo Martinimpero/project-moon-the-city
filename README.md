@@ -29,6 +29,12 @@ The right-hand pane has three tabs: **Log**, **Exchange** and **Map** (on a phon
 - **Map:** the GM picks one of the eight bundled maps (web copies of the vault's maps: `maps/`, made by `make_maps.py`) or uploads an image (shrunk to 1800 px and shared with the table). Grid, snap-to-square and square size are adjustable. Tokens: add one for a character or Threat (the picture is chosen from `tokens/` when a name matches), colour, size, optionally hidden from players. Drag tokens; drag the background to pan; wheel or +/- to zoom.
 - In a room, players see the GM's tracker and map (without hidden tokens) and can drag **only their own character's token**; the host checks that.
 
+## Turn timer
+In the **Exchange** tab the GM picks a time per turn (15 s to 3 min, or none). **Start / Pause / Reset** control it; with **Auto** on, each new turn (marking someone Acted, or a new Exchange) resets it to full and starts it. Everyone sees the same countdown in the Exchange tab and in a chip at the top that shows whose turn it is (it turns red in the last 10 seconds; click it to open the tab). There are ticks in the last five seconds and an alarm at zero. Running out does nothing by itself: the GM decides. Each browser keeps its own clock from the moment it receives the timer, and a player who joins late gets the time actually left.
+
+## Sounds
+All made in the browser (nothing to download): dice clattering on every roll, then a sound for the result (a rising chime for a Critical, two notes for a Success, a flat tone for a Partial, a low thud for a Failure, a dark growl for a Critical Failure), a heartbeat before a Hail Mary, a low swell for the Voice (deeper when it is loud), a bell for each new Exchange, paper for a handout, a pop for chat, and the timer's tick and alarm. Everyone hears the other players' rolls too. The **Sound** button at the top turns it off; the slider sets the volume (both remembered). Browsers only allow sound after your first click on the page.
+
 ## Handouts
 The fourth tab. The GM keeps a library of handouts (a note, a contract, a picture; text supports *italic* and **bold**, pictures are shrunk to 1400 px). **+ Contract** starts one with the paperwork fields (client, Risk, job, payment, deadline, terms). **Show** sends it to the table: each player gets a reading window at once, a line in the log, and it stays in their Handouts tab until the GM presses **Take back**. Players joining later get whatever is currently shown. Alone, Show just opens it for you.
 
@@ -42,8 +48,8 @@ Accounts, cloud save, per-player vision, dynamic lighting.
 
 ## Files
 - `index.html`, `css/style.css`: the page and look (same design as the rulebook).
-- `js/rules.mjs`: the pure rules (bands, E.G.O., Sins, Fit, Drift, Hail Mary, upkeep). `js/engine.mjs`: rolls, techniques, downtime. `js/model.mjs`, `js/store.mjs`: data and saving. `js/ui.mjs`: the interface. `js/room.mjs`: the shared-room protocol. `js/board.mjs`, `js/boardui.mjs`, `js/maplist.mjs`: the Exchange tracker and map. `js/handouts.mjs`, `js/handoutui.mjs`: handouts. `js/es.mjs`, `js/ui_es.mjs`, `js/room_es.mjs`: Spanish.
-- `tests/`: `node --test tests/*.test.mjs` (needs Node 20+; 71 tests).
+- `js/rules.mjs`: the pure rules (bands, E.G.O., Sins, Fit, Drift, Hail Mary, upkeep). `js/engine.mjs`: rolls, techniques, downtime. `js/model.mjs`, `js/store.mjs`: data and saving. `js/ui.mjs`: the interface. `js/room.mjs`: the shared-room protocol. `js/board.mjs`, `js/boardui.mjs`, `js/maplist.mjs`: the Exchange tracker and map. `js/handouts.mjs`, `js/handoutui.mjs`: handouts. `js/timer.mjs`: the turn timer. `js/sfx.mjs`: sounds. `js/es.mjs`, `js/ui_es.mjs`, `js/room_es.mjs`: Spanish.
+- `tests/`: `node --test tests/*.test.mjs` (needs Node 20+; 79 tests).
 
 ## If you change the rules
 Edit `js/rules.mjs` (and the tests), then the text in `js/config.mjs`, `js/engine.mjs` and Spanish in `js/es.mjs`. Any new English text passed to `t("...")` must get a Spanish entry, or `tests/i18n.test.mjs` fails.

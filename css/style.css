@@ -338,3 +338,22 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .fogbar { border-top: 1px solid #0c0d10; }
 .m-stage.tool-measure #mapsvg { cursor: crosshair; }
 .m-stage.tool-reveal #mapsvg, .m-stage.tool-cover #mapsvg { cursor: cell; }
+
+/* ================= turn timer and sound ================= */
+#timer-chip { cursor: pointer; font: 800 15px var(--pm-head); letter-spacing: .1em; text-transform: uppercase; background: #1f4a33; border: 1px solid #46aa5a; color: #d8f5e2; padding: 3px 12px; border-radius: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 38vw; }
+#timer-chip[hidden] { display: none; }
+#timer-chip.paused { background: #22242e; border-color: #3a3d4a; color: #cfd6e6; }
+#timer-chip.low { background: #5a1a22; border-color: #d4495a; color: #fff; animation: pulse .8s infinite alternate; }
+@keyframes pulse { to { background: #7a1f2b; } }
+.sound { display: inline-flex; align-items: center; gap: 6px; margin-right: 4px; }
+.sound button.off { color: #8d94a8; text-decoration: line-through; }
+.sound input[type=range] { width: 72px; accent-color: var(--pm-gold); }
+.x-timer { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 10px; }
+.x-timer .clk { font: 800 34px var(--pm-head); letter-spacing: .06em; color: #fff; min-width: 84px; }
+.x-timer small { color: var(--pm-gold); font: 700 13px var(--pm-head); letter-spacing: .1em; text-transform: uppercase; }
+.x-timer.low .clk { color: #ff7a85; animation: pulse2 .8s infinite alternate; }
+@keyframes pulse2 { to { opacity: .55; } }
+.x-timer .tctl { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin-left: auto; }
+.x-timer .tctl select { background: #22242e; color: #eceff4; border: 1px solid #3a3d4a; border-radius: 2px; padding: 4px 6px; font: 12px var(--pm-ui); }
+.x-timer .chk { font: 12px var(--pm-ui); color: #cfd6e6; display: inline-flex; align-items: center; gap: 4px; }
+@media (max-width: 820px) { .sound input[type=range] { display: none; } #timer-chip { max-width: 30vw; font-size: 13px; padding: 3px 7px; } }

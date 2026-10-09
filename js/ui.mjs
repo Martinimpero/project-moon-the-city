@@ -13,6 +13,8 @@ import * as B from "./board.mjs";
 import { createBoardUI } from "./boardui.mjs";
 import * as H from "./handouts.mjs";
 import { createHandoutUI } from "./handoutui.mjs";
+import { createSfx } from "./sfx.mjs";
+import { TimerClock, timerOf, fmt as fmtTime } from "./timer.mjs";
 
 const $ = sel => document.querySelector(sel);
 const tabs = {};            // per-actor current tab
@@ -43,6 +45,7 @@ function persist() {
 /** Add a message to the log and, in a room, send it on. Private messages (the Voice) stay with the player and the GM. */
 function post(html, { priv = false } = {}) {
   const entry = S.addLog(html);
+  if (entry) sfx.forHtml(html);
   if (entry && room?.online) room.sendLog({ id: entry.id, html, private: priv });
 }
 
@@ -58,18 +61,20 @@ const isGM = () => !room?.online || room.role === "host";
 const board = () => (isGM()
   ? { tracker: state.tracker, map: state.map, image: state.map && !state.map.bundled && state.map.src ? { rev: state.map.rev, src: state.map.src } : null }
   : remoteBoard);
+const sfx = createSfx();
+const clock = new TimerClock();
 const received = [];            // handouts the GM has shown this player (memory only)
 const handoutUI = createHandoutUI({
   state, $: sel => document.querySelector(sel), room: () => room, isGM, received: () => received,
   changed: (h, gone) => {
     persist(); renderBoard();
     if (room?.role === "host") { if (gone || !h.shown) room.sendUnhandout(h.id); else room.sendHandout(H.forPlayers(h)); }
-    if (h.shown && !gone) post(E.card(esc(t("The GM shows a handout")), `<p><b>${esc(h.title)}</b></p>`));
+    if (h.shown && !gone) post(`<div class="pm-card pm-handout"><div class="pm-card-head">${esc(t("The GM shows a handout"))}</div><div class="pm-notes"><p><b>${esc(h.title)}</b></p></div></div>`);
   },
   ask: o => ask(o), toast: m => toast(m)
 });
 const boardUI = createBoardUI({
-  state, $: sel => document.querySelector(sel), room: () => room, isGM, board,
+  state, clock, $: sel => document.querySelector(sel), room: () => room, isGM, board,
   remoteActors: () => remoteActors(), findActor: id => findActor(id),
   changed: () => { persist(); renderBoard(); if (room?.role === "host") room.sendBoard(); },
   sendBoard: () => { if (room?.role === "host") room.sendBoard(); },
@@ -92,21 +97,21 @@ function loadPeer() {
 }
 const handlers = {
   onStatus: () => { renderChrome(); renderSidebar(); if (room?.status === "error" && room.error) toast(t(room.error)); },
-  onLog: (entry, quiet) => { if (S.addLog(entry.html, entry.id)) { renderLog(); if (!quiet) flashLog(); } },
+  onLog: (entry, quiet) => { if (S.addLog(entry.html, entry.id)) { renderLog(); if (!quiet) { flashLog(); sfx.forHtml(entry.html); } } },
   onTable: () => { if (remoteSel && !findRemote(remoteSel)) remoteSel = ""; renderSidebar(); if (remoteSel) renderMain(); },
   onEffect: (actorId, value) => {
     const a = S.byId(actorId); if (!a) return;
     E.setPenalty(a, value); refresh(a); persist(); render();
   },
   onScene: () => { state.actors.filter(x => x.type === "character").forEach(E.newScene); persist(); render(); toast(t("The GM started a new scene.")); },
-  onBoard: b => { if (dragging()) return; remoteBoard.tracker = b.tracker; remoteBoard.map = b.map; renderBoard(); },
+  onBoard: b => { if (dragging()) return; remoteBoard.tracker = b.tracker; remoteBoard.map = b.map; clock.sync(timerOf(b.tracker)); renderBoard(); },
   onMapImg: (rev, src) => { remoteBoard.image = { rev, src }; renderBoard(); },
   onToken: (pid, id, x, y) => {
     const map = state.map, tk = map?.tokens.find(k => k.id === id), peer = room?.peers.get(pid);
     if (!tk || !peer || !tk.actorId || !peer.actors.some(a => a.id === tk.actorId)) return;     // players move only their own characters' tokens
     B.moveToken(map, id, x, y); persist(); renderBoard(); room.sendBoard();
   },
-  hostBoard: () => ({ tracker: state.tracker, map: B.mapForPlayers(state.map), mapImage: state.map && !state.map.bundled && state.map.src ? { rev: state.map.rev, src: state.map.src } : null }),
+  hostBoard: () => { const T = timerOf(state.tracker); return { tracker: { ...state.tracker, timer: { ...T, left: T.running ? Math.ceil(clock.remaining(T)) : T.left } }, map: B.mapForPlayers(state.map), mapImage: state.map && !state.map.bundled && state.map.src ? { rev: state.map.rev, src: state.map.src } : null  }; },
   hostHandouts: () => H.shownList(state.handouts),
   onHandout: h => {
     const i = received.findIndex(x => x.id === h.id);
@@ -190,6 +195,11 @@ function renderChrome() {
   $("#t-title").textContent = t("Project Moon: The City");
   $("#t-sub").textContent = t("A free table companion. Your sheets are saved in this browser.");
   for (const [id, key] of [["b-export", "Export"], ["b-import", "Import"], ["b-help", "Help"]]) $("#" + id).textContent = t(key);
+  const sb = $("#b-sound");
+  sb.textContent = state.sound.on ? `\u266A ${t("Sound on")}` : `\u266A ${t("Sound off")}`;
+  sb.classList.toggle("off", !state.sound.on);
+  $("#vol").value = Math.round(state.sound.vol * 100);
+  $("#timer-chip").title = t("Turn timer");
   const rb = $("#b-room");
   rb.textContent = room?.online ? `${t("Room")} ${room.code} · ${room.count}` : (room?.status === "connecting" ? t("Connecting...") : t("Room"));
   rb.classList.toggle("live", !!room?.online);
@@ -601,8 +611,10 @@ async function doDowntime(actors, crew) {
 
 /* ------------------------------------------------------------------ click actions */
 
-const READONLY_OK = new Set(["rtab", ...Object.keys(boardUI.actions), ...Object.keys(handoutUI.actions), "view", "select", "selectRemote", "tab", "newCharacter", "newNpc", "newCrew", "pregens", "lang", "export", "import", "help", "room", "clearLog", "downtimeAll", "newSceneAll"]);
+const READONLY_OK = new Set(["rtab", "sound", "timerGo", ...Object.keys(boardUI.actions), ...Object.keys(handoutUI.actions), "view", "select", "selectRemote", "tab", "newCharacter", "newNpc", "newCrew", "pregens", "lang", "export", "import", "help", "room", "clearLog", "downtimeAll", "newSceneAll"]);
 const actions = {
+  sound: () => { state.sound.on = !state.sound.on; sfx.settings.on = state.sound.on; persist(); renderChrome(); sfx.play("place"); },
+  timerGo: () => { rtab = "xchg"; view = "log"; render(); },
   ...boardUI.actions,
   ...handoutUI.actions,
   rtab: el => { rtab = el.dataset.tab; renderBoard(); if (rtab === "log") renderLog(); },
@@ -769,8 +781,35 @@ function onChat(e) {
   input.value = ""; renderLog(); persist();
 }
 
+/** Once a quarter second: the turn timer's chip, the Exchange tab's clock, and the ticks and the alarm. */
+let lastSec = -1, alarmed = "";
+function tickTimer() {
+  const tr = board().tracker, T = timerOf(tr);
+  clock.sync(T);
+  const rem = clock.remaining(T), chip = $("#timer-chip"), show = tr.active && T.secs > 0;
+  chip.hidden = !show;
+  if (show) {
+    const cur = B.currentSlot(tr);
+    chip.textContent = `${fmtTime(rem)}${cur ? ` \u00B7 ${cur.name}` : ""}`;
+    chip.classList.toggle("low", T.running && rem <= 10);
+    chip.classList.toggle("paused", !T.running);
+  }
+  const clk = document.querySelector("#x-clk");
+  if (clk && T.secs) { clk.textContent = fmtTime(rem); clk.closest(".x-timer")?.classList.toggle("low", T.running && rem <= 10); }
+  if (T.running && T.secs) {
+    const sec = Math.ceil(rem);
+    if (sec !== lastSec) { lastSec = sec; if (sec <= 5 && sec > 0) sfx.play("tick"); }
+    if (rem <= 0 && alarmed !== T.stamp) { alarmed = T.stamp; sfx.play("alarm"); }
+  } else lastSec = -1;
+}
+
 export function init() {
-  globalThis.__pm = { get room() { return room; } };   // for debugging in the console
+  sfx.settings.on = state.sound.on; sfx.setVolume(state.sound.vol);
+  for (const ev of ["pointerdown", "keydown"]) document.addEventListener(ev, () => sfx.unlock(), { once: true });
+  $("#vol").addEventListener("input", e => { state.sound.vol = Number(e.target.value) / 100; sfx.setVolume(state.sound.vol); });
+  $("#vol").addEventListener("change", () => { persist(); sfx.play("place"); });
+  setInterval(tickTimer, 250);
+  globalThis.__pm = { get room() { return room; }, sfx, clock };   // for debugging in the console
   document.addEventListener("click", e => {
     const el = e.target.closest("[data-action]");
     if (!el || el.disabled) return;
@@ -780,7 +819,7 @@ export function init() {
     if (a?.remote && !READONLY_OK.has(el.dataset.action)) return;
     fn(el, a);
   });
-  document.addEventListener("change", e => { if (e.target.closest("#main")) onField(e); else if (e.target.closest("#pane-map")) boardUI.onChange(e); });
+  document.addEventListener("change", e => { if (e.target.closest("#main")) onField(e); else if (e.target.closest("#pane-map") || e.target.closest("#pane-xchg")) boardUI.onChange(e); });
   $("#mapfile").addEventListener("change", e => { const f = e.target.files[0]; e.target.value = ""; if (f) boardUI.onUpload(f); });
   $("#file").addEventListener("change", async e => {
     const file = e.target.files[0]; e.target.value = "";
@@ -788,7 +827,7 @@ export function init() {
     try {
       const text = await file.text();
       if (state.actors.length && !(await confirmDlg(t("Import"), esc(t("Importing replaces everything in this browser. Continue?")), t("Import")))) return;
-      S.importData(text); persist(); render(); toast(t("Imported."));
+      S.importData(text); sfx.settings.on = state.sound.on; sfx.setVolume(state.sound.vol); persist(); render(); toast(t("Imported."));
     } catch { toast(t("That file is not a Project Moon save.")); }
   });
   window.addEventListener("beforeunload", () => S.save());

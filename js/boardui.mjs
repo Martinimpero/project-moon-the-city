@@ -4,6 +4,7 @@ import { MAPS, TOKENS } from "./maplist.mjs";
 import { SIN_LABEL, HARM_LABEL } from "./config.mjs";
 import { t } from "./i18n.mjs";
 import { esc } from "./engine.mjs";
+import { DURATIONS, timerOf, timerStart, timerPause, timerReset, timerNewTurn, timerSetSecs, fmt } from "./timer.mjs";
 
 /**
  * ctx: { state, room(), isGM(), board() -> {tracker, map, image}, remoteActors(), findActor(id), changed(), post(html), ask(opts), toast(msg), $ }
@@ -40,7 +41,12 @@ export function createBoardUI(ctx) {
     const others = ctx.state.actors.concat(ctx.remoteActors()).filter(a => (a.type === "character" || a.type === "npc") && !tr.slots.some(s => s.actorId === a.id));
     const add = gm ? `<div class="x-add"><select id="x-actor"><option value="">${esc(t("Add someone..."))}</option>${others.map(a => `<option value="${a.id}">${esc(a.name)}${a.remote ? ` (${esc(a.remote.owner)})` : ""}</option>`).join("")}</select>
       <input id="x-name" type="text" placeholder="${esc(t("or a name"))}" maxlength="40"><button type="button" data-action="slotAdd">${esc(t("Add"))}</button></div>` : "";
-    const head = `<div class="x-head"><div class="x-title"><b>${esc(t("Exchange"))} ${tr.exchange}</b>${tr.active ? "" : ` <small>${esc(t("No fight running."))}</small>`}</div>
+    const T = timerOf(tr), rem = ctx.clock.remaining(T);
+    const timer = (T.secs || gm) ? `<div class="x-timer ${T.running && rem <= 10 ? "low" : ""}"><span class="clk" id="x-clk">${T.secs ? fmt(rem) : "--:--"}</span><small>${cur && tr.active ? esc(cur.name) : ""}</small>
+      ${gm ? `<span class="tctl"><select id="x-secs" title="${esc(t("Time per turn"))}">${DURATIONS.map(d => `<option value="${d}" ${T.secs === d ? "selected" : ""}>${d ? `${d} s` : esc(t("No timer"))}</option>`).join("")}</select>
+        ${T.secs ? `<button type="button" data-action="timerToggle">${esc(T.running ? t("Pause") : t("Start"))}</button><button type="button" data-action="timerReset">${esc(t("Reset"))}</button>
+        <label class="chk"><input type="checkbox" id="x-auto" ${T.auto ? "checked" : ""}> ${esc(t("Auto"))}</label>` : ""}</span>` : ""}</div>` : "";
+    const head = `<div class="x-head"><div class="x-title"><b>${esc(t("Exchange"))} ${tr.exchange}</b>${tr.active ? "" : ` <small>${esc(t("No fight running."))}</small>`}</div>${timer}
       ${gm ? `<div class="x-btns">${tr.active
         ? `<button type="button" data-action="xNext" class="primary">${esc(t("Next Exchange"))}</button><button type="button" data-action="xEnd">${esc(t("End fight"))}</button>`
         : `<button type="button" data-action="xStart" class="primary">${esc(t("Start fight"))}</button>`}<button type="button" data-action="xFill">${esc(t("Fill from the table"))}</button></div>` : ""}</div>`;
@@ -50,16 +56,18 @@ export function createBoardUI(ctx) {
 
   function exchangeCard(tr) {
     const list = tr.slots.map(s => `<li>${esc(s.name)}</li>`).join("");
-    return `<div class="pm-card"><div class="pm-card-head">${esc(t("Exchange"))} ${tr.exchange}</div><div class="pm-notes"><ol>${list}</ol></div></div>`;
+    return `<div class="pm-card pm-exchange"><div class="pm-card-head">${esc(t("Exchange"))} ${tr.exchange}</div><div class="pm-notes"><ol>${list}</ol></div></div>`;
   }
 
   const trackerActions = {
-    xStart: () => { const tr = ctx.board().tracker; B.startFight(tr); if (!tr.slots.length) fill(); ctx.post(exchangeCard(tr)); ctx.changed(); },
-    xEnd: () => { B.endFight(ctx.board().tracker); ctx.post(`<div class="pm-card"><div class="pm-card-head">${esc(t("The fight is over."))}</div></div>`); ctx.changed(); },
-    xNext: () => { const tr = ctx.board().tracker; B.nextExchange(tr); ctx.post(exchangeCard(tr)); ctx.changed(); },
+    xStart: () => { const tr = ctx.board().tracker; B.startFight(tr); if (!tr.slots.length) fill(); newTurn(tr); ctx.post(exchangeCard(tr)); ctx.changed(); },
+    xEnd: () => { const tr = ctx.board().tracker; B.endFight(tr); timerReset(timerOf(tr)); ctx.clock.sync(timerOf(tr)); ctx.post(`<div class="pm-card"><div class="pm-card-head">${esc(t("The fight is over."))}</div></div>`); ctx.changed(); },
+    xNext: () => { const tr = ctx.board().tracker; B.nextExchange(tr); newTurn(tr); ctx.post(exchangeCard(tr)); ctx.changed(); },
     xFill: () => { fill(); ctx.changed(); },
     slotMove: el => { B.moveSlot(ctx.board().tracker, el.dataset.id, Number(el.dataset.delta)); ctx.changed(); },
-    slotActed: el => { B.toggleActed(ctx.board().tracker, el.dataset.id); ctx.changed(); },
+    slotActed: el => { const tr = ctx.board().tracker; const s = B.toggleActed(tr, el.dataset.id); if (s?.acted && tr.active) newTurn(tr); ctx.changed(); },
+    timerToggle: () => { const T = timerOf(ctx.board().tracker); if (T.running) timerPause(T, ctx.clock.remaining(T)); else timerStart(T); ctx.clock.sync(T); ctx.changed(); },
+    timerReset: () => { const T = timerOf(ctx.board().tracker); timerReset(T); ctx.clock.sync(T); ctx.changed(); },
     slotRemove: el => { B.removeSlot(ctx.board().tracker, el.dataset.id); ctx.changed(); },
     slotAdd: () => {
       const tr = ctx.board().tracker;
@@ -71,6 +79,8 @@ export function createBoardUI(ctx) {
       ctx.changed();
     }
   };
+  /** A new turn: the timer goes back to full and, if set to Auto, runs. */
+  function newTurn(tr) { const T = timerOf(tr); timerNewTurn(T); ctx.clock.sync(T); }
   function fill() {
     const tr = ctx.board().tracker;
     const all = ctx.state.actors.concat(ctx.remoteActors());
@@ -298,6 +308,8 @@ export function createBoardUI(ctx) {
   async function onChange(e) {
     if (!ctx.isGM()) return;
     const el = e.target;
+    if (el.id === "x-secs") { const T = timerOf(ctx.board().tracker); timerSetSecs(T, Number(el.value)); ctx.clock.sync(T); ctx.changed(); return; }
+    if (el.id === "x-auto") { timerOf(ctx.board().tracker).auto = el.checked; ctx.changed(); return; }
     if (el.id === "m-pick") {
       if (el.value === "__upload") { $("#mapfile").click(); el.value = ctx.board().map?.bundled ?? ""; return; }
       if (!el.value) ctx.setMap(null);

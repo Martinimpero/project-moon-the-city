@@ -236,7 +236,7 @@ export function hailMary(actor, input, rng = defaultRng()) {
   if (input.dig) s.ego.value = 0;
   if (band === "critical") s.ego.value = 1;
   refresh(actor);
-  const html = `<div class="pm-card"><div class="pm-card-head">${esc(actor.name)} &middot; ${esc(t("Hail Mary"))}</div>
+  const html = `<div class="pm-card pm-hailmary"><div class="pm-card-head">${esc(actor.name)} &middot; ${esc(t("Hail Mary"))}</div>
     <div class="pm-card-lines"><div>${esc(ATTRIBUTE_LABEL.resolve)} ${s.attributes.resolve} + ${esc(SKILL_LABEL[input.skill])} ${s.skills[input.skill] ?? 0}${input.bond ? ` + ${esc(t("Bond"))}` : ""}${s.broken ? ` &minus; ${s.broken} ${esc(t("broken"))}` : ""} = ${pool} ${esc(t("dice"))} ${esc(t("vs Difficulty {n}", { n: difficulty }))}${d.fraying ? ` (${esc(t("Fraying"))})` : ""}${input.dig ? `, ${esc(t("digging deep"))}` : ""}${input.drastic ? `, ${esc(t("drastic moment"))}` : ""}</div></div>
     ${diceHtml(base, [])}
     <div class="pm-result">${esc(successesText(successes))} <span class="pm-band ${band}">${esc(bandLabel(band))}</span></div>

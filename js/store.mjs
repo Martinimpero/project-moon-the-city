@@ -7,7 +7,7 @@ import { newTracker } from "./board.mjs";
 const KEY = "project-moon-the-city/v1";
 const LOG_LIMIT = 200;
 
-export const state = { version: 1, lang: "en", name: "", selected: "", actors: [], log: [], seenWarning: false, tracker: newTracker(), map: null, handouts: [] };
+export const state = { version: 1, lang: "en", name: "", sound: { on: true, vol: 0.6 }, selected: "", actors: [], log: [], seenWarning: false, tracker: newTracker(), map: null, handouts: [] };
 
 export function load(storage = globalThis.localStorage) {
   try {
@@ -19,18 +19,19 @@ export function load(storage = globalThis.localStorage) {
 function apply(data) {
   state.lang = data.lang === "es" ? "es" : "en";
   state.name = String(data.name ?? "").slice(0, 30);
+  state.sound = { on: data.sound?.on !== false, vol: Math.max(0, Math.min(1, Number(data.sound?.vol ?? 0.6))) };
   state.actors = (data.actors ?? []).filter(a => a && ["character", "npc", "crew"].includes(a.type)).map(normalizeActor);
   state.log = Array.isArray(data.log) ? data.log.slice(-LOG_LIMIT) : [];
   state.selected = state.actors.some(a => a.id === data.selected) ? data.selected : (state.actors[0]?.id ?? "");
   state.seenWarning = !!data.seenWarning;
-  state.tracker = data.tracker && Array.isArray(data.tracker.slots) ? { active: !!data.tracker.active, exchange: Number(data.tracker.exchange) || 1, slots: data.tracker.slots } : newTracker();
+  state.tracker = data.tracker && Array.isArray(data.tracker.slots) ? { active: !!data.tracker.active, exchange: Number(data.tracker.exchange) || 1, slots: data.tracker.slots, timer: data.tracker.timer } : newTracker();
   state.map = data.map && Array.isArray(data.map.tokens) ? data.map : null;
   state.handouts = Array.isArray(data.handouts) ? data.handouts.filter(h => h && h.id && h.title !== undefined).slice(0, 60) : [];
 }
 
 let dirty = false;
 export function exportData() {
-  return { version: 1, lang: state.lang, name: state.name, selected: state.selected, seenWarning: state.seenWarning, tracker: state.tracker, map: state.map, handouts: state.handouts, actors: state.actors.map(({ derived, ...a }) => ({ ...a, items: a.items.map(({ derived: _d, ...i }) => i) })), log: state.log.slice(-LOG_LIMIT) };
+  return { version: 1, lang: state.lang, name: state.name, sound: state.sound, selected: state.selected, seenWarning: state.seenWarning, tracker: state.tracker, map: state.map, handouts: state.handouts, actors: state.actors.map(({ derived, ...a }) => ({ ...a, items: a.items.map(({ derived: _d, ...i }) => i) })), log: state.log.slice(-LOG_LIMIT) };
 }
 export function save(storage = globalThis.localStorage) {
   dirty = true;
