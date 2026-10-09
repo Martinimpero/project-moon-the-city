@@ -26,7 +26,7 @@ import { createThreatUI } from "./threatui.mjs";
 import { createTablesUI } from "./tablesui.mjs";
 import { createClocksUI } from "./clocksui.mjs";
 import { createManualUI } from "./manualui.mjs";
-import { REFS as MAN_REFS } from "./manualrefs.mjs";
+import { REFS as MAN_REFS, cardRef } from "./manualrefs.mjs";
 import { createScreenUI } from "./screenui.mjs";
 import * as CK from "./clocks.mjs";
 import * as KIT from "./kit.mjs";
@@ -730,6 +730,10 @@ function renderLog() {
   const atBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 60;
   el.innerHTML = state.log.map(e => `<div class="msg ${e.secret ? "secret" : ""}">${e.html}${e.secret ? `<div class="msg-acts"><span>${esc(t("Only you can see this"))}</span><button type="button" data-action="revealRoll" data-id="${esc(e.id)}">${esc(t("Show to the table"))}</button></div>` : ""}</div>`).join("") || `<p class="hint pad">${esc(t("Rolls and results appear here."))}</p>`;
   el.querySelectorAll("span.av[data-aid]").forEach(s => { const a = findActor(s.dataset.aid), src = a ? portraitOf(a) : ""; if (src) s.innerHTML = `<img src="${esc(src)}" alt="">`; });
+  el.querySelectorAll(".pm-card").forEach(c => {                  // a "?" on the cards that follow a rule
+    const r = cardRef(c.classList, !!c.querySelector(".pm-card-lines")), head = c.querySelector(".pm-card-head");
+    if (r && head) head.insertAdjacentHTML("beforeend", `<button type="button" class="man-ref" data-action="manual" data-ref="${r}" title="${esc(t("Open this in the manual"))}" aria-label="${esc(t("Open this in the manual"))}">?</button>`);
+  });
   $("#b-clearlog").textContent = t("Clear log");
   if (atBottom || !el.dataset.init) { el.scrollTop = el.scrollHeight; el.dataset.init = "1"; }
 }

@@ -64,3 +64,12 @@ test("the copies in manual/ are the manual's current text (skipped when the sour
   const out = execFileSync(process.execPath, [fileURLToPath(new URL("../tools/make_manual.mjs", import.meta.url)), "--check"], { encoding: "utf8" });
   assert.match(out, /up to date/);
 });
+
+test("log cards get a '?' by kind: rolls, Hail Mary, Voice, Exchange; chat and handouts none", () => {
+  assert.equal(R.cardRef(["pm-card"], true), R.REFS.result);
+  assert.equal(R.cardRef(["pm-card"], false), null);
+  assert.equal(R.cardRef(["pm-card", "pm-hailmary"], true), R.REFS.hailMary);
+  assert.equal(R.cardRef(["pm-card", "pm-voicecard"], false), R.REFS.ego);
+  assert.equal(R.cardRef(["pm-card", "pm-exchange"], false), R.REFS.exchange);
+  assert.equal(R.cardRef(["pm-card", "chat"], true), null); assert.equal(R.cardRef(["pm-card", "pm-handout"], true), null);
+});

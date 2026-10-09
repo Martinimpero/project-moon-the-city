@@ -22,7 +22,7 @@ export const PART_IDS = PARTS.map(p => p.id);
 
 /** What each "?" on the sheet opens (the label is shown in the tooltip). */
 export const REFS = {
-  attributes: "p3#1", skills: "p3#2", roll: "p2#1", wound: "p3#7", vice: "p3#6", identity: "p3#7", sheet: "p3#9",
+  attributes: "p3#1", skills: "p3#2", roll: "p2#1", result: "p2#2", wound: "p3#7", vice: "p3#6", identity: "p3#7", sheet: "p3#9",
   ego: "p4#1", stress: "p4#2", traumas: "p4#3", hailMary: "p4#4", distortion: "p4#6",
   harm: "p6#2", exchange: "p6#3", gear: "p6#5", resources: "apx#8",
   bonds: "p5#1", crew: "p5#7", heat: "p5#5", clocks: "p2#4",
@@ -30,6 +30,16 @@ export const REFS = {
   grade: "p9#1", unlocks: "p9#2", threat: "p9#4", growth: "p9#7",
   glossary: "apx#11"
 };
+
+/** Which "?" a card in the log gets, from its classes: a roll card reads as "Reading the Result", the Hail Mary and the Voice have their own sections. null: no link. */
+export function cardRef(classes, hasLines) {
+  const c = new Set(classes);
+  if (c.has("pm-hailmary") || c.has("pm-verdict")) return REFS.hailMary;
+  if (c.has("pm-voicecard")) return REFS.ego;
+  if (c.has("pm-exchange") || c.has("pm-conditions")) return REFS.exchange;
+  if (c.has("pm-handout") || c.has("chat")) return null;
+  return hasLines ? REFS.result : null;
+}
 
 const ROMAN = { I: 1, II: 2, III: 3, IV: 4, V: 5, VI: 6, VII: 7, VIII: 8, IX: 9, X: 10 };
 /** "Part IV §2" / "Parte X" -> "p4#2" / "p10" (null if it is not a reference we know). */
