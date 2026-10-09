@@ -22,6 +22,8 @@ import * as H from "./handouts.mjs";
 import { createHandoutUI } from "./handoutui.mjs";
 import * as J from "./journal.mjs";
 import { createJournalUI } from "./journalui.mjs";
+import { createThreatUI } from "./threatui.mjs";
+import { TOKENS } from "./maplist.mjs";
 import { createSfx } from "./sfx.mjs";
 import { TimerClock, timerOf, fmt as fmtTime } from "./timer.mjs";
 
@@ -173,6 +175,11 @@ const handoutUI = createHandoutUI({
   },
   ask: o => ask(o), toast: m => toast(m)
 });
+function addToExchange(id) {
+  const a = findActor(id); if (!a || state.tracker.slots.some(s => s.actorId === id)) return false;
+  B.addSlot(state.tracker, { name: a.name, kind: a.type === "character" ? "pc" : (a.system.isGroup ? "threat" : "named"), actorId: id });
+  return true;
+}
 const boardUI = createBoardUI({
   state, clock, bi, $: sel => document.querySelector(sel), room: () => room, isGM, board,
   remoteActors: () => remoteActors(), findActor: id => findActor(id),
@@ -195,12 +202,28 @@ const boardUI = createBoardUI({
     if (S.byId(id)) { state.selected = id; remoteSel = ""; } else if (findRemote(id)) remoteSel = id; else return false;
     view = "sheet"; persist(); render(); return true;
   },
-  addToExchange: id => {
-    const a = findActor(id); if (!a || state.tracker.slots.some(s => s.actorId === id)) return false;
-    B.addSlot(state.tracker, { name: a.name, kind: a.type === "character" ? "pc" : (a.system.isGroup ? "threat" : "named"), actorId: id });
-    return true;
-  },
+  addToExchange: id => addToExchange(id),
   post: html => post(html), ask: o => ask(o), toast: m => toast(m)
+});
+const threatUI = createThreatUI({
+  state, $: sel => document.querySelector(sel), lang: () => state.lang, hasMap: () => !!board().map,
+  changed: () => { persist(); renderBoard(); },
+  /** Put the new Threats on the sheet list, and (if asked) in the Exchange order and as tokens in the middle of the map being viewed. */
+  create: (made, o) => {
+    const map = board().map, vw = boardUI.centre(), img = TOKENS.find(x => x.includes("Generic_Enemy")) ?? "";
+    made.forEach((a, i) => {
+      S.addActor(a);
+      if (o.exchange) addToExchange(a.id);
+      if (o.map && map) {
+        const step = (map.cell > 0 ? map.cell : 70) * 1.5, cx = vw ? vw.x + vw.w / 2 : map.w / 2, cy = vw ? vw.y + vw.h / 2 : map.h / 2;
+        const tk = B.addToken(map, { name: a.name, x: cx + (i - (made.length - 1) / 2) * step, y: cy + step * 2, color: "#d9453d", img, actorId: a.id, size: 1, hidden: false, pc: false });
+        B.moveToken(map, tk.id, tk.x, tk.y);
+      }
+    });
+    view = "sheet"; persist(); render(); if (room?.role === "host") room.sendBoard();
+    return made.length;
+  },
+  ask: o => ask(o), toast: m => toast(m)
 });
 const SESSION_KEY = "project-moon-the-city/session";
 /** Remember the room we are in (not part of the exported save), so a reload goes back to it. A deliberate leave or a refusal forgets it. */
@@ -344,14 +367,16 @@ export function render() {
 }
 
 function renderBoard() {
-  const tabs = [["log", t("Log")], ["xchg", t("Exchange")], ["map", t("Map")], ["ho", t("Handouts")], ["jr", t("Journal")]];
+  if (rtab === "thr" && !isGM()) rtab = "log";
+  const tabs = [["log", t("Log")], ["xchg", t("Exchange")], ["map", t("Map")], ["ho", t("Handouts")], ["jr", t("Journal")], ...(isGM() ? [["thr", t("Threats")]] : [])];
   $("#rtabs").innerHTML = tabs.map(([k, l]) => `<button type="button" data-action="rtab" data-tab="${k}" class="${rtab === k ? "active" : ""}">${esc(l)}</button>`).join("");
-  for (const [k, id] of [["log", "pane-log"], ["xchg", "pane-xchg"], ["map", "pane-map"], ["ho", "pane-ho"], ["jr", "pane-jr"]]) $("#" + id).hidden = rtab !== k;
+  for (const [k, id] of [["log", "pane-log"], ["xchg", "pane-xchg"], ["map", "pane-map"], ["ho", "pane-ho"], ["jr", "pane-jr"], ["thr", "pane-thr"]]) $("#" + id).hidden = rtab !== k;
   $("#b-clearlog").hidden = rtab !== "log";
   if (rtab === "xchg") boardUI.renderTracker();
   if (rtab === "map") boardUI.renderMap();
   if (rtab === "ho") handoutUI.render();
   if (rtab === "jr") journalUI.render();
+  if (rtab === "thr") threatUI.render();
 }
 
 function renderChrome() {
@@ -545,7 +570,7 @@ function npcSheet(a) {
   const s = a.system, dd = a.derived;
   const badges = `<span class="pm-badge">${esc(t("Grade"))} ${s.grade}${s.isGroup ? ` · ${esc(t("group"))}` : ""}</span><span class="pm-badge">${dd.dice} ${esc(t("dice"))}</span><span class="pm-badge">${esc(t("Difficulty {n}", { n: dd.difficulty }))}</span>${s.alignment ? `<span class="pm-badge sin sin-${s.alignment}">${esc(SIN_LABEL[s.alignment])} ${dd.sinRating}</span>` : ""}${s.nextPenalty ? `<span class="pm-badge warn">${esc(t("Weighed down"))} ${s.nextPenalty}</span>` : ""}`;
   const threat = { 0: t("Holding"), 1: t("Breaking"), 2: t("Routed") };
-  return `<div class="pm-sheet">${header(a, badges, `<div class="pm-actions"><button type="button" data-action="rollNpc">${esc(t("Roll its pool"))}</button>${room?.role === "host" ? `<button type="button" data-action="shareNpc" class="${a.shared ? "active" : ""}">${esc(a.shared ? t("Shown to the table") : t("Show to the table"))}</button>` : ""}</div>`)}
+  return `<div class="pm-sheet">${header(a, badges, `<div class="pm-actions"><button type="button" data-action="rollNpc">${esc(t("Roll its pool"))}</button>${isGM() ? `<button type="button" data-action="thrSave" title="${esc(t("Keep this Threat as a template in the Threats tab"))}">${esc(t("Save to library"))}</button>` : ""}${room?.role === "host" ? `<button type="button" data-action="shareNpc" class="${a.shared ? "active" : ""}">${esc(a.shared ? t("Shown to the table") : t("Show to the table"))}</button>` : ""}</div>`)}
     <section class="pm-body"><div class="pm-grid2">
       <label>${esc(t("Concept"))} ${txt("system.concept", s.concept)}</label>
       <label>${esc(t("Grade"))} ${num("system.grade", s.grade, 1, 9)}</label>
@@ -807,8 +832,9 @@ async function doDowntime(actors, crew) {
 
 /* ------------------------------------------------------------------ click actions */
 
-const READONLY_OK = new Set(["backups", "export", "exportCharacter", "allowBackupFile", "stopRetry", "applyHurt", "rtab", "sound", "timerGo", ...Object.keys(boardUI.actions), ...Object.keys(handoutUI.actions), ...Object.keys(journalUI.actions), "view", "select", "selectRemote", "tab", "newCharacter", "newNpc", "newCrew", "pregens", "lang", "export", "import", "help", "room", "clearLog", "downtimeAll", "newSceneAll"]);
+const READONLY_OK = new Set(["backups", "export", "exportCharacter", "allowBackupFile", "stopRetry", "applyHurt", "rtab", "sound", "timerGo", ...Object.keys(boardUI.actions), ...Object.keys(handoutUI.actions), ...Object.keys(journalUI.actions), ...Object.keys(threatUI.actions), "view", "select", "selectRemote", "tab", "newCharacter", "newNpc", "newCrew", "pregens", "lang", "export", "import", "help", "room", "clearLog", "downtimeAll", "newSceneAll"]);
 const actions = {
+  ...threatUI.actions,
   stopRetry: () => { room?.leave(); room = null; saveSession(); render(); },
   applyHurt: async el => {
     if (!isGM()) return;

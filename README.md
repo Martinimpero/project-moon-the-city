@@ -88,13 +88,17 @@ Pick **Ping** in the map toolbar (GM only), then click the map: a gold ring puls
 - **Fog of war** (GM): tick **Fog of war** on the map. The whole map is covered; **Reveal** and **Cover up** paint squares by dragging, **Reveal all** / **Cover all** do the lot, and **Around token** reveals a few squares around the selected token (the number beside it). Players see solid black; the GM sees through it. Players' tokens for characters always show; any other token standing in fog is hidden from players.
 - **Fog hides things on screen only.** The map picture itself is still sent to players, so someone who opens the browser's developer tools could see it. Fine for a friendly table; do not rely on it against a determined player.
 
+## Threat library (GM)
+
+The **Threats** tab (only the GM, or someone playing alone, sees it) holds 39 ready-made opponents taken from the vault's Bestiary (Backstreets, Nests, Special humans, Colors), searchable in English or Spanish and filterable by Grade band, Sin and category. Each shows its Grade, dice, Difficulty and Sin rating straight from the rules (Appendix E), and opens to its techniques, Want, Bond hook, Detail and use. Press **+** to build an encounter (a count per Threat, with the total sheets and dice, and a reminder that a named foe of Grade 4 or lower gets an extra defensive response). **Create these Threats** makes the sheets (a single Threat becomes numbered sheets; a group such as Enforcers stays one sheet with +2 dice), optionally adds them to the Exchange order and puts tokens on the map you are viewing. Templates with no fixed Sin ask you to choose. **Save to library** on a Threat sheet keeps your own as a template (saved and exported with everything else). Names have Spanish; the descriptive text comes from the Bestiary in English.
+
 ## Not built yet
 Accounts, cloud save, per-player vision, dynamic lighting.
 
 ## Files
 - `index.html`, `css/style.css`: the page and look (same design as the rulebook).
 - `js/rules.mjs`: the pure rules (bands, E.G.O., Sins, Fit, Drift, Hail Mary, upkeep). `js/engine.mjs`: rolls, techniques, downtime. `js/model.mjs`, `js/store.mjs`: data and saving. `js/ui.mjs`: the interface. `js/room.mjs`: the shared-room protocol. `js/board.mjs`, `js/boardui.mjs`, `js/maplist.mjs`: the Exchange tracker and map. `js/handouts.mjs`, `js/handoutui.mjs`: handouts. `js/timer.mjs`: the turn timer. `js/net.mjs`, `js/backup.mjs`, `js/safety.mjs`: connection checks and data safety. `js/creation.mjs`, `js/wizard.mjs`: the character builder. `js/scenes.mjs`: scenes. `js/journal.mjs`, `js/journalui.mjs`: the journal. `js/conditions.mjs`: conditions. `js/sfx.mjs`: sounds. `js/es.mjs`, `js/ui_es.mjs`, `js/room_es.mjs`: Spanish.
-- `tests/`: `node --test tests/*.test.mjs` (needs Node 20+; 175 tests).
+- `tests/`: `node --test tests/*.test.mjs` (needs Node 20+; 183 tests).
 
 ## If you change the rules
 Edit `js/rules.mjs` (and the tests), then the text in `js/config.mjs`, `js/engine.mjs` and Spanish in `js/es.mjs`. Any new English text passed to `t("...")` must get a Spanish entry, or `tests/i18n.test.mjs` fails.

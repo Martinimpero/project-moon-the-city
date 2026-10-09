@@ -518,6 +518,7 @@ export function createBoardUI(ctx) {
     renderTracker: () => { $("#pane-xchg").innerHTML = trackerHtml(); },
     renderMap: () => { $("#pane-map").innerHTML = mapHtml(); attach(); },
     onChange, onUpload, showPing,
-    resetView: () => { view = null; sel = ""; }
+    resetView: () => { view = null; sel = ""; },
+    centre: () => view
   };
 }
