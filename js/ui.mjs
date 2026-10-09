@@ -31,6 +31,7 @@ import * as KIT from "./kit.mjs";
 import * as PR from "./printout.mjs";
 import * as UNDO from "./undo.mjs";
 import { createWindow } from "./win.mjs";
+import * as P from "./portrait.mjs";
 import { TOKENS } from "./maplist.mjs";
 import { createSfx } from "./sfx.mjs";
 import { TimerClock, timerOf, fmt as fmtTime } from "./timer.mjs";
@@ -194,6 +195,7 @@ function addToExchange(id) {
 const boardUI = createBoardUI({
   state, clock, bi, $: sel => document.querySelector(sel), room: () => room, isGM, board,
   remoteActors: () => remoteActors(), findActor: id => findActor(id),
+  portraitSrc: id => { const a = id ? findActor(id) : null; return a ? portraitOf(a) : ""; },
   changed: () => { persist(); renderBoard(); if (room?.role === "host") room.sendBoard(); },
   sendBoard: () => { if (room?.role === "host") room.sendBoard(); },
   redrawMap: () => renderBoard(),
@@ -261,7 +263,7 @@ function saveSession() {
 const savedSession = () => { try { return JSON.parse(localStorage.getItem(SESSION_KEY) || "null"); } catch { return null; } };
 const PEER_URL = "https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js";
 
-const strip = a => JSON.parse(JSON.stringify(a, (k, v) => (k === "derived" || k === "remote" ? undefined : v)));
+const strip = a => JSON.parse(JSON.stringify(P.forSync(a), (k, v) => (k === "derived" || k === "remote" ? undefined : v)));
 function loadPeer() {
   if (globalThis.Peer) return Promise.resolve(globalThis.Peer);
   return new Promise((resolve, reject) => {
@@ -273,7 +275,7 @@ function loadPeer() {
   });
 }
 const handlers = {
-  onStatus: () => { saveSession(); renderChrome(); renderSidebar(); if (room?.status === "error" && room.error) toast(t(room.error)); },
+  onStatus: () => { if (!room?.online) announced.clear(); saveSession(); renderChrome(); renderSidebar(); if (room?.status === "error" && room.error) toast(t(room.error)); },
   onResumed: () => {
     toast(t("Reconnected."));
     if (room.role === "player") scheduleSync(); else { room.sendBoard(); room.broadcastTable(); }
@@ -303,6 +305,7 @@ const handlers = {
     B.moveToken(map, id, x, y); persist(); renderBoard(); room.sendBoard();
   },
   hostBoard: () => { const T = timerOf(state.tracker); return { tracker: { ...state.tracker, timer: { ...T, left: T.running ? Math.ceil(clock.remaining(T)) : T.left } }, map: B.mapForPlayers(S.shownMap()), clocks: CK.forPlayers(state.clocks), mapImage: S.shownMap() && !S.shownMap().bundled && S.shownMap().src ? { rev: S.shownMap().rev, src: S.shownMap().src } : null  }; },
+  onImage: (id, src) => { if (P.remember(imageCache, id, src)) { renderSidebar(); renderMain(); renderBoard(); renderLog(); } },
   onGrant: (actorId, n) => {
     const a = S.byId(actorId);
     if (!a || a.type !== "character" || n < 1) return;
@@ -357,6 +360,7 @@ function scheduleSync() {
   if (!room?.online) return;
   clearTimeout(syncTimer);
   syncTimer = setTimeout(() => {
+    announceImages();
     if (room.role === "host") room.broadcastTable();
     else room.sendSheets(state.actors.filter(a => a.type === "character").map(strip));
   }, 350);
@@ -449,7 +453,7 @@ const UNDO_LABEL = {
   clockStep: "Clock change", deleteClock: "Clock change", ckStep: "Clock change", ckEdit: "Clock change",
   xStart: "Exchange change", xEnd: "Exchange change", xNext: "Exchange change", xFill: "Exchange change", slotMove: "Exchange change", slotActed: "Exchange change", slotRemove: "Exchange change", slotAdd: "Exchange change",
   condStep: "Condition change", condRemove: "Condition change", condAdd: "Condition change",
-  marksRaise: "Growth", marksUnlock: "Grade unlock", awardMarks: "Marks awarded", tokenDel: "Token removed", marksClear: "Drawings cleared", wallsClear: "Walls cleared", deleteActor: "Sheet deleted", sceneDel: "Scene deleted", deleteItem: "Item deleted"
+  marksRaise: "Growth", marksUnlock: "Grade unlock", awardMarks: "Marks awarded", tokenDel: "Token removed", portrait: "Picture changed", marksClear: "Drawings cleared", wallsClear: "Walls cleared", deleteActor: "Sheet deleted", sceneDel: "Scene deleted", deleteItem: "Item deleted"
 };
 const nowJson = () => JSON.stringify(S.exportData());
 const markUndo = label => UNDO.push(undoStack, label, nowJson());
@@ -489,6 +493,43 @@ async function finishSession() {
   if (backupFile) await runAutoBackup();
   renderWarn();
   toast(t("Session saved: {file}", { file: name }));
+}
+/* ---- pictures ---- */
+const imageCache = new Map();            // pictures a room sent (id -> data URL)
+const announced = new Set();             // ids of my own pictures the room has been sent
+/** The picture to show for an actor: its own, or the one the room sent for its id. */
+const portraitOf = a => P.srcOf(a, imageCache);
+const avatar = (a, cls = "") => { const src = portraitOf(a); return `<span class="av ${cls}">${src ? `<img src="${esc(src)}" alt="">` : esc(B.initials(a.name))}</span>`; };
+/** Send the room the pictures it does not have yet: a player's characters, or the GM's shown Threats. */
+function announceImages() {
+  if (!room?.online) return;
+  for (const a of state.actors) {
+    if (!P.isData(a.portrait) || (room.role === "player" ? a.type !== "character" : !a.shared)) continue;
+    const id = P.idOf(a.portrait);
+    if (!announced.has(id) && room.sendImage(id, a.portrait)) announced.add(id);
+  }
+}
+async function portraitDialog(a) {
+  const cur = a.portrait;
+  const r = await ask({
+    title: t("Picture: {name}", { name: a.name }), ok: t("Save"), wide: true,
+    body: `<p>${esc(t("Upload a picture (it is shrunk to stay small) or choose one that comes with the app."))}</p>
+      <div class="pm-row"><input type="file" name="file" accept="image/*"></div>
+      <div class="pm-row art">${TOKENS.map(n => `<label class="art-pick" title="${esc(n.replace(/_/g, " "))}"><input type="radio" name="art" value="tokens/${n}.png" ${cur === `tokens/${n}.png` ? "checked" : ""}><img src="tokens/${n}.png" alt="${esc(n.replace(/_/g, " "))}"></label>`).join("")}</div>
+      ${cur ? `<div class="pm-row"><label class="chk"><input type="checkbox" name="remove"> ${esc(t("Remove the picture"))}</label></div>` : ""}`,
+    read: f => ({ file: f.elements.file.files[0] ?? null, art: f.elements.art.value, remove: !!f.elements.remove?.checked })
+  });
+  if (!r) return;
+  try {
+    let next;
+    if (r.remove) next = "";
+    else if (r.file) next = await P.fileToPortrait(r.file);
+    else if (r.art) next = r.art;
+    else return;
+    markUndo("Picture changed");
+    mutate(a, () => { a.portrait = next; });
+    announceImages();
+  } catch (err) { toast(t(err?.message) || err?.message); }
 }
 /* ---- layout: on a wide screen the map is the centre and the sheet floats above it; on a phone everything is tabs ---- */
 const wideMq = globalThis.matchMedia?.("(min-width: 821px)");
@@ -574,7 +615,7 @@ function renderSidebar() {
     if (a.type === "character") sub = `E.G.O. ${a.derived.egoCurrent}/${a.system.ego.max} · ${t("Stress")} ${a.system.stress}`;
     else if (a.type === "npc") sub = `${t("Grade")} ${a.system.grade}${a.system.isGroup ? ` · ${t("group")}` : ""}`;
     else sub = `${t("Fund")} ${a.system.fund}`;
-    return `<li><button type="button" class="actor ${a.id === state.selected && !remoteSel ? "sel" : ""} ${a.type}" data-action="select" data-id="${a.id}"><span class="ic">${icon[a.type]}</span><span class="nm">${esc(a.name)}</span><small>${esc(sub)}</small></button></li>`;
+    return `<li><button type="button" class="actor ${a.id === state.selected && !remoteSel ? "sel" : ""} ${a.type}" data-action="select" data-id="${a.id}">${avatar(a)}<span class="ic">${icon[a.type]}</span><span class="nm">${esc(a.name)}</span><small>${esc(sub)}</small></button></li>`;
   }).join("");
   $("#side").innerHTML = `
     <div class="side-actions">
@@ -591,7 +632,7 @@ function renderSidebar() {
 function remoteHtml() {
   const list = remoteActors();
   if (!room?.online) return "";
-  const rows = list.map(a => `<li><button type="button" class="actor remote ${a.id === remoteSel ? "sel" : ""} ${a.type}" data-action="selectRemote" data-id="${a.id}"><span class="ic">${a.type === "npc" ? "▲" : "◆"}</span><span class="nm">${esc(a.name)}</span><small>${esc(a.remote.owner)}${a.type === "character" ? ` · E.G.O. ${a.derived.egoCurrent}/${a.system.ego.max} · ${esc(t("Stress"))} ${a.system.stress}` : ""}</small></button></li>`).join("");
+  const rows = list.map(a => `<li><button type="button" class="actor remote ${a.id === remoteSel ? "sel" : ""} ${a.type}" data-action="selectRemote" data-id="${a.id}">${avatar(a)}<span class="ic">${a.type === "npc" ? "▲" : "◆"}</span><span class="nm">${esc(a.name)}</span><small>${esc(a.remote.owner)}${a.type === "character" ? ` · E.G.O. ${a.derived.egoCurrent}/${a.system.ego.max} · ${esc(t("Stress"))} ${a.system.stress}` : ""}</small></button></li>`).join("");
   return `<div class="side-room"><b>${esc(t("At the table"))}</b> <small>${esc(room.code)} · ${room.count}</small></div><ul class="actor-list remote-list">${rows || `<li class="hint pad">${esc(t("Nobody else is here yet."))}</li>`}</ul>`;
 }
 
@@ -613,6 +654,8 @@ function renderMain() {
   const a = viewActor();
   const { bar, body: el } = winParts();
   bar.querySelector(".win-title").textContent = a ? a.name : t("Welcome to the City");
+  const winAv = bar.querySelector(".win-av"), winPic = a ? portraitOf(a) : "";
+  winAv.style.backgroundImage = winPic ? `url("${winPic}")` : ""; winAv.textContent = winPic || !a ? "" : B.initials(a.name);
   bar.querySelector(".win-sub").textContent = !a ? "" : (a.type === "character" ? `E.G.O. ${a.derived.egoCurrent}/${a.system.ego.max} \u00B7 ${HARM_LABEL[a.system.harm]}` : (a.type === "npc" ? `${t("Grade")} ${a.system.grade}` : t("Crew")));
   if (!a) { el.innerHTML = `<div class="empty"><h2>${esc(t("Welcome to the City"))}</h2><p>${esc(t("Add the four pregenerated characters, or make your own. Roll from the sheet; the log keeps every result."))}</p><p><button type="button" class="primary" data-action="pregens">${esc(t("Add the 4 pregens"))}</button></p></div>`; return; }
   const scroll = el.querySelector(".pm-body")?.scrollTop ?? 0;
@@ -626,6 +669,7 @@ function renderLog() {
   const el = $("#log-list");
   const atBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 60;
   el.innerHTML = state.log.map(e => `<div class="msg ${e.secret ? "secret" : ""}">${e.html}${e.secret ? `<div class="msg-acts"><span>${esc(t("Only you can see this"))}</span><button type="button" data-action="revealRoll" data-id="${esc(e.id)}">${esc(t("Show to the table"))}</button></div>` : ""}</div>`).join("") || `<p class="hint pad">${esc(t("Rolls and results appear here."))}</p>`;
+  el.querySelectorAll("span.av[data-aid]").forEach(s => { const a = findActor(s.dataset.aid), src = a ? portraitOf(a) : ""; if (src) s.innerHTML = `<img src="${esc(src)}" alt="">`; });
   $("#b-clearlog").textContent = t("Clear log");
   if (atBottom || !el.dataset.init) { el.scrollTop = el.scrollHeight; el.dataset.init = "1"; }
 }
@@ -633,8 +677,10 @@ function renderLog() {
 /* ---- character ---- */
 
 function header(a, badges, extra = "") {
-  return `<header class="pm-head"><input class="pm-name" type="text" data-path="name" value="${esc(a.name)}" placeholder="${esc(t("Name"))}">
-    <div class="pm-badges">${badges}</div>${extra}
+  const pic = portraitOf(a), inner = pic ? `<img src="${esc(pic)}" alt="">` : `<span class="ph">+<small>${esc(t("Picture"))}</small></span>`;
+  const pbtn = a.remote ? `<span class="pm-portrait ro">${pic ? inner : ""}</span>` : `<button type="button" class="pm-portrait" data-action="portrait" title="${esc(t("Change the picture"))}">${inner}</button>`;
+  return `<header class="pm-head"><div class="pm-hrow">${pbtn}<div class="pm-hcol"><input class="pm-name" type="text" data-path="name" value="${esc(a.name)}" placeholder="${esc(t("Name"))}">
+    <div class="pm-badges">${badges}</div>${extra}</div></div>
     <div class="pm-tools">${a.type === "character" ? `<button type="button" data-action="exportCharacter" title="${esc(t("Save this character as a file"))}">${esc(t("Export"))}</button>` : ""}<button type="button" data-action="duplicateActor">${esc(t("Duplicate"))}</button><button type="button" data-action="deleteActor">${esc(t("Delete"))}</button></div></header>`;
 }
 
@@ -1053,6 +1099,7 @@ const actions = {
   view: (el) => { view = el.dataset.view; render(); },
   select: (el) => { state.selected = el.dataset.id; remoteSel = ""; view = "sheet"; persist(); render(); appWin?.minimise(false); },
   selectRemote: (el) => { remoteSel = el.dataset.id; view = "sheet"; render(); appWin?.minimise(false); },
+  portrait: (el, a) => { if (a && !a.remote) portraitDialog(a); },
   winMin: () => appWin?.toggle(),
   winReset: () => appWin?.reset(),
   room: () => roomDialog(),

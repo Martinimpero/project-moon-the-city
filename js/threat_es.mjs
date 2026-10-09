@@ -211,5 +211,14 @@ export const THREAT_ES = {
   "End of session": "Fin de sesión",
   "Drag to move. Double-click to minimise or open.": "Arrastra para mover. Doble clic para minimizar o abrir.",
   "Put the window back where it started": "Devolver la ventana a su sitio",
-  "Minimise or open": "Minimizar o abrir"
+  "Minimise or open": "Minimizar o abrir",
+  "Picture": "Imagen",
+  "Picture: {name}": "Imagen: {name}",
+  "Change the picture": "Cambiar la imagen",
+  "Remove the picture": "Quitar la imagen",
+  "Upload a picture (it is shrunk to stay small) or choose one that comes with the app.": "Sube una imagen (se reduce para que pese poco) o elige una de las que trae la app.",
+  "Picture changed": "Imagen cambiada",
+  "That is not a picture.": "Eso no es una imagen.",
+  "That picture could not be read.": "No se pudo leer esa imagen.",
+  "That picture is too detailed to keep small. Try another.": "Esa imagen es demasiado detallada para guardarla pequeña. Prueba con otra."
 };

@@ -28,7 +28,7 @@ export function characterPage(a, tr) {
   const bonds = items("bond").map(b => `<li>${esc(b.name)} <small>${esc(BOND_TYPE_LABEL[b.system.type])} ${b.system.strength}${b.system.temporary ? ` · ${esc(tr("temporary"))}` : ""}</small></li>`).join("") || "<li>1. &nbsp;</li><li>2. &nbsp;</li><li>3. &nbsp;</li>";
   const trauma = items("trauma").map(x => x.name).join("; ");
   return page(a ? a.name : tr("Character sheet"), `
-    <div class="pr-grid2">${ids.map(([k, v]) => line(tr(k), v)).join("")}</div>
+    ${a?.portrait ? `<p class="pr-portrait"><img src="${esc(a.portrait)}" alt=""></p>` : ""}<div class="pr-grid2">${ids.map(([k, v]) => line(tr(k), v)).join("")}</div>
     <div class="pr-cols"><div><h2>${esc(tr("Attributes"))}</h2>${attrs}</div><div><h2>${esc(tr("Skills"))}</h2>${skills}</div><div><h2>${esc(tr("Resonance"))}</h2>${sins}${line(tr("Alignment"), d?.alignment ? SIN_LABEL[d.alignment] : "")}</div></div>
     <div class="pr-grid2">${line("E.G.O.", a ? `${d.egoCurrent} / ${s.ego.max}` : " /")}${line(tr("Stress"), a ? `${s.stress} (0-5)` : "(0-5)")}${line(tr("Resources"), a ? `${s.resources} / 5` : " / 5")}${line(tr("Institutional Grade"), a ? s.grade : "")}</div>
     <p class="pr-harm"><b>${esc(tr("Harm"))}:</b> ${harm}</p>

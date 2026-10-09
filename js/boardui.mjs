@@ -66,7 +66,7 @@ export function createBoardUI(ctx) {
     const kindLabel = { pc: t("Character"), threat: t("Threat"), named: t("Named opponent"), other: "" };
     const rows = tr.slots.map((s, i) => `<li class="slot ${s.kind} ${s.acted ? "acted" : ""} ${cur?.id === s.id && tr.active ? "now" : ""}">
       ${gm ? `<span class="mv"><button type="button" data-action="slotMove" data-id="${s.id}" data-delta="-1" ${i === 0 ? "disabled" : ""}>&uarr;</button><button type="button" data-action="slotMove" data-id="${s.id}" data-delta="1" ${i === tr.slots.length - 1 ? "disabled" : ""}>&darr;</button></span>` : ""}
-      <span class="who"><b>${esc(s.name)}</b><small>${esc([kindLabel[s.kind], slotInfo(s)].filter(Boolean).join(" · "))}</small></span>
+      ${(() => { const src = ctx.portraitSrc?.(s.actorId); return `<span class="av">${src ? `<img src="${esc(src)}" alt="">` : esc(B.initials(s.name))}</span>`; })()}<span class="who"><b>${esc(s.name)}</b><small>${esc([kindLabel[s.kind], slotInfo(s)].filter(Boolean).join(" · "))}</small></span>
       ${condsHtml(s, gm)}
       ${gm && s.hurtDue > 0 ? `<button type="button" class="hurtdue" data-action="applyHurt" data-slot="${s.id}" title="${esc(t("Harm becomes at least Hurt"))}">${esc(t("Apply Hurt"))}${s.hurtDue > 1 ? ` &times;${s.hurtDue}` : ""}</button>` : ""}
       ${gm ? `<button type="button" class="act ${s.acted ? "on" : ""}" data-action="slotActed" data-id="${s.id}">${esc(s.acted ? t("Acted") : t("Waiting"))}</button><button type="button" data-action="slotRemove" data-id="${s.id}" title="${esc(t("Remove"))}">&times;</button>`
@@ -149,7 +149,7 @@ export function createBoardUI(ctx) {
     if (!b.map) return "";
     return b.map.src || (b.image?.rev === b.map.rev ? b.image.src : "");
   };
-  const tokenImg = tk => (tk.img ? `tokens/${tk.img}.png` : "");
+  const tokenImg = tk => ctx.portraitSrc?.(tk.actorId) || (tk.img ? `tokens/${tk.img}.png` : "");
 
   function fit(map) { view = { x: 0, y: 0, w: map.w, h: map.h }; viewKey = map.rev; }
 

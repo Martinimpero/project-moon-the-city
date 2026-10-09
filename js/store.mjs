@@ -90,6 +90,7 @@ export function addLog(html, id = uid()) {
 }
 
 /** Add the four pregenerated characters (Spanish text if the app is in Spanish). Returns the names added. */
+const PREGEN_ART = { "Wren Okoro": "tokens/PC_Wren_Okoro.png", "Dax Verrin": "tokens/PC_Dax_Verrin.png", "Lena Hart": "tokens/PC_Lena_Hart.png", "Tomas Quill": "tokens/PC_Tomas_Quill.png" };
 export function importPregens() {
   const added = [];
   for (const p of PREGENS) {
@@ -100,6 +101,7 @@ export function importPregens() {
     const pickWords = o => ({ burden: o?.burden ?? "", fear: o?.fear ?? "", boundary: o?.boundary ?? "" });
     const base = es ? { ...p.system, ...es.text, lang: "es", alt: pickWords(p.system) } : { ...p.system, lang: "en", alt: pickWords(esData?.text) };
     const actor = newActor("character", p.name, base, es ? es.items : p.items);
+    actor.portrait = PREGEN_ART[p.name] ?? "";
     refresh(actor);
     addActor(actor);
     added.push(p.name);

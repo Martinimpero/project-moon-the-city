@@ -22,7 +22,8 @@
     "bondHook": "Affection, forming from the PC's side first, if they treat her like a person. The PCs also need her sign-off (Obligation from their side); a Trust Bond can grow if they cover for a late filing.",
     "detail": "She narrates every stamp she applies under her breath, like a small ritual.",
     "notes": "Use: She hands over the Contract in Session 01 and mentions the Registry's cut. For anyone who treats her like a person instead of an obstacle, she will quietly round a job up to a better Risk tier."
-   }
+   },
+   "portrait": "tokens/NPC_Clerk_Sorel.png"
   },
   {
    "ref": "stranger",
@@ -36,7 +37,8 @@
     "bondHook": "Debt - he pays well and expects it to be remembered. Will hide how much the cargo is worth.",
     "detail": "Wears a borrowed coat that still has the previous owner's name stitched in.",
     "notes": "Presence + Deception 4 in the Complication Clause negotiation."
-   }
+   },
+   "portrait": "tokens/NPC_The_Stranger.png"
   },
   {
    "ref": "sable",
@@ -50,7 +52,8 @@
     "bondHook": "Fear (she wants the PCs to fear her reach) or Debt (she'll buy a favor if the PCs back off).",
     "detail": "Taps two fingers on whatever she's holding when she's lying.",
     "notes": "Session 01 v2 sizing: Grade 3, Attack 6 / Defense 6, with a counter-reply (Group and Environmental Combat). Resolve 5 in Scene 3 (+1 if the Lookout whistled). Taps two fingers on whatever she holds when she lies."
-   }
+   },
+   "portrait": "tokens/NPC_Sable_Rennick.png"
   },
   {
    "ref": "marl",
@@ -64,7 +67,8 @@
     "bondHook": "Debt 2, held on Dax. Becomes Trust if Dax pays in honest work.",
     "detail": "Never sits down. Waits.",
     "notes": "Attack 5 · Defense 5 · Resolve 4\nUnmoved (see Sin - Sloth): once per scene, do nothing as your action; attacks and pressure against him are at -2 dice.\nCall the Debt: once per scene, spend the 2-point Debt Bond he holds on Dax Verrin for +2 dice on a social roll against Dax.\nUse: Dax's old crew boss. He wants the Row shipment, and offers to clear Dax's Debt if Dax lets it go. Sloth beats Wrath and Pride, so Dax can't just lean on him. Gloom and Lust beat Sloth: Wren Okoro is the one who can talk him down."
-   }
+   },
+   "portrait": "tokens/NPC_Marl_Vessey.png"
   },
   {
    "ref": "ines",
@@ -78,7 +82,8 @@
     "bondHook": "Affection: she means every word, and it is a leash. Held on Lena Hart through her Employment Bond with Halcyon.",
     "detail": "Always has tissues. Remembers every birthday.",
     "notes": "Attack 3 · Defense 4 · Resolve 5\nWellness Check: Presence + Empathy against the target's Resolve. On a Success, a forced E.G.O. loss of 1 (the Stress rule adds extra) and an Employment Bond hook.\nUse: Calls Lena before the Row run is over: \"Halcyon would like that crate back. Come in for a wellness check.\" She offers protection and a promotion. Gluttony and Envy beat Lust, so Lena is the one who can resist her."
-   }
+   },
+   "portrait": "tokens/NPC_Ines_Calloway.png"
   },
   {
    "ref": "ottoline",
@@ -92,7 +97,8 @@
     "bondHook": "Debt: every sale creates one. She holds a 1-point Debt on Tomas Quill after the first favor.",
     "detail": "Keeps her secrets in a ledger of other people's handwriting.",
     "notes": "Attack 3 · Defense 3 · Resolve 2\nStudy (see Sin Techniques).\nRumor: once per scene, sell one true thing about a target for a 1-point Debt.\nUse: Messages Tomas during the Row run: his licence is reinstated if he gives her the client's name. His Boundary is \"I won't lie to a client about what I found.\" Pride and Wrath beat Envy, so Tomas is the one who can face her down."
-   }
+   },
+   "portrait": "tokens/NPC_Ottoline_Vance.png"
   },
   {
    "ref": "lookout",
@@ -106,7 +112,8 @@
     "bondHook": "Fear - easily scared; could become an informant (Debt) if spared.",
     "detail": "Chews a coin on a string.",
     "notes": "Model: Row Lookout. Whistle: tick the local Clock by 1, once per scene."
-   }
+   },
+   "portrait": "tokens/NPC_Rival_Crew_Lookout.png"
   },
   {
    "ref": "enfA",
@@ -120,7 +127,8 @@
     "bondHook": "Hatred or Fear; a bad Debt calls them in.",
     "detail": "",
     "notes": "Grade 8 muscle, pool 5 for attack and defense (3 + 2 for a group). Break a Hand: on a Success, the target takes Hurt and -1 die on their next roll. Run as one Threat at Holding; a Critical Success pushes it straight to Breaking."
-   }
+   },
+   "portrait": "tokens/Generic_Enemy.png"
   },
   {
    "ref": "enfB",
@@ -134,7 +142,8 @@
     "bondHook": "Hatred or Fear; a bad Debt calls them in.",
     "detail": "",
     "notes": "Grade 8 muscle, pool 5 for attack and defense (3 + 2 for a group). Break a Hand: on a Success, the target takes Hurt and -1 die on their next roll. Run as one Threat at Holding; a Critical Success pushes it straight to Breaking."
-   }
+   },
+   "portrait": "tokens/Generic_Enemy.png"
   }
  ],
  "scenes": [

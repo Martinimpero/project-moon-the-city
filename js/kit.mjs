@@ -12,6 +12,7 @@ import { newHandout, MAX_HANDOUTS } from "./handouts.mjs";
 import * as J from "./journal.mjs";
 import * as K from "./clocks.mjs";
 import { MAPS } from "./maplist.mjs";
+import { clean as cleanPortrait } from "./portrait.mjs";
 
 export const KIT_KIND = "project-moon-kit", MODES = ["add", "prep", "replace"];
 /** A kit's text is a string or { en, es }; read it in `lang`. */
@@ -51,7 +52,7 @@ export function applyKit(state, kit, { mode = "add", lang = "en", author = "GM" 
     const have = state.actors.find(x => x.type === "npc" && same(x.name, a.name));
     if (have) { byRef[a.ref] = have.id; if (full) out.skipped++; continue; }
     if (!full) continue;
-    const n = newActor("npc", a.name, a.system ?? {}); state.actors.push(n); byRef[a.ref] = n.id; out.actors++;
+    const n = newActor("npc", a.name, a.system ?? {}); n.portrait = cleanPortrait(a.portrait); state.actors.push(n); byRef[a.ref] = n.id; out.actors++;
   }
   /* scenes: an untouched "Scene 1" makes way for the first one */
   ensureScenes(state);

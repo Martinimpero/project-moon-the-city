@@ -136,13 +136,21 @@ Limits to know: a square counts as seen when a straight line from the token to i
 
 **Area** (on the map's drawing toolbar) lays a **circle**, **cone** or **line** on the map: pick the shape, press where it starts (it snaps to the middle of a square) and drag; a dashed preview shows its size in squares. When you let go the area stays on the map and a message says **who is inside** (every token whose middle is in the shape, hidden ones too). A circle's size is its radius; a cone is as wide at its end as it is long and points where you dragged; a line has a length and a width (set Width, in squares). Areas use the same colour and "Players see drawings and areas" box as drawings, are erased with **Erase** or **Clear drawings**, are saved with the map and can be undone. The manual has no area rules (combat is abstract), so this is only a table aid for measuring who is in the way.
 
+## The screen: map in the centre, sheet in a window
+
+On a wide screen the **map is the centre of the page** and the character sheet floats above it as a **window**: drag it by its title bar, stretch the bottom-right corner to resize it, and **double-click the title bar** to minimise it to a small bar that you can leave anywhere (double-click again to open it). `⤢` puts it back. Where you leave it, its size and whether it is minimised are remembered on that device. Choosing another character or a token's sheet opens it again. The log and the other tabs stay on the right. On a phone (narrow screens) nothing floats: the old tabs (People, Sheet, Table) are used and the map is a tab again.
+
+## Pictures
+
+Characters, Threats and crews can have a picture: press the picture box beside the name on the sheet, then upload an image (it is shrunk to a small JPEG, at most about 70 KB) or choose one of the pictures that come with the app. It appears in the character list, on the sheet window's bar, on the **map token** (a token linked to a sheet uses that sheet's picture), in the Exchange order, in the header of the character's roll cards, and on the printed sheet. In a room, a chosen picture is sent **once** as its own message (the sheets themselves only carry a short id), the host keeps the pictures and sends them to anyone who joins; the pregenerated characters and the Session 01 Threats use the bundled art, which nobody needs to send. Pictures are saved and exported with the character, and a saved file with a bad picture value is cleaned when it is loaded. Undo can take a picture change back.
+
 ## Finish session
 
 **Finish session** (bottom of the character list, for the GM and for every player) closes a session safely: it keeps a snapshot inside the browser, downloads a file `project-moon-session-DATE-TIME.json` with everything (a normal save you can Import), writes your backup file if you set one, and resets the "not backed up" reminder. The GM, with players in the room, can tick a box to post a reminder card so everyone saves their own sheet. The snapshot appears in **Backup** as "End of session". The file is the same as **Export** produces, so any Export can be re-imported.
 
 ## Table guide
 
-`guia/index.html` is a short, navigable guide in Spanish and English (27 one-screen pages): opening the app, opening a room as GM, joining as a player, rolling, the map, saving, fixing connection problems. It is a single file that works on GitHub Pages and offline; the app's Help window links to it. `tests/guide.test.mjs` checks that every button name in the guide is the name the app really shows, in both languages.
+`guia/index.html` is a short, navigable guide in Spanish and English (29 one-screen pages): opening the app, opening a room as GM, joining as a player, rolling, the map, saving, fixing connection problems. It is a single file that works on GitHub Pages and offline; the app's Help window links to it. `tests/guide.test.mjs` checks that every button name in the guide is the name the app really shows, in both languages.
 
 ## Not built yet
 Accounts, cloud save, per-player vision (the fog is the same for everyone), light sources and darkness, players drawing on the map, a co-GM or spectator role, handing the GM role over mid-session (export and import instead).

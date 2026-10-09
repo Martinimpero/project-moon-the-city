@@ -28,6 +28,8 @@ export function diceHtml(base, ego, changed = new Set()) {
   const die = (v, cls, key) => `<span class="pm-die ${cls} ${v >= 7 ? "hit" : (v === 1 ? "one" : "")} ${changed.has(key) ? "rerolled" : ""}">${v}</span>`;
   return `<div class="pm-dice">${base.map((v, i) => die(v, "", `b${i}`)).join("")}${ego.map((v, i) => die(v, "ego", `e${i}`)).join("")}</div>`;
 }
+/** A place for the actor's picture in a log card; the page fills it in from the actor's id (the picture is never stored in the log). */
+export const avTag = actor => `<span class="av" data-aid="${esc(actor.id)}"></span>`;
 export const card = (head, body) => `<div class="pm-card"><div class="pm-card-head">${head}</div><div class="pm-notes">${body}</div></div>`;
 const actorCard = (actor, head, body) => card(`${esc(actor.name)} &middot; ${head}`, body);
 
@@ -205,7 +207,7 @@ export function commitRoll(actor, draft) {
   if (pull) notes.push(`<b>${esc(t("Pull:"))}</b> ${esc(t("{gear} provokes {sin}: {text} (Wear {w}/3)", { gear: gear.name, sin: SIN_LABEL[gear.system.sin], text: SIN_TEXT[gear.system.sin].complication, w: gear.system.wear }))}`);
 
   const html = `<div class="pm-card">
-    <div class="pm-card-head">${esc(actor.name)}${draft.skill ? ` &middot; ${esc(SKILL_LABEL[draft.skill])}` : ""}</div>
+    <div class="pm-card-head">${avTag(actor)}${esc(actor.name)}${draft.skill ? ` &middot; ${esc(SKILL_LABEL[draft.skill])}` : ""}</div>
     <div class="pm-card-lines">${lines.map(l => `<div>${l}</div>`).join("")}</div>
     ${diceHtml(base, ego, draft.changed)}
     <div class="pm-result">${esc(successesText(successes))}${draft.oppSuccesses !== null ? ` ${esc(t("vs"))} ${draft.oppSuccesses}` : ""}
@@ -244,7 +246,7 @@ export function hailMary(actor, input, rng = defaultRng()) {
   if (input.dig) s.ego.value = 0;
   if (band === "critical") s.ego.value = 1;
   refresh(actor);
-  const html = `<div class="pm-card pm-hailmary"><div class="pm-card-head">${esc(actor.name)} &middot; ${esc(t("Hail Mary"))}</div>
+  const html = `<div class="pm-card pm-hailmary"><div class="pm-card-head">${avTag(actor)}${esc(actor.name)} &middot; ${esc(t("Hail Mary"))}</div>
     <div class="pm-card-lines"><div>${esc(ATTRIBUTE_LABEL.resolve)} ${s.attributes.resolve} + ${esc(SKILL_LABEL[input.skill])} ${s.skills[input.skill] ?? 0}${input.bond ? ` + ${esc(t("Bond"))}` : ""}${s.broken ? ` &minus; ${s.broken} ${esc(t("broken"))}` : ""} = ${pool} ${esc(t("dice"))} ${esc(t("vs Difficulty {n}", { n: difficulty }))}${d.fraying ? ` (${esc(t("Fraying"))})` : ""}${input.dig ? `, ${esc(t("digging deep"))}` : ""}${input.drastic ? `, ${esc(t("drastic moment"))}` : ""}</div></div>
     ${diceHtml(base, [])}
     <div class="pm-result">${esc(successesText(successes))} <span class="pm-band ${band}">${esc(bandLabel(band))}</span></div>
@@ -263,7 +265,7 @@ export function npcRoll(actor, rng = defaultRng(), { sinking = 0 } = {}) {
   const base = rollN(dice, rng);
   const successes = R.countSuccesses(base);
   if (weight < 0) s.nextPenalty = 0;
-  return `<div class="pm-card"><div class="pm-card-head">${esc(actor.name)} (${esc(t("Grade"))} ${s.grade}${s.isGroup ? `, ${esc(t("group"))}` : ""})</div>
+  return `<div class="pm-card"><div class="pm-card-head">${avTag(actor)}${esc(actor.name)} (${esc(t("Grade"))} ${s.grade}${s.isGroup ? `, ${esc(t("group"))}` : ""})</div>
     <div class="pm-card-lines"><div>${dice} ${esc(t("dice"))}${weight < 0 ? ` (${esc(t("{a} less Sorrow's Weight {b}", { a: dd.dice, b: -weight }))})` : ""}${sunk ? ` (${esc(t("Sinking -{n}", { n: sunk }))})` : ""}${s.alignment ? ` &middot; ${esc(SIN_LABEL[s.alignment])} ${esc(t("rating"))} ${dd.sinRating}` : ""}</div></div>
     ${diceHtml(base, [])}<div class="pm-result">${esc(successesText(successes))}</div></div>`;
 }
