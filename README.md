@@ -152,6 +152,14 @@ Characters, Threats and crews can have a picture: press the picture box beside t
 
 GitHub Pages lets a browser keep a file for up to ten minutes, so right after an update a page could load some new modules and some old ones and break. `tools/version.mjs` prevents that: it gives every module, the stylesheet and the entry script a version taken from the file's content (`?v=3fa9c1...`) and writes them into `index.html` (an import map rewrites every `import "./x.mjs"`). Unchanged files keep their address and stay cached; changed files get a new address. **After changing any file in `js/` or `css/`, run `node tools/version.mjs` before committing.** `tests/version.test.mjs` fails if `index.html` is out of date, so it cannot be forgotten. The guide (`guia/`) does not use modules and is not affected. Needs a browser with import maps (Chrome/Edge 89+, Firefox 108+, Safari 16.4+).
 
+## The manual inside the app
+
+**Manual** (in the header) opens the rulebook in a panel on the right, beside the sheet and the map: the front matter, the Player primer, Parts I to X and the Appendices (glossary, quick references), in the app's language. Pick a part or a section, or **search** (every word must appear; titles rank first). The small **?** on the sheet opens the manual at the section about that thing: Attributes, Skills, the roll, the Wound, Vice, E.G.O., Stress, Harm, the Hail Mary, Traumas, Bonds, Gear, Resources, the Sins table (Resonance, Wheel, Fit, Drift), Growth, Grade unlocks, Threat Clock, the Crew's Heat. A "Part IV §2" inside the text is a link as well. On a phone the panel takes the whole screen.
+
+The text is the manual's own Markdown, copied into `manual/en/` and `manual/es/` by `node tools/make_manual.mjs` (run it after changing the manual; `--check` says whether the copies are current, and a test fails if they are not). English sections and Spanish sections are matched by order, so both files must have the same number of `##` headings; the build refuses otherwise. The files are loaded the first time they are needed. The "?" links are listed in `js/manualrefs.mjs`; a test checks that each points to a real section.
+
+The right-hand tabs (Log, Exchange, Handouts, Journal, Clocks, Screen, Threats, Tables) now wrap onto more rows when the panel is narrow, instead of running off the edge.
+
 ## Table guide
 
 `guia/index.html` is a short, navigable guide in Spanish and English (29 one-screen pages): opening the app, opening a room as GM, joining as a player, rolling, the map, saving, fixing connection problems. It is a single file that works on GitHub Pages and offline; the app's Help window links to it. `tests/guide.test.mjs` checks that every button name in the guide is the name the app really shows, in both languages.

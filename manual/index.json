@@ -1,0 +1,382 @@
+{
+ "parts": [
+  {
+   "id": "front",
+   "en": {
+    "title": "PROJECT MOON: THE CITY",
+    "sections": [
+     "Welcome to the City",
+     "What You Need to Play",
+     "The Tone of the Game",
+     "Quick Start"
+    ]
+   },
+   "es": {
+    "title": "PROJECT MOON: LA CIUDAD",
+    "sections": [
+     "Bienvenido a la Ciudad",
+     "Qué Necesitas para Jugar",
+     "El Tono del Juego",
+     "Inicio Rápido"
+    ]
+   }
+  },
+  {
+   "id": "primer",
+   "en": {
+    "title": "BEFORE YOU BUILD",
+    "sections": [
+     "The City in four lines",
+     "When you play",
+     "Where you can be from (your Affiliation)",
+     "A place to start: Threadmill Row",
+     "The Night",
+     "Everyday life",
+     "Ideas for a Background",
+     "Desire and Ambition, with an example of each",
+     "Five questions to bring to the table"
+    ]
+   },
+   "es": {
+    "title": "ANTES DE CREAR",
+    "sections": [
+     "La Ciudad en cuatro líneas",
+     "Cuándo se juega",
+     "De dónde puedes venir (tu Afiliación)",
+     "Un sitio para empezar: la Fila del Telar (Threadmill Row)",
+     "La Noche",
+     "La vida diaria",
+     "Ideas de Trasfondo",
+     "Deseo y Ambición, con un ejemplo de cada uno",
+     "Cinco preguntas para llevar a la mesa"
+    ]
+   }
+  },
+  {
+   "id": "p1",
+   "en": {
+    "title": "PART I — THE CITY",
+    "sections": [
+     "1. The City at a Glance",
+     "2. Fixers and Associations",
+     "3. The Four Institutions",
+     "4. Abnormalities",
+     "5. Contracts and the Shape of a Job"
+    ]
+   },
+   "es": {
+    "title": "PARTE I — LA CIUDAD",
+    "sections": [
+     "1. La Ciudad de un vistazo",
+     "2. Agentes y Asociaciones",
+     "3. Las Cuatro Instituciones",
+     "4. Anormalidades",
+     "5. Contratos y la Forma de un Trabajo"
+    ]
+   }
+  },
+  {
+   "id": "p2",
+   "en": {
+    "title": "PART II — PLAYING THE GAME",
+    "sections": [
+     "1. The Core Roll",
+     "2. Reading the Result",
+     "3. Helping",
+     "4. Clocks",
+     "5. Consequences"
+    ]
+   },
+   "es": {
+    "title": "PARTE II — CÓMO SE JUEGA",
+    "sections": [
+     "1. La Tirada Básica",
+     "2. Leer el Resultado",
+     "3. Ayudar",
+     "4. Relojes",
+     "5. Consecuencias"
+    ]
+   }
+  },
+  {
+   "id": "p3",
+   "en": {
+    "title": "PART III — CHARACTERS",
+    "sections": [
+     "1. Attributes",
+     "2. Skills",
+     "3. Character Creation",
+     "4. Attributes & Skills Point-Buy",
+     "5. Occupation Packages",
+     "6. Vice",
+     "7. Identity Components",
+     "8. Seeding E.G.O., Stress, and Bonds",
+     "9. Character Sheet Fields"
+    ]
+   },
+   "es": {
+    "title": "PARTE III — PERSONAJES",
+    "sections": [
+     "1. Atributos",
+     "2. Habilidades",
+     "3. Creación de Personajes",
+     "4. Compra por Puntos de Atributos y Habilidades",
+     "5. Paquetes de Ocupación",
+     "6. Vicio",
+     "7. Componentes de la Identidad",
+     "8. Sembrando el E.G.O., el Estrés y los Vínculos",
+     "9. Campos de la Hoja de Personaje"
+    ]
+   }
+  },
+  {
+   "id": "p4",
+   "en": {
+    "title": "PART IV — THE SELF",
+    "sections": [
+     "1. E.G.O.",
+     "2. Stress",
+     "3. Trauma",
+     "4. The Hail Mary",
+     "5. E.G.O. Manifestation",
+     "6. Distortion",
+     "7. The Reckoning",
+     "8. Worked Example: Mira Sato's Hail Mary"
+    ]
+   },
+   "es": {
+    "title": "PARTE IV — EL YO",
+    "sections": [
+     "1. E.G.O.",
+     "2. Estrés",
+     "3. Trauma",
+     "4. El Último Recurso",
+     "5. Manifestación de E.G.O.",
+     "6. Distorsión",
+     "7. El Ajuste de Cuentas",
+     "8. Ejemplo Trabajado: El Último Recurso de Mira Sato"
+    ]
+   }
+  },
+  {
+   "id": "p5",
+   "en": {
+    "title": "PART V — SOCIAL PLAY",
+    "sections": [
+     "1. Bonds",
+     "2. Faction Standing",
+     "3. The Four Institutions and How They Press",
+     "4. Contracts",
+     "5. Heat and Institutional Attention",
+     "6. Social Conflict",
+     "7. The Crew"
+    ]
+   },
+   "es": {
+    "title": "PARTE V — VIDA SOCIAL",
+    "sections": [
+     "1. Vínculos",
+     "2. Reputación de Facción",
+     "3. Las Cuatro Instituciones y Cómo Presionan",
+     "4. Contratos",
+     "5. Presión y Atención Institucional",
+     "6. Conflicto Social",
+     "7. El Equipo"
+    ]
+   }
+  },
+  {
+   "id": "p6",
+   "en": {
+    "title": "PART VI — DANGER",
+    "sections": [
+     "1. When Combat Starts",
+     "2. Harm",
+     "3. The Exchange",
+     "4. Attacks and Defense",
+     "5. Equipment",
+     "6. Group and Environmental Combat",
+     "7. Retreat and Concession",
+     "8. Combat and the Self",
+     "9. Worked Example"
+    ]
+   },
+   "es": {
+    "title": "PARTE VI — PELIGRO",
+    "sections": [
+     "1. Cuándo Empieza el Combate",
+     "2. Daño",
+     "3. El Intercambio",
+     "4. Ataques y Defensa",
+     "5. Equipo",
+     "6. Combate en Grupo y Ambiental",
+     "7. Retirada y Rendición",
+     "8. El Combate y el Yo",
+     "9. Ejemplo Trabajado"
+    ]
+   }
+  },
+  {
+   "id": "p7",
+   "en": {
+    "title": "PART VII — THE CITY TOOLKIT",
+    "sections": [
+     "1. Districts",
+     "2. Wings",
+     "3. Fixers and Associations",
+     "4. Syndicates",
+     "5. Offices",
+     "6. Abnormalities",
+     "7. The Head, the Eye, and the Claw",
+     "8. Worked Example",
+     "9. The Night and the Taboos",
+     "10. Living in the City"
+    ]
+   },
+   "es": {
+    "title": "PARTE VII — EL KIT DE LA CIUDAD",
+    "sections": [
+     "1. Distritos",
+     "2. Alas",
+     "3. Agentes y Asociaciones",
+     "4. Sindicatos",
+     "5. Oficinas",
+     "6. Anormalidades",
+     "7. La Cabeza, el Ojo y la Garra",
+     "8. Ejemplo Trabajado",
+     "9. La Noche y los Tabúes",
+     "10. Vivir en la Ciudad"
+    ]
+   }
+  },
+  {
+   "id": "p8",
+   "en": {
+    "title": "PART VIII — RUNNING THE GAME",
+    "sections": [
+     "1. Running a Session",
+     "2. Building an NPC",
+     "3. Generating a Contract",
+     "4. Running the Psychological Systems",
+     "5. Running Social Conflict and Clocks",
+     "6. Running Combat",
+     "7. Improvising an Abnormality",
+     "8. Campaign Structures",
+     "9. Worked Example: A Full Session Zero Prep",
+     "10. The Downtime Phase",
+     "11. Session Zero and Safety"
+    ]
+   },
+   "es": {
+    "title": "PARTE VIII — DIRIGIR EL JUEGO",
+    "sections": [
+     "1. Dirigir una Sesión",
+     "2. Construir un PNJ",
+     "3. Generar un Contrato",
+     "4. Dirigir los Sistemas Psicológicos",
+     "5. Dirigir el Conflicto Social y los Relojes",
+     "6. Dirigir el Combate",
+     "7. Improvisar una Anormalidad",
+     "8. Estructuras de Campaña",
+     "9. Ejemplo Trabajado: Una Preparación Completa de Sesión Cero",
+     "10. La Fase de Tiempo Libre",
+     "11. Sesión Cero y Seguridad"
+    ]
+   }
+  },
+  {
+   "id": "p9",
+   "en": {
+    "title": "PART IX — ADVANCEMENT",
+    "sections": [
+     "1. Fixer Grade",
+     "2. Grade Rewards",
+     "3. Color",
+     "4. Threat Grade",
+     "5. Star of the City",
+     "6. Worked Example",
+     "7. Growth Through Play"
+    ]
+   },
+   "es": {
+    "title": "PARTE IX — AVANCE",
+    "sections": [
+     "1. Grado de Agente",
+     "2. Recompensas de Grado",
+     "3. Color",
+     "4. Grado de Amenaza",
+     "5. Estrella de la Ciudad",
+     "6. Ejemplo Trabajado",
+     "7. Crecer Jugando"
+    ]
+   }
+  },
+  {
+   "id": "p10",
+   "en": {
+    "title": "PART X — THE SINS",
+    "sections": [
+     "1. The Seven Sins",
+     "2. Resonance",
+     "3. Tagging and the Wheel",
+     "4. Fit and Riding",
+     "5. The Sins and the Self",
+     "6. Drift, Overtaken and Saturated",
+     "7. The Seven Sins in Detail",
+     "8. Sins at the Table"
+    ]
+   },
+   "es": {
+    "title": "PARTE X — LOS PECADOS",
+    "sections": [
+     "1. Los Siete Pecados",
+     "2. Resonancia",
+     "3. Etiquetar y la Rueda",
+     "4. Encaje y Cabalgar un Pecado",
+     "5. Los Pecados y el Yo",
+     "6. Deriva y Desbordamiento",
+     "7. Los Siete Pecados al Detalle",
+     "8. Los Pecados en la Mesa"
+    ]
+   }
+  },
+  {
+   "id": "apx",
+   "en": {
+    "title": "APPENDICES",
+    "sections": [
+     "A. Character Sheet",
+     "B. Quick Reference: The Core Roll",
+     "C. Quick Reference: E.G.O., Stress, and Harm",
+     "D. Quick Reference: Clocks",
+     "E. Quick Reference: Grade and Threat Grade",
+     "F. GM Quick Templates",
+     "G. Quick Reference: The Sins",
+     "H. Quick Reference: Resources and Attuned Gear",
+     "I. Crew Sheet",
+     "J. Table Agreement (Session Zero)",
+     "K. Glossary",
+     "L. Pregenerated Characters"
+    ]
+   },
+   "es": {
+    "title": "APÉNDICES",
+    "sections": [
+     "A. Hoja de Personaje",
+     "B. Referencia Rápida: La Tirada Básica",
+     "C. Referencia Rápida: E.G.O., Estrés y Daño",
+     "D. Referencia Rápida: Relojes",
+     "E. Referencia Rápida: Grado y Grado de Amenaza",
+     "F. Plantillas Rápidas para el DJ",
+     "G. Referencia Rápida: Los Pecados",
+     "H. Referencia Rápida: Recursos y Equipo Sintonizado",
+     "I. Hoja del Equipo",
+     "J. Acuerdo de la Mesa (Sesión Cero)",
+     "K. Glosario",
+     "L. Personajes Prefabricados"
+    ]
+   }
+  }
+ ],
+ "version": "2c7d93f33a"
+}

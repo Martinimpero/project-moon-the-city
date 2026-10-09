@@ -148,13 +148,13 @@ const PAGES = [
     lead: { es: "Cuatro zonas. En el móvil se ven por pestañas.", en: "Four areas. On a phone they appear as tabs." },
     diagram: true,
     list: { es: [
-      "**Cabecera:** [[Copia|Backup]] [[Exportar|Export]] [[Importar|Import]] [[Sala|Room]] [[Deshacer|Undo]] [[Imprimir|Print]] [[Kits|Kits]] [[Ayuda|Help]] y el idioma.",
+      "**Cabecera:** [[Copia|Backup]] [[Exportar|Export]] [[Importar|Import]] [[Sala|Room]] [[Deshacer|Undo]] [[Imprimir|Print]] [[Kits|Kits]] [[Manual]] [[Ayuda|Help]] y el idioma.",
       "**Izquierda:** tus personajes (y los de la sala).",
       "**Centro:** el mapa. La ficha del personaje flota encima (muévela; doble clic en su barra la minimiza).",
       "**Derecha:** [[Historial|Log]] [[Intercambio|Exchange]] [[Documentos|Handouts]] [[Diario|Journal]] [[Relojes|Clocks]] [[Pantalla|Screen]]. El DJ ve además [[Amenazas|Threats]] y [[Tablas|Tables]].",
       "**En el móvil:** pestañas de abajo [[Personas|People]] [[Ficha|Sheet]] [[Mesa|Table]]."
     ], en: [
-      "**Header:** [[Backup]] [[Export]] [[Import]] [[Room]] [[Undo]] [[Print]] [[Kits]] [[Help]] and the language.",
+      "**Header:** [[Backup]] [[Export]] [[Import]] [[Room]] [[Undo]] [[Print]] [[Kits]] [[Manual]] [[Help]] and the language.",
       "**Left:** your characters (and the room's).",
       "**Centre:** the map. The character's sheet floats above it (move it; double-click its bar to minimise).",
       "**Right:** [[Log]] [[Exchange]] [[Handouts]] [[Journal]] [[Clocks]] [[Screen]]. The GM also sees [[Threats]] and [[Tables]].",
@@ -420,6 +420,28 @@ const PAGES = [
       "Players see yours in the room; the GM's Threat picture shows when it is **shown**."
     ] },
     notes: [{ type: "tip", es: "Hay marco vertical (para el retrato) y cuadrado. La lista y las fichas del mapa usan un círculo centrado en la cara.", en: "There is a tall frame (for the portrait) and a square one. Lists and map tokens use a circle centred on the face." }] },
+  { id: "j-manual", group: "pl",
+    title: { es: "Leer el manual en la app", en: "Reading the manual in the app" },
+    lead: { es: "El libro de reglas, junto a tu ficha.", en: "The rulebook, beside your sheet." },
+    steps: { es: [
+      "Pulsa [[Manual]] en la cabecera. Se abre un panel a la derecha.",
+      "Elige una parte, o **busca** una palabra.",
+      "Cierra con la **x** o con Esc."
+    ], en: [
+      "Press [[Manual]] in the header. A panel opens on the right.",
+      "Pick a part, or **search** a word.",
+      "Close with the **x** or Esc."
+    ] },
+    list: { es: [
+      "La pequeña **?** de la ficha (Atributos, E.G.O., Estrés, Último Recurso, Vínculos, Pecados...) abre el manual **justo en esa sección**.",
+      "Un \"Parte IV §2\" dentro del texto también es un enlace.",
+      "Está en el idioma de la app."
+    ], en: [
+      "The small **?** on the sheet (Attributes, E.G.O., Stress, Hail Mary, Bonds, Sins...) opens the manual **right at that section**.",
+      "A \"Part IV §2\" inside the text is a link too.",
+      "It follows the app's language."
+    ] },
+    notes: [{ type: "tip", es: "Incluye el manual completo, la guía del jugador y los apéndices (glosario, tablas de referencia).", en: "It has the whole manual, the player primer and the appendices (glossary, quick references)." }] },
   { id: "j-crecer", group: "pl",
     title: { es: "Marcas y Crecimiento", en: "Marks and Growth" },
     lead: { es: "Tras cada Contrato mejoras.", en: "You improve after each Contract." },

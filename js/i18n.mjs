@@ -12,8 +12,9 @@ import { SAFETY_ES } from "./safety_es.mjs";
 import { CREATION_ES } from "./creation_es.mjs";
 import { JOURNAL_ES } from "./journal_es.mjs";
 import { THREAT_ES } from "./threat_es.mjs";
+import { MANUAL_ES } from "./manual_es.mjs";
 import { SCREEN_ES } from "./screen_es.mjs";
-const ES = { ...SCREEN_ES, ...RULES_ES, ...UI_ES, ...ROOM_ES, ...BOARD_ES, ...HANDOUT_ES, ...SAFETY_ES, ...CREATION_ES, ...JOURNAL_ES, ...THREAT_ES };
+const ES = { ...SCREEN_ES, ...RULES_ES, ...UI_ES, ...ROOM_ES, ...BOARD_ES, ...HANDOUT_ES, ...SAFETY_ES, ...CREATION_ES, ...JOURNAL_ES, ...THREAT_ES, ...MANUAL_ES };
 
 let lang = "en";
 export function setLang(l) { lang = l === "es" ? "es" : "en"; }
