@@ -148,6 +148,10 @@ Characters, Threats and crews can have a picture: press the picture box beside t
 
 **Finish session** (bottom of the character list, for the GM and for every player) closes a session safely: it keeps a snapshot inside the browser, downloads a file `project-moon-session-DATE-TIME.json` with everything (a normal save you can Import), writes your backup file if you set one, and resets the "not backed up" reminder. The GM, with players in the room, can tick a box to post a reminder card so everyone saves their own sheet. The snapshot appears in **Backup** as "End of session". The file is the same as **Export** produces, so any Export can be re-imported.
 
+## File versions (why an update never mixes old and new files)
+
+GitHub Pages lets a browser keep a file for up to ten minutes, so right after an update a page could load some new modules and some old ones and break. `tools/version.mjs` prevents that: it gives every module, the stylesheet and the entry script a version taken from the file's content (`?v=3fa9c1...`) and writes them into `index.html` (an import map rewrites every `import "./x.mjs"`). Unchanged files keep their address and stay cached; changed files get a new address. **After changing any file in `js/` or `css/`, run `node tools/version.mjs` before committing.** `tests/version.test.mjs` fails if `index.html` is out of date, so it cannot be forgotten. The guide (`guia/`) does not use modules and is not affected. Needs a browser with import maps (Chrome/Edge 89+, Firefox 108+, Safari 16.4+).
+
 ## Table guide
 
 `guia/index.html` is a short, navigable guide in Spanish and English (29 one-screen pages): opening the app, opening a room as GM, joining as a player, rolling, the map, saving, fixing connection problems. It is a single file that works on GitHub Pages and offline; the app's Help window links to it. `tests/guide.test.mjs` checks that every button name in the guide is the name the app really shows, in both languages.
