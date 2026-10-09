@@ -10,6 +10,8 @@ import { state } from "./store.mjs";
 import { verdictCandidates } from "./voice.mjs";
 import { Room, newCode, cleanCode } from "./room.mjs";
 import { peerOptionsFor, parseIceServers, testConnection, DEFAULT_ICE } from "./net.mjs";
+import * as K from "./backup.mjs";
+import * as safe from "./safety.mjs";
 import * as B from "./board.mjs";
 import * as C from "./conditions.mjs";
 import { createBoardUI } from "./boardui.mjs";
@@ -40,10 +42,63 @@ export function toast(msg) {
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => el.classList.remove("on"), 3800);
 }
+/* ---- keeping the data safe: saving, snapshots, a backup file, and a reminder ---- */
+const META_KEY = "project-moon-the-city/backup-meta";
+const loadMeta = () => { try { return { changedAt: 0, firstChangeAt: 0, exportedAt: 0, sig: "", ...JSON.parse(localStorage.getItem(META_KEY) || "{}") }; } catch { return { changedAt: 0, firstChangeAt: 0, exportedAt: 0, sig: "" }; } };
+let meta = loadMeta();
+const saveMeta = () => { try { localStorage.setItem(META_KEY, JSON.stringify(meta)); } catch { /* ignore */ } };
+let saveFailed = false;          // the last save did not work: shown until one does
+let backupFile = null;           // the file handle the app writes to, if the user chose one
+let backupFilePerm = "none";     // "none" | "granted" | "prompt" | "denied"
+let backupTimer = null;
+
 function persist() {
-  if (!S.save()) toast(t("Could not save in this browser. Use Export to keep your data."));
+  saveFailed = !S.save();
+  if (!saveFailed && S.signature() !== meta.sig) {          // the data really changed (not just which character is open)
+    const now = Date.now();
+    meta.sig = S.signature(); meta.changedAt = now; if (!meta.firstChangeAt) meta.firstChangeAt = now; saveMeta();
+    clearTimeout(backupTimer); backupTimer = setTimeout(runAutoBackup, 4000);
+  }
+  renderWarn();
   scheduleSync();
 }
+
+/** After changes settle: write the backup file (if there is one) and keep a snapshot every ten minutes. */
+async function runAutoBackup() {
+  const json = S.savedJson();
+  if (!json) return;
+  if (backupFile) {
+    const r = await safe.writeBackupFile(backupFile, json);
+    backupFilePerm = r === "permission" ? "prompt" : (r === "ok" ? "granted" : backupFilePerm);
+    if (r === "ok") { meta.exportedAt = Date.now(); saveMeta(); }              // the file counts as a backup
+  }
+  await takeSnapshot("auto", false);
+  renderWarn();
+}
+async function takeSnapshot(label, force) {
+  const list = await safe.snapshots.list();
+  const { list: next, added } = K.pushSnapshot(list, { at: Date.now(), label, size: S.savedJson().length, json: S.savedJson() }, { force });
+  if (added) await safe.snapshots.replaceAll(next);
+  return added;
+}
+
+/** The bar under the header: a save that failed, a backup file that needs allowing again, or a backup that is overdue. */
+function renderWarn() {
+  const el = $("#warnbar");
+  if (!el) return;
+  let html = "", kind = "";
+  if (saveFailed) { kind = "bad"; html = `<span>${esc(t("Could not save in this browser. Your latest changes may be lost. Export a copy now."))}</span><button type="button" data-action="export">${esc(t("Export now"))}</button>`; }
+  else if (backupFile && backupFilePerm === "prompt") { kind = "warn"; html = `<span>${esc(t("The browser needs your permission to keep writing the backup file."))}</span><button type="button" data-action="allowBackupFile">${esc(t("Allow"))}</button>`; }
+  else if (K.backupDue(meta)) { kind = "warn"; html = `<span>${esc(t("Your changes have not been backed up since {when}.", { when: K.ageText(meta.exportedAt, Date.now(), t) }))}</span><button type="button" data-action="export">${esc(t("Export now"))}</button><button type="button" data-action="backups">${esc(t("Backups"))}</button>`; }
+  el.hidden = !html; el.className = kind; el.innerHTML = html;
+}
+function downloadText(text, name) {
+  const blob = new Blob([text], { type: "application/json" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob); link.download = name;
+  document.body.appendChild(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+}
+const stamp = () => new Date().toISOString().slice(0, 10);
 /** Add a message to the log and, in a room, send it on. Private messages (the Voice) stay with the player and the GM. */
 function post(html, { priv = false } = {}) {
   html = bilingualHtml(html);
@@ -241,7 +296,8 @@ function renderChrome() {
   $("#phone-tabs").innerHTML = ["people", "sheet", "log"].map(v => `<button type="button" data-action="view" data-view="${v}" class="${view === v ? "active" : ""}">${esc(labels[v])}</button>`).join("");
   $("#t-title").textContent = t("Project Moon: The City");
   $("#t-sub").textContent = t("A free table companion. Your sheets are saved in this browser.");
-  for (const [id, key] of [["b-export", "Export"], ["b-import", "Import"], ["b-help", "Help"]]) $("#" + id).textContent = t(key);
+  for (const [id, key] of [["b-backup", "Backup"], ["b-export", "Export"], ["b-import", "Import"], ["b-help", "Help"]]) $("#" + id).textContent = t(key);
+  renderWarn();
   const sb = $("#b-sound");
   sb.textContent = state.sound.on ? `\u266A ${t("Sound on")}` : `\u266A ${t("Sound off")}`;
   sb.classList.toggle("off", !state.sound.on);
@@ -317,7 +373,7 @@ function renderLog() {
 function header(a, badges, extra = "") {
   return `<header class="pm-head"><input class="pm-name" type="text" data-path="name" value="${esc(a.name)}" placeholder="${esc(t("Name"))}">
     <div class="pm-badges">${badges}</div>${extra}
-    <div class="pm-tools"><button type="button" data-action="duplicateActor">${esc(t("Duplicate"))}</button><button type="button" data-action="deleteActor">${esc(t("Delete"))}</button></div></header>`;
+    <div class="pm-tools">${a.type === "character" ? `<button type="button" data-action="exportCharacter" title="${esc(t("Save this character as a file"))}">${esc(t("Export"))}</button>` : ""}<button type="button" data-action="duplicateActor">${esc(t("Duplicate"))}</button><button type="button" data-action="deleteActor">${esc(t("Delete"))}</button></div></header>`;
 }
 
 function characterSheet(a) {
@@ -686,7 +742,7 @@ async function doDowntime(actors, crew) {
 
 /* ------------------------------------------------------------------ click actions */
 
-const READONLY_OK = new Set(["stopRetry", "applyHurt", "rtab", "sound", "timerGo", ...Object.keys(boardUI.actions), ...Object.keys(handoutUI.actions), "view", "select", "selectRemote", "tab", "newCharacter", "newNpc", "newCrew", "pregens", "lang", "export", "import", "help", "room", "clearLog", "downtimeAll", "newSceneAll"]);
+const READONLY_OK = new Set(["backups", "export", "exportCharacter", "allowBackupFile", "stopRetry", "applyHurt", "rtab", "sound", "timerGo", ...Object.keys(boardUI.actions), ...Object.keys(handoutUI.actions), "view", "select", "selectRemote", "tab", "newCharacter", "newNpc", "newCrew", "pregens", "lang", "export", "import", "help", "room", "clearLog", "downtimeAll", "newSceneAll"]);
 const actions = {
   stopRetry: () => { room?.leave(); room = null; saveSession(); render(); },
   applyHurt: async el => {
@@ -789,12 +845,16 @@ const actions = {
   },
   lang: () => { state.lang = state.lang === "es" ? "en" : "es"; setLang(state.lang); persist(); render(); },
   export: () => {
-    const blob = new Blob([JSON.stringify(S.exportData(), null, 1)], { type: "application/json" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob); link.download = `project-moon-${new Date().toISOString().slice(0, 10)}.json`;
-    document.body.appendChild(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(link.href), 1000);
-    state.seenWarning = true; persist();
+    downloadText(JSON.stringify(S.exportData(), null, 1), `project-moon-${stamp()}.json`);
+    state.seenWarning = true; meta.exportedAt = Date.now(); saveMeta(); persist(); renderWarn();
   },
+  exportCharacter: (el, a) => {
+    if (a?.type !== "character") return;
+    downloadText(JSON.stringify(K.characterFile(a), null, 1), `${a.name.replace(/[^\p{L}\p{N}]+/gu, "_") || "character"}.pmchar.json`);
+    toast(t("{name} exported. Send the file to anyone; they can Import it.", { name: a.name }));
+  },
+  allowBackupFile: async () => { backupFilePerm = await safe.filePermission(backupFile, true); if (backupFilePerm === "granted") runAutoBackup(); renderWarn(); },
+  backups: () => backupDialog(),
   import: () => $("#file").click(),
   clearLog: async () => { if (await confirmDlg(t("Clear log"), esc(t("Delete every message in the log?")), t("Clear log"))) { state.log = []; persist(); render(); } },
   help: () => ask({ title: t("How to use this"), ok: t("Close"), cancel: false, wide: true, body: helpHtml(), read: () => true })
@@ -962,7 +1022,52 @@ function tickTimer() {
   } else lastSec = -1;
 }
 
+/** The Backups window: when you last exported, the snapshots the app keeps, an optional backup file, and storage protection. */
+async function backupDialog() {
+  const now = Date.now();
+  const [snaps, info] = await Promise.all([safe.snapshots.list(), safe.storageInfo()]);
+  const rows = [...snaps].reverse().map(sn => `<li><span>${esc(sn.label === "auto" ? t("Automatic") : (sn.label === "before import" ? t("Before an import") : sn.label))} &middot; ${esc(K.ageText(sn.at, now, t))} &middot; ${esc(K.sizeText(sn.size))}</span><button type="button" data-restore="${sn.at}">${esc(t("Restore"))}</button></li>`).join("");
+  const fileLine = !safe.fileSupported() ? esc(t("Your browser cannot write a backup file by itself (Chrome and Edge on a computer can). Use Export now and then."))
+    : (backupFile ? esc(t("Writing every change to your backup file. {state}", { state: backupFilePerm === "granted" ? t("It is up to date.") : t("The browser needs you to allow it again.") })) : esc(t("No backup file chosen.")));
+  const body = `
+    <p><b>${esc(t("Last export"))}:</b> ${esc(K.ageText(meta.exportedAt, now, t))}</p>
+    <div class="pm-row"><button type="button" data-do="export">${esc(t("Export everything"))}</button><button type="button" data-do="import">${esc(t("Import a file"))}</button></div>
+    <p class="hint">${esc(t("To move one character to another device or a friend, open it and press Export on its sheet."))}</p>
+    <h3>${esc(t("Backup file"))}</h3><p>${fileLine}</p>
+    ${safe.fileSupported() ? `<div class="pm-row"><button type="button" data-do="choosefile">${esc(backupFile ? t("Choose another file") : t("Choose a backup file"))}</button>${backupFile ? `<button type="button" data-do="stopfile">${esc(t("Stop"))}</button>` : ""}</div>` : ""}
+    <h3>${esc(t("Snapshots the app keeps"))}</h3>
+    <ul class="who-list">${rows || `<li class="hint">${esc(t("None yet. One is taken about every ten minutes of changes, and before any import."))}</li>`}</ul>
+    <h3>${esc(t("Browser storage"))}</h3>
+    <p>${esc(info.persisted ? t("Protected: the browser will not clear this data when it is short of space.") : t("Not protected: if the browser is short of space it may clear this data."))} ${Number.isFinite(info.usage) ? esc(t("Using {used} of about {total}.", { used: K.sizeText(info.usage), total: K.sizeText(info.quota) })) : ""}</p>
+    ${info.persisted ? "" : `<div class="pm-row"><button type="button" data-do="protect">${esc(t("Ask the browser to keep my data"))}</button></div>`}`;
+  await ask({ title: t("Backups"), ok: t("Close"), cancel: false, wide: true, read: () => true, body,
+    setup: f => {
+      const close = () => f.closest("dialog").close();
+      f.querySelector('[data-do="export"]')?.addEventListener("click", () => { actions.export(); close(); });
+      f.querySelector('[data-do="import"]')?.addEventListener("click", () => { close(); $("#file").click(); });
+      f.querySelector('[data-do="protect"]')?.addEventListener("click", async () => { const ok = await safe.protectStorage(); toast(ok ? t("Your data is now protected.") : t("The browser did not agree. Exporting a file is the safe way.")); close(); });
+      f.querySelector('[data-do="choosefile"]')?.addEventListener("click", async () => {
+        try { backupFile = await safe.chooseBackupFile(); backupFilePerm = await safe.filePermission(backupFile, true); await runAutoBackup(); toast(t("Backup file ready.")); } catch { /* cancelled */ }
+        close();
+      });
+      f.querySelector('[data-do="stopfile"]')?.addEventListener("click", async () => { await safe.forgetBackupFile(); backupFile = null; backupFilePerm = "none"; renderWarn(); close(); });
+      f.querySelectorAll("[data-restore]").forEach(b => b.addEventListener("click", async () => {
+        const sn = snaps.find(x => String(x.at) === b.dataset.restore);
+        if (!sn) return;
+        close();
+        if (!(await confirmDlg(t("Restore"), esc(t("Go back to this snapshot? What you have now is kept as a snapshot first.")), t("Restore")))) return;
+        await takeSnapshot("before restore", true);
+        S.importData(sn.json); persist(); render(); toast(t("Restored."));
+      }));
+    } });
+}
+
 export function init() {
+  (async () => {                                              // the backup file from last time, if any
+    if (!safe.fileSupported()) return;
+    backupFile = await safe.savedBackupFile();
+    if (backupFile) { backupFilePerm = await safe.filePermission(backupFile); renderWarn(); }
+  })();
   sfx.settings.on = state.sound.on; sfx.setVolume(state.sound.vol);
   for (const ev of ["pointerdown", "keydown"]) document.addEventListener(ev, () => sfx.unlock(), { once: true });
   $("#vol").addEventListener("input", e => { state.sound.vol = Number(e.target.value) / 100; sfx.setVolume(state.sound.vol); });
@@ -984,10 +1089,16 @@ export function init() {
     const file = e.target.files[0]; e.target.value = "";
     if (!file) return;
     try {
-      const text = await file.text();
-      if (state.actors.length && !(await confirmDlg(t("Import"), esc(t("Importing replaces everything in this browser. Continue?")), t("Import")))) return;
-      S.importData(text); sfx.settings.on = state.sound.on; sfx.setVolume(state.sound.vol); persist(); render(); toast(t("Imported."));
-    } catch { toast(t("That file is not a Project Moon save.")); }
+      const parsed = K.parseImport(await file.text());
+      if (parsed.kind === "character") {                    // one character joins the others; nothing is replaced
+        const a = K.newCharacterFrom(parsed.actor, state.actors.map(x => x.name));
+        S.addActor(a); view = "sheet"; persist(); render(); toast(t("Imported {name}.", { name: a.name }));
+        return;
+      }
+      if (state.actors.length && !(await confirmDlg(t("Import"), esc(t("Importing replaces everything in this browser. A snapshot of what you have now is kept first, so you can go back.")), t("Import")))) return;
+      await takeSnapshot("before import", true);
+      S.importData(JSON.stringify(parsed.data)); sfx.settings.on = state.sound.on; sfx.setVolume(state.sound.vol); persist(); render(); toast(t("Imported."));
+    } catch (err) { toast(t(err?.message?.startsWith("That file") || err?.message?.startsWith("Not a") ? err.message : "That file is not a Project Moon save.")); }
   });
   window.addEventListener("beforeunload", () => S.save());
   $("#chat").addEventListener("submit", onChat);

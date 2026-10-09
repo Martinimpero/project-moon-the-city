@@ -14,6 +14,7 @@
   <div id="timer-chip" hidden data-action="timerGo" title="Turn timer"></div>
   <nav class="top-actions">
     <span class="sound"><button type="button" data-action="sound" id="b-sound">Sound</button><input type="range" id="vol" min="0" max="100" step="5" aria-label="Volume"></span>
+    <button type="button" data-action="backups" id="b-backup">Backup</button>
     <button type="button" data-action="export" id="b-export">Export</button>
     <button type="button" data-action="import" id="b-import">Import</button>
     <button type="button" data-action="room" id="b-room" class="room">Room</button>
@@ -22,6 +23,7 @@
   </nav>
 </header>
 <div id="netbar" hidden></div>
+<div id="warnbar" hidden></div>
 <div id="app">
   <aside id="side"></aside>
   <main id="main"></main>

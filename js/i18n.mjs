@@ -8,7 +8,8 @@ import { UI_ES } from "./ui_es.mjs";
 import { ROOM_ES } from "./room_es.mjs";
 import { BOARD_ES } from "./board_es.mjs";
 import { HANDOUT_ES } from "./handout_es.mjs";
-const ES = { ...RULES_ES, ...UI_ES, ...ROOM_ES, ...BOARD_ES, ...HANDOUT_ES };
+import { SAFETY_ES } from "./safety_es.mjs";
+const ES = { ...RULES_ES, ...UI_ES, ...ROOM_ES, ...BOARD_ES, ...HANDOUT_ES, ...SAFETY_ES };
 
 let lang = "en";
 export function setLang(l) { lang = l === "es" ? "es" : "en"; }

@@ -412,3 +412,14 @@ details.altlang summary { cursor: pointer; font: 700 11px var(--pm-head); letter
 .who-list button, .pm-modal [data-nettest] { cursor: pointer; font: 700 11px var(--pm-head); letter-spacing: .1em; text-transform: uppercase; border: 1px solid var(--pm-red); background: transparent; color: var(--pm-red); padding: 2px 9px; border-radius: 2px; }
 .pm-modal [data-nettest] { border-color: var(--pm-ink); color: var(--pm-ink); padding: 4px 12px; }
 .net-result div { margin: 2px 0; }
+
+/* ================= data safety ================= */
+#warnbar { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; padding: 5px 12px; font: 700 13px var(--pm-head); letter-spacing: .06em; border-bottom: 2px solid; }
+#warnbar[hidden] { display: none; }
+#warnbar.warn { background: #3a3414; border-color: var(--pm-gold-d); color: #f3e3a0; }
+#warnbar.bad { background: #5a1a22; border-color: #d4495a; color: #fff; }
+#warnbar button { cursor: pointer; font: 700 11px var(--pm-head); letter-spacing: .12em; text-transform: uppercase; border: 1px solid currentColor; background: transparent; color: inherit; border-radius: 2px; padding: 3px 10px; }
+.pm-modal h3 { font: 800 14px var(--pm-head); letter-spacing: .14em; text-transform: uppercase; color: var(--pm-red); border-top: 2px solid var(--pm-gold); padding-top: 5px; margin: 10px 0 4px; }
+.pm-modal [data-do], .who-list [data-restore] { cursor: pointer; font: 700 11px var(--pm-head); letter-spacing: .1em; text-transform: uppercase; border: 1px solid var(--pm-ink); background: transparent; color: var(--pm-ink); padding: 4px 12px; border-radius: 2px; }
+.who-list [data-restore] { border-color: var(--pm-red); color: var(--pm-red); padding: 2px 9px; }
+@media (max-width: 820px) { #b-export, #b-import { display: none; } }

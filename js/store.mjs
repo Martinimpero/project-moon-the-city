@@ -32,12 +32,24 @@ function apply(data) {
 
 let dirty = false;
 export function exportData() {
-  return { version: 1, lang: state.lang, name: state.name, sound: state.sound, selected: state.selected, seenWarning: state.seenWarning, tracker: state.tracker, map: state.map, handouts: state.handouts, actors: state.actors.map(({ derived, ...a }) => ({ ...a, items: a.items.map(({ derived: _d, ...i }) => i) })), log: state.log.slice(-LOG_LIMIT) };
+  return { kind: "project-moon-save", version: 1, lang: state.lang, name: state.name, sound: state.sound, selected: state.selected, seenWarning: state.seenWarning, tracker: state.tracker, map: state.map, handouts: state.handouts, actors: state.actors.map(({ derived, ...a }) => ({ ...a, items: a.items.map(({ derived: _d, ...i }) => i) })), log: state.log.slice(-LOG_LIMIT) };
 }
+let lastJson = "", lastSig = "";
+const hash = str => { let h = 5381; for (let i = 0; i < str.length; i++) h = ((h << 5) + h + str.charCodeAt(i)) | 0; return String(h) + ":" + str.length; };
 export function save(storage = globalThis.localStorage) {
   dirty = true;
-  try { storage?.setItem(KEY, JSON.stringify(exportData())); dirty = false; return true; } catch { return false; }
+  try {
+    const data = exportData();
+    lastJson = JSON.stringify(data);
+    storage?.setItem(KEY, lastJson);
+    dirty = false;
+    lastSig = hash(JSON.stringify({ ...data, selected: "", log: data.log.length }));      // what counts as a change: not which character is open, not scrolling through the log
+    return true;
+  } catch { return false; }
 }
+/** The save as last written (what a backup file or snapshot should hold), and a fingerprint that moves only when the data really changed. */
+export const savedJson = () => lastJson;
+export const signature = () => lastSig;
 export const hasUnsavedExport = () => dirty;
 
 /** Replace everything with an exported file's contents. Throws on a file that isn't ours. */
