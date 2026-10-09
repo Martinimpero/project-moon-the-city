@@ -457,3 +457,32 @@ export function secretRoll({ label = "", dice = 3, difficulty = 2 } = {}, rng = 
     <div class="pm-card-lines"><div>${n} ${esc(t("dice"))} · ${esc(t("Difficulty {n}", { n: diff }))}</div></div>
     ${diceHtml(base, [])}<div class="pm-result">${esc(successesText(successes))} <span class="pm-band ${band}">${esc(bandLabel(band))}</span></div></div>`;
 }
+
+/* ------------------------------------------------------------------ Marks */
+
+/** Give a character `n` Marks (1 to 6). Returns the number given. */
+export function awardMarks(actor, n) {
+  n = Math.max(0, Math.min(6, Math.floor(Number(n)) || 0));
+  const m = actor.system.marks;
+  m.unspent += n; m.earned += n;
+  return n;
+}
+const traitLabel = (kind, key) => (kind === "attr" ? ATTRIBUTE_LABEL[key] : SKILL_LABEL[key]);
+/** Spend Marks to raise a Skill or an Attribute by one. Returns { ok, html } or { ok: false, reason }. */
+export function raiseTrait(actor, kind, key, now = Date.now()) {
+  const s = actor.system, info = R.raiseInfo(s, kind, key);
+  if (!info.ok) return { ok: false, reason: info.reason, cost: info.cost };
+  s.marks.unspent -= info.cost;
+  (kind === "attr" ? s.attributes : s.skills)[key] = info.next;
+  s.growth = [...(s.growth ?? []), { kind, key, to: info.next, cost: info.cost, at: now }].slice(-60);
+  refresh(actor);
+  const extra = kind === "attr" && key === "resolve" ? `<p>${esc(t("Resolve rises, so the E.G.O. maximum rises by 1."))}</p>` : "";
+  const html = card(`${esc(actor.name)} &middot; ${esc(t("Growth"))}`, `<p><b>${esc(traitLabel(kind, key))}</b> ${esc(t("rises to {n}", { n: info.next }))} (${esc(t("Marks spent: {n}", { n: info.cost }))}).</p>${extra}`);
+  return { ok: true, html, info };
+}
+/** Choose which trait a Grade unlock applies to. Returns true if it was set. */
+export function chooseUnlock(actor, slot, key) {
+  const s = actor.system;
+  if (!R.unlockChoices(s, slot).includes(key)) return false;
+  s.unlocks[slot] = key; return true;
+}

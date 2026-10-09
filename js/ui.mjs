@@ -301,6 +301,12 @@ const handlers = {
     B.moveToken(map, id, x, y); persist(); renderBoard(); room.sendBoard();
   },
   hostBoard: () => { const T = timerOf(state.tracker); return { tracker: { ...state.tracker, timer: { ...T, left: T.running ? Math.ceil(clock.remaining(T)) : T.left } }, map: B.mapForPlayers(S.shownMap()), clocks: CK.forPlayers(state.clocks), mapImage: S.shownMap() && !S.shownMap().bundled && S.shownMap().src ? { rev: S.shownMap().rev, src: S.shownMap().src } : null  }; },
+  onGrant: (actorId, n) => {
+    const a = S.byId(actorId);
+    if (!a || a.type !== "character" || n < 1) return;
+    mutate(a, () => E.awardMarks(a, n));
+    toast(t("{name} earns Marks: {n}.", { name: a.name, n }));
+  },
   onHarm: (actorId, delta) => {
     const a = S.byId(actorId);
     if (!a || a.type !== "character" || delta < 1) return;
@@ -441,7 +447,7 @@ const UNDO_LABEL = {
   clockStep: "Clock change", deleteClock: "Clock change", ckStep: "Clock change", ckEdit: "Clock change",
   xStart: "Exchange change", xEnd: "Exchange change", xNext: "Exchange change", xFill: "Exchange change", slotMove: "Exchange change", slotActed: "Exchange change", slotRemove: "Exchange change", slotAdd: "Exchange change",
   condStep: "Condition change", condRemove: "Condition change", condAdd: "Condition change",
-  tokenDel: "Token removed", deleteActor: "Sheet deleted", sceneDel: "Scene deleted", deleteItem: "Item deleted"
+  marksRaise: "Growth", marksUnlock: "Grade unlock", awardMarks: "Marks awarded", tokenDel: "Token removed", deleteActor: "Sheet deleted", sceneDel: "Scene deleted", deleteItem: "Item deleted"
 };
 const nowJson = () => JSON.stringify(S.exportData());
 const markUndo = label => UNDO.push(undoStack, label, nowJson());
@@ -545,7 +551,7 @@ function renderSidebar() {
     </div>
     <ul class="actor-list">${list || `<li class="hint pad">${esc(t("Nobody yet. Add the pregens, or make a character."))}</li>`}</ul>
     ${remoteHtml()}
-    <div class="side-foot"><button type="button" data-action="downtimeAll">${esc(t("Run downtime for all"))}</button><button type="button" data-action="newSceneAll">${esc(t("New scene for all"))}</button></div>`;
+    <div class="side-foot"><button type="button" data-action="downtimeAll">${esc(t("Run downtime for all"))}</button><button type="button" data-action="newSceneAll">${esc(t("New scene for all"))}</button>${isGM() ? `<button type="button" data-action="awardMarks">${esc(t("Award Marks"))}</button>` : ""}</div>`;
 }
 
 function remoteHtml() {
@@ -605,7 +611,7 @@ function characterSheet(a) {
     </div>
     <div class="pm-actions"><button type="button" data-action="hailMary">${esc(t("Hail Mary"))}</button>
       <button type="button" data-action="newScene" title="${esc(t("Reset Flashpoint and Pull, end Riding"))}">${esc(t("New scene"))}</button></div>`;
-  const tabNames = [["main", "Character"], ["self", "The Self"], ["sins", "Sins"], ["gear", "Gear and Bonds"], ["notes", "Notes"]];
+  const tabNames = [["main", "Character"], ["self", "The Self"], ["sins", "Sins"], ["gear", "Gear and Bonds"], ["growth", "Growth"], ["notes", "Notes"]];
   const nav = `<nav class="pm-tabs">${tabNames.map(([k, l]) => `<button type="button" data-action="tab" data-tab="${k}" class="${tab === k ? "active" : ""}">${esc(t(l))}</button>`).join("")}</nav>`;
   return `<div class="pm-sheet">${header(a, badges, meters)}${nav}<section class="pm-body">${characterTab(a, tab)}</section></div>`;
 }
@@ -642,6 +648,29 @@ function characterTab(a, tab) {
         <p class="hint">${esc(t("Optional. Cards that quote these words then read in each player's language."))}</p></details>
       <h3>${esc(t("Traumas"))} <button type="button" data-action="createItem" data-type="trauma">${esc(t("Add"))}</button></h3>
       <ul class="pm-list">${tr.map(item).join("") || `<li class="hint">${esc(t("No Traumas yet."))}</li>`}</ul>`;
+  }
+  if (tab === "growth") {
+    const raiseBtn = (kind, key) => {
+      const info = R.raiseInfo(s, kind, key), why = { cap: t("Needs a Grade unlock"), marks: t("Not enough Marks"), max: t("At the maximum") }[info.reason] ?? "";
+      return `<button type="button" data-action="marksRaise" data-kind="${kind}" data-key="${key}" ${info.ok ? "" : "disabled"} title="${esc(info.ok ? "" : why)}">${esc(t("Raise"))} (${info.cost})</button>${info.ok || !why ? "" : ` <small class="hint">${esc(why)}</small>`}`;
+    };
+    const skillRows = R.SKILLS.map(k => `<tr><td>${esc(SKILL_LABEL[k])}</td><td>${s.skills[k]}</td><td>${raiseBtn("skill", k)}</td></tr>`).join("");
+    const attrRows = R.ATTRIBUTES.map(k => `<tr><td>${esc(ATTRIBUTE_LABEL[k])}</td><td>${s.attributes[k]}</td><td>${raiseBtn("attr", k)}</td></tr>`).join("");
+    const unlockName = { skill4: t("Skill 4"), attr5: t("Attribute 5"), skill5: t("Skill 5") };
+    const unlocks = R.UNLOCKS.map(u => {
+      const label = `<b>${esc(unlockName[u.slot])}</b> <small class="hint">(${esc(t("Grade {n}", { n: u.grade }))})</small>`;
+      if (s.grade > u.grade) return `<li class="dim">${label}: ${esc(t("not yet"))}</li>`;
+      const chosen = s.unlocks[u.slot];
+      if (chosen) return `<li>${label}: ${esc(u.kind === "attr" ? ATTRIBUTE_LABEL[chosen] : SKILL_LABEL[chosen])}</li>`;
+      const ch = R.unlockChoices(s, u.slot);
+      return `<li>${label}: ${ch.length ? ch.map(k => `<button type="button" data-action="marksUnlock" data-slot="${u.slot}" data-key="${k}">${esc(u.kind === "attr" ? ATTRIBUTE_LABEL[k] : SKILL_LABEL[k])}</button>`).join(" ") : `<span class="hint">${esc(t("nothing is at {n} yet", { n: u.from }))}</span>`}</li>`;
+    }).join("");
+    const hist = (s.growth ?? []).slice(-8).reverse().map(g => `<li>${esc(g.kind === "attr" ? ATTRIBUTE_LABEL[g.key] : SKILL_LABEL[g.key])} &rarr; ${g.to} <small class="hint">(${esc(t("Marks spent: {n}", { n: g.cost }))})</small></li>`).join("");
+    return `<div class="pm-grid2"><label>${esc(t("Unspent Marks"))} ${num("system.marks.unspent", s.marks.unspent, 0, 99)}</label><label>${esc(t("Marks earned in total"))} ${num("system.marks.earned", s.marks.earned, 0, 999)}</label></div>
+      <p class="hint">${esc(t("Spend Marks in downtime, in a scene that shows the training. A Skill costs its new rating; an Attribute costs three times its new rating. Skills stop at 3 and Attributes at 4 until a Grade unlock."))}</p>
+      <div class="pm-cols"><div><h3>${esc(t("Skills"))}</h3><table class="pm-skills">${skillRows}</table></div><div><h3>${esc(t("Attributes"))}</h3><table class="pm-skills">${attrRows}</table>
+      <h3>${esc(t("Grade unlocks"))}</h3><ul class="unlocks">${unlocks}</ul></div></div>
+      ${hist ? `<h3>${esc(t("Growth so far"))}</h3><ul>${hist}</ul>` : ""}`;
   }
   if (tab === "sins") {
     const sc = { "": t("None"), ...sinChoices() };
@@ -948,7 +977,7 @@ async function doDowntime(actors, crew) {
 
 /* ------------------------------------------------------------------ click actions */
 
-const READONLY_OK = new Set(["backups", "export", "exportCharacter", "allowBackupFile", "stopRetry", "applyHurt", "rtab", "sound", "timerGo", ...Object.keys(boardUI.actions), ...Object.keys(handoutUI.actions), ...Object.keys(journalUI.actions), ...Object.keys(threatUI.actions), ...Object.keys(tablesUI.actions), ...Object.keys(clocksUI.actions), ...Object.keys(screenUI.actions), "view", "select", "selectRemote", "tab", "kits", "print", "undo", "secretRoll", "revealRoll", "newCharacter", "newNpc", "newCrew", "pregens", "lang", "export", "import", "help", "room", "clearLog", "downtimeAll", "newSceneAll"]);
+const READONLY_OK = new Set(["backups", "export", "exportCharacter", "allowBackupFile", "stopRetry", "applyHurt", "rtab", "sound", "timerGo", ...Object.keys(boardUI.actions), ...Object.keys(handoutUI.actions), ...Object.keys(journalUI.actions), ...Object.keys(threatUI.actions), ...Object.keys(tablesUI.actions), ...Object.keys(clocksUI.actions), ...Object.keys(screenUI.actions), "view", "select", "selectRemote", "tab", "kits", "print", "awardMarks", "undo", "secretRoll", "revealRoll", "newCharacter", "newNpc", "newCrew", "pregens", "lang", "export", "import", "help", "room", "clearLog", "downtimeAll", "newSceneAll"]);
 const actions = {
   ...threatUI.actions, ...tablesUI.actions, ...clocksUI.actions, ...screenUI.actions,
   stopRetry: () => { room?.leave(); room = null; saveSession(); render(); },
@@ -1071,6 +1100,34 @@ const actions = {
   backups: () => backupDialog(),
   import: () => $("#file").click(),
   clearLog: async () => { if (await confirmDlg(t("Clear log"), esc(t("Delete every message in the log?")), t("Clear log"))) { state.log = []; persist(); render(); } },
+  marksRaise: (el, a) => {
+    const r = E.raiseTrait(a, el.dataset.kind, el.dataset.key);
+    if (!r.ok) return toast(t("That cannot be raised now."));
+    mutate(a, () => { post(bi(() => r.html)); }); flashLog();
+  },
+  marksUnlock: (el, a) => { if (E.chooseUnlock(a, el.dataset.slot, el.dataset.key)) mutate(a, () => {}); },
+  awardMarks: async () => {
+    if (!isGM()) return;
+    const people = [...state.actors, ...remoteActors()].filter(x => x.type === "character");
+    if (!people.length) return toast(t("There are no characters to give Marks to."));
+    const r = await ask({
+      title: t("Award Marks"), ok: t("Award"), wide: true,
+      body: `<p>${esc(t("At the end of a Contract every player earns 1 Mark, plus 1 if it was Risk 3 or 4, plus 1 (once per session) for a played Reckoning or a scene that grew a Bond."))}</p>
+        <div class="pm-row"><label>${esc(t("Risk"))}</label><select name="risk"><option>1</option><option selected>2</option><option>3</option><option>4</option></select></div>
+        <div class="pm-row"><label class="chk"><input type="checkbox" name="bonus"> ${esc(t("A Reckoning was played, or a scene grew a Bond"))}</label></div>
+        <div class="checks">${people.map(x => `<label class="chk"><input type="checkbox" name="w_${x.id}" checked> ${esc(x.name)}${x.remote ? ` (${esc(x.remote.owner)})` : ""}</label>`).join("")}</div>`,
+      read: f => ({ risk: Number(f.elements.risk.value), bonus: f.elements.bonus.checked, who: people.filter(x => f.elements["w_" + x.id]?.checked) })
+    });
+    if (!r || !r.who.length) return;
+    const n = R.marksFor(r);
+    const given = [];
+    for (const x of r.who) {
+      if (x.remote) { if (room?.sendGrant(x.id, n)) given.push(x.name); }
+      else { markUndo("Marks awarded"); mutate(x, () => E.awardMarks(x, n)); given.push(x.name); }
+    }
+    post(bi(() => E.card(esc(t("Marks awarded")), `<p>${esc(t("Marks each: {n} ({names})", { n, names: given.join(", ") }))}</p>`))); persist(); flashLog();
+    if (given.length < r.who.length) toast(t("Some players could not be reached."));
+  },
   undo: () => undoLast(),
   secretRoll: async () => {
     if (!isGM()) return;

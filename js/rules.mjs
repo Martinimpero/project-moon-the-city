@@ -240,3 +240,46 @@ export function fundUpkeep({ assetCount, fund }) {
 export function addResources(current, payment) {
   return Math.min(5, current + payment);
 }
+
+/* ---- Marks: growth through play (Part IX section 7) and the Grade rewards (section 2) ---- */
+export const SKILL_BASE_CAP = 3, ATTR_BASE_CAP = 4;
+/** Marks earned at the end of a Contract: 1, +1 for Risk 3 or 4, +1 (once per session) for a played Reckoning or a scene that grew a Bond. */
+export function marksFor({ risk = 1, bonus = false } = {}) {
+  return 1 + (Number(risk) >= 3 ? 1 : 0) + (bonus ? 1 : 0);
+}
+/** Raising a Skill costs its new rating; raising an Attribute costs three times its new rating. */
+export const skillCost = next => next;
+export const attrCost = next => 3 * next;
+/** The one-dot unlocks the Grade gives: Skill 4 at Grade 7, Attribute 5 at Grade 5, Skill 5 at Grade 3. `from` is the rating the chosen trait must already have. */
+export const UNLOCKS = [
+  { slot: "skill4", kind: "skill", grade: 7, from: 3, to: 4 },
+  { slot: "attr5", kind: "attr", grade: 5, from: 4, to: 5 },
+  { slot: "skill5", kind: "skill", grade: 3, from: 4, to: 5 }
+];
+/** The unlocks this Grade allows (a lower Grade number is a higher Grade). */
+export const unlocksFor = grade => UNLOCKS.filter(u => grade <= u.grade);
+/**
+ * Can this trait go up by one? `sys` is a character's system data ({ grade, skills, attributes, marks, unlocks }).
+ * Returns { ok, cost, next, reason } where reason is "cap" (needs a Grade unlock), "marks" (not enough) or "max".
+ */
+export function raiseInfo(sys, kind, key) {
+  const table = kind === "attr" ? sys.attributes : sys.skills;
+  const cur = Number(table?.[key]);
+  if (!Number.isFinite(cur)) return { ok: false, reason: "max", cost: 0, next: 0 };
+  const next = cur + 1, base = kind === "attr" ? ATTR_BASE_CAP : SKILL_BASE_CAP, cost = kind === "attr" ? attrCost(next) : skillCost(next);
+  if (next > 5) return { ok: false, reason: "max", cost, next };
+  if (next > base) {
+    const u = UNLOCKS.find(x => x.kind === kind && x.to === next);
+    const open = u && sys.grade <= u.grade && sys.unlocks?.[u.slot] === key;
+    if (!open) return { ok: false, reason: "cap", cost, next };
+  }
+  if ((sys.marks?.unspent ?? 0) < cost) return { ok: false, reason: "marks", cost, next };
+  return { ok: true, cost, next };
+}
+/** Which traits can be chosen for an unlock slot right now: those already at the rating the unlock needs. Empty if the Grade is too low or the slot is used. */
+export function unlockChoices(sys, slot) {
+  const u = UNLOCKS.find(x => x.slot === slot);
+  if (!u || sys.grade > u.grade || sys.unlocks?.[slot]) return [];
+  const table = u.kind === "attr" ? sys.attributes : sys.skills;
+  return Object.keys(table).filter(k => table[k] === u.from);
+}

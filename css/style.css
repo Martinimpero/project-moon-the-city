@@ -592,3 +592,11 @@ dialog.wizard { width: min(720px, 98vw); }
 .msg-acts { display: flex; gap: 8px; align-items: center; justify-content: space-between; font-size: 11px; color: #a77bd6; margin: 2px 0 6px; }
 .msg-acts button { cursor: pointer; border: 1px solid #3a3d4a; background: #22242e; color: #cfd6e6; border-radius: 2px; padding: 2px 8px; }
 #b-undo:disabled { opacity: .45; cursor: default; }
+
+/* ---- Growth (Marks) ---- */
+.pm-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 700px) { .pm-cols { grid-template-columns: 1fr; } }
+.unlocks { list-style: none; margin: 4px 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.unlocks li.dim { opacity: .55; }
+.unlocks button, .pm-skills button[data-action=marksRaise] { cursor: pointer; }
+.pm-skills button[data-action=marksRaise]:disabled { opacity: .5; cursor: default; }

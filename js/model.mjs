@@ -30,6 +30,7 @@ export function characterDefaults() {
     skills: Object.fromEntries(R.SKILLS.map(s => [s, 0])),
     ego: { value: 2, max: 2 }, stress: 1, harm: 0, broken: 0, resources: 2, grade: 9,
     resonance: perSin(0), tally: perSin(0), riding: "", under: "", scars: "", strained: "",
+    marks: { unspent: 0, earned: 0 }, unlocks: { skill4: "", attr5: "", skill5: "" }, growth: [],
     scene: sceneDefaults(), notes: ""
   };
 }

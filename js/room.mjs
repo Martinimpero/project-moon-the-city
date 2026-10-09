@@ -9,6 +9,7 @@
  *                   ping {ping} (the GM points at a spot on the map),
  *                   journal {entries} (the party journal, in full),
  *                   harm {actorId, delta} (the GM applies Hurt to a player's character),
+ *                   grant {actorId, n} (the GM awards Marks to a player's character),
  *                   handout {h} / unhandout {id} (a handout the GM shows or takes back),
  *                   board {tracker, map} (the Exchange tracker and the map without hidden tokens), mapimg {rev, src} (a custom map image)
  * `entry` = { id, html, private?, to? }. Private entries stay with the player and the host.
@@ -283,6 +284,7 @@ export class Room {
     else if (msg.k === "scene") this.h.onScene?.();
     else if (msg.k === "ping" && msg.ping) this.h.onPing?.(msg.ping);
     else if (msg.k === "harm") this.h.onHarm?.(msg.actorId, Number(msg.delta) || 0);
+    else if (msg.k === "grant") this.h.onGrant?.(msg.actorId, Math.max(0, Math.min(6, Math.floor(Number(msg.n)) || 0)));
     else if (msg.k === "journal") this.h.onJournal?.(msg.entries);
     else if (msg.k === "handout" && msg.h) this.h.onHandout?.(msg.h);
     else if (msg.k === "unhandout") this.h.onUnhandout?.(msg.id);
@@ -350,6 +352,14 @@ export class Room {
   sendHarm(actorId, delta = 1) {
     if (this.role !== "host" || !this.online) return false;
     for (const [, p] of this.peers) if (p.actors.some(a => a.id === actorId)) { try { p.conn.send({ k: "harm", actorId, delta }); return true; } catch { return false; } }
+    return false;
+  }
+  /** Host: award `n` Marks to a character. If the host owns it, `onGrant` runs here; otherwise the owner is told. Returns false if nobody here owns it. */
+  sendGrant(actorId, n) {
+    if (this.role !== "host") return false;
+    if (this.h.hostOwns?.(actorId)) { this.h.onGrant?.(actorId, n); return true; }
+    if (!this.online) return false;
+    for (const [, p] of this.peers) if (p.actors.some(a => a.id === actorId)) { try { p.conn.send({ k: "grant", actorId, n }); return true; } catch { return false; } }
     return false;
   }
   /** Host: send the whole party journal to everyone. */
