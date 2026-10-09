@@ -1,7 +1,7 @@
 /** The interface: sidebar, sheets, dialogs and the roll log. Plain DOM; every change goes through the engine, saves, and re-renders. */
 import * as R from "./rules.mjs";
 import { SIN_LABEL, SKILL_LABEL, ATTRIBUTE_LABEL, HARM_LABEL, GEAR_KIND_LABEL, BOND_TYPE_LABEL, SIN_TEXT, SIGNATURE } from "./config.mjs";
-import { t, tIn, setLang } from "./i18n.mjs";
+import { t, tIn, setLang, bilingual as bi, bilingualHtml, expandMarkers } from "./i18n.mjs";
 import * as E from "./engine.mjs";
 import { esc } from "./engine.mjs";
 import { newActor, newItem, normalizeActor, refresh, gearOf, bondsOf, traumasOf, setPath, getPath, uid } from "./model.mjs";
@@ -35,7 +35,7 @@ const txt = (path, value, ph = "") => `<input type="text" data-path="${path}" va
 
 export function toast(msg) {
   const el = $("#toast");
-  el.textContent = msg; el.classList.add("on");
+  el.textContent = expandMarkers(msg, state.lang); el.classList.add("on");
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => el.classList.remove("on"), 3800);
 }
@@ -45,6 +45,7 @@ function persist() {
 }
 /** Add a message to the log and, in a room, send it on. Private messages (the Voice) stay with the player and the GM. */
 function post(html, { priv = false } = {}) {
+  html = bilingualHtml(html);
   const entry = S.addLog(html);
   if (entry) sfx.forHtml(html);
   if (entry && room?.online) room.sendLog({ id: entry.id, html, private: priv });
@@ -75,7 +76,7 @@ const handoutUI = createHandoutUI({
   ask: o => ask(o), toast: m => toast(m)
 });
 const boardUI = createBoardUI({
-  state, clock, $: sel => document.querySelector(sel), room: () => room, isGM, board,
+  state, clock, bi, $: sel => document.querySelector(sel), room: () => room, isGM, board,
   remoteActors: () => remoteActors(), findActor: id => findActor(id),
   changed: () => { persist(); renderBoard(); if (room?.role === "host") room.sendBoard(); },
   sendBoard: () => { if (room?.role === "host") room.sendBoard(); },
@@ -165,6 +166,7 @@ export function ask({ title, body, ok = t("OK"), wide = false, read = f => Objec
   return new Promise(resolve => {
     const dlg = document.createElement("dialog");
     dlg.className = `pm-modal ${wide ? "wide" : ""}`;
+    title = expandMarkers(title, state.lang); body = expandMarkers(body, state.lang); ok = expandMarkers(ok, state.lang);
     dlg.innerHTML = `<form method="dialog" class="pm-dialog"><header><h2>${esc(title)}</h2></header><div class="pm-dlg-body">${body}</div>
       <footer>${cancel ? `<button type="button" value="cancel" class="ghost" data-cancel>${esc(t("Cancel"))}</button>` : ""}<button type="submit" value="ok" class="primary">${esc(ok)}</button></footer></form>`;
     document.body.appendChild(dlg);
@@ -449,7 +451,7 @@ function mutate(actor, fn) {
   const before = { ...actor.derived };
   const out = fn();
   refresh(actor);
-  if (actor.type === "character") { const lv = E.voiceTransition(before, actor); if (lv) post(E.voiceCardHtml(actor, lv), { priv: true }); }
+  if (actor.type === "character") { const lv = E.voiceTransition(before, actor); if (lv) post(bi(() => E.voiceCardHtml(actor, lv)), { priv: true }); }
   persist(); render();
   return out;
 }
@@ -520,14 +522,14 @@ async function doRoll(actor, preset) {
   });
   if (!picked) return;
   const target = withSinking(findActor(picked.targetActor));
-  const draft = E.rollDraft(actor, { ...picked, sinking: conds.sinking, poise: conds.poise }, target);
+  const draft = bi(() => E.rollDraft(actor, { ...picked, sinking: conds.sinking, poise: conds.poise }, target));
   if (draft.canUnbowed) {
     const yes = await confirmDlg(t("Unbowed"), t("{name} is Pride-rated. Use <b>Unbowed</b> to reroll up to three dice that didn't succeed? If the reroll still fails, you take a Complication. (Once per scene, twice at rating 4.)", { name: esc(actor.name) }), t("Use Unbowed"));
-    if (yes) E.unbowed(draft);
+    if (yes) bi(() => E.unbowed(draft));
   }
   let consumed = {};
   mutate(actor, () => {
-    const out = E.commitRoll(actor, draft);
+    const out = bi(() => E.commitRoll(actor, draft));
     consumed = out.consumed;
     post(out.html);
   });
@@ -562,20 +564,20 @@ async function doHailMary(actor) {
   });
   if (!input) return;
   const before = { ...actor.derived };
-  const out = E.hailMary(actor, input);
+  const out = bi(() => E.hailMary(actor, input));
   if (out.error) { toast(out.error); return; }
   out.html.forEach(post);
-  if (out.voice) post(E.voiceCardHtml(actor, out.voice), { priv: true });
+  if (out.voice) post(bi(() => E.voiceCardHtml(actor, out.voice)), { priv: true });
   persist(); render(); flashLog();
 }
 
 async function doTechnique(actor, sin) {
   const answers = {};
   for (let guard = 0; guard < 4; guard++) {
-    const r = E.useTechnique(actor, sin, answers);
+    const r = bi(() => E.useTechnique(actor, sin, answers));
     if (r.status === "fail") { toast(r.reason); return; }
     if (r.status === "info") { post(r.html); persist(); render(); flashLog(); return; }
-    if (r.status === "ok") { if (sin === "gloom") syncRemote(answers.target, -2); mutate(actor, () => { post(r.html); if (r.voice) post(E.voiceCardHtml(actor, r.voice), { priv: true }); }); flashLog(); return; }
+    if (r.status === "ok") { if (sin === "gloom") syncRemote(answers.target, -2); mutate(actor, () => { post(r.html); if (r.voice) post(bi(() => E.voiceCardHtml(actor, r.voice)), { priv: true }); }); flashLog(); return; }
     if (r.need === "follow") {
       const yes = await confirmDlg(r.name, t("<b>{name}</b> follows a {sin}-tagged Success, and your last roll wasn't one. Use it anyway?", { name: esc(r.name), sin: esc(SIN_LABEL[sin]) }), t("Use it anyway"));
       if (!yes) return;
@@ -631,10 +633,10 @@ async function doDowntime(actors, crew) {
   const choice = await ask({ title: t("Downtime phase"), body, ok: t("Run it"), wide: true,
     read: f => Object.fromEntries(actors.map(a => [a.id, { rest: f.elements[`rest_${a.id}`]?.checked, repair: f.elements[`repair_${a.id}`]?.checked }])) });
   if (!choice) return;
-  let out = E.runDowntime(actors, crew, choice);
+  let out = bi(() => E.runDowntime(actors, crew, choice));
   if (out.needsDormantPick) {
     const pick = await ask({ title: t("The Fund can't keep the Assets up"), ok: t("Go dormant"), body: `<p>${esc(t("The Fund is empty. Which Asset goes dormant (the newest)?"))}</p><select name="asset">${out.needsDormantPick.map(k => `<option value="${k}">${esc(E.ASSET_LABEL[k])}</option>`).join("")}</select>`, read: f => f.elements.asset.value });
-    out = E.runDowntime(actors, crew, choice, pick || out.needsDormantPick.at(-1));
+    out = bi(() => E.runDowntime(actors, crew, choice, pick || out.needsDormantPick.at(-1)));
   }
   post(out.html);
   persist(); render(); flashLog();
@@ -654,7 +656,7 @@ const actions = {
     if (!actor) toast(t("{name} has no sheet here. Mark the Harm yourself.", { name: slot.name }));
     else if (actor.remote) { if (!room.sendHarm(actor.id, 1)) { slot.hurtDue += 1; return toast(t("Could not reach {name}'s player.", { name: actor.name })); } }
     else mutate(actor, () => { actor.system.harm = res.harm; });
-    post(`<div class="pm-card pm-conditions"><div class="pm-card-head">${esc(slot.name)}</div><div class="pm-notes"><p>${esc(actor ? (res.changed ? t("{name} takes Hurt: Harm is now {harm}.", { name: slot.name, harm: HARM_LABEL[res.harm] }) : t("{name} burns, but Harm is already {harm}: no change.", { name: slot.name, harm: HARM_LABEL[res.harm] })) : t("{name} takes Hurt.", { name: slot.name }))}</p></div></div>`);
+    post(bi(() => `<div class="pm-card pm-conditions"><div class="pm-card-head">${esc(slot.name)}</div><div class="pm-notes"><p>${esc(actor ? (res.changed ? t("{name} takes Hurt: Harm is now {harm}.", { name: slot.name, harm: HARM_LABEL[res.harm] }) : t("{name} burns, but Harm is already {harm}: no change.", { name: slot.name, harm: HARM_LABEL[res.harm] })) : t("{name} takes Hurt.", { name: slot.name }))}</p></div></div>`));
     persist(); renderBoard(); if (room?.role === "host") room.sendBoard();
   },
   sound: () => { state.sound.on = !state.sound.on; sfx.settings.on = state.sound.on; persist(); renderChrome(); sfx.play("place"); },
@@ -676,14 +678,14 @@ const actions = {
   rollAttribute: (el, a) => doRoll(a, { attribute: el.dataset.attr }),
   hailMary: (el, a) => doHailMary(a),
   useTechnique: (el, a) => doTechnique(a, el.dataset.sin),
-  invokeVice: (el, a) => { const r = E.invokeVice(a); if (r.status === "fail") return toast(r.reason); mutate(a, () => post(r.html)); flashLog(); },
+  invokeVice: (el, a) => { const r = bi(() => E.invokeVice(a)); if (r.status === "fail") return toast(r.reason); mutate(a, () => post(r.html)); flashLog(); },
   upkeep: (el, a) => doDowntime([a], null),
   newScene: (el, a) => { mutate(a, () => E.newScene(a)); toast(t("New scene: Flashpoint, Pull, techniques, Vice, refunds and scene effects reset; Riding ended; Hooks expire.")); },
   rest: (el, a) => mutate(a, () => E.rest(a)),
   ride: (el, a) => { const r = E.ride(a, el.dataset.sin); if (!r.ok) return toast(r.reason); persist(); render(); },
   drift: async (el, a) => {
-    let r = E.drift(a);
-    if (!r.drift) { if (!(await confirmDlg(t("Drift"), esc(t("No Sin leads by 8 or more tags. Clear the tally anyway?"))))) return; r = E.drift(a, true); }
+    let r = bi(() => E.drift(a));
+    if (!r.drift) { if (!(await confirmDlg(t("Drift"), esc(t("No Sin leads by 8 or more tags. Clear the tally anyway?"))))) return; r = bi(() => E.drift(a, true)); }
     if (r.html) post(r.html);
     persist(); render(); flashLog();
   },
@@ -695,7 +697,7 @@ const actions = {
   editItem: (el, a) => editItem(a, el.dataset.id),
   deleteItem: (el, a) => { a.items = a.items.filter(i => i.id !== el.dataset.id); refresh(a); persist(); render(); },
   wear: (el, a) => { const g = a.items.find(i => i.id === el.dataset.id); if (g) { E.adjustWear(g, Number(el.dataset.delta)); persist(); render(); } },
-  rollNpc: (el, a) => { const sunk = C.stacksOf(board().tracker, a.id, "sinking"); post(E.npcRoll(a, undefined, { sinking: sunk })); mutate(a, () => {}); if (sunk) useUpConditions(a.id, ["sinking"]); flashLog(); },
+  rollNpc: (el, a) => { const sunk = C.stacksOf(board().tracker, a.id, "sinking"); post(bi(() => E.npcRoll(a, undefined, { sinking: sunk }))); mutate(a, () => {}); if (sunk) useUpConditions(a.id, ["sinking"]); flashLog(); },
   addClock: async (el, a) => {
     const data = await ask({ title: t("New Clock"), ok: t("Add"), body: `<div class="pm-row"><label>${esc(t("Name"))}</label><input type="text" name="name" placeholder="${esc(t("Coldwater Heat"))}"><label>${esc(t("Segments"))}</label><select name="size"><option>4</option><option selected>6</option><option>8</option></select></div>`, read: f => ({ name: f.elements.name.value || t("Clock"), size: Number(f.elements.size.value) }) });
     if (data) mutate(a, () => a.system.clocks.push({ name: data.name, size: data.size, filled: 0 }));
@@ -704,7 +706,7 @@ const actions = {
     const c = a.system.clocks[Number(el.dataset.index)], delta = Number(el.dataset.delta);
     const was = c.filled;
     c.filled = Math.max(0, Math.min(c.size, c.filled + delta));
-    if (c.filled >= c.size && was < c.size) { post(E.card(esc(t("Clock full: {name}", { name: c.name })), `<p>${esc(t("Something concrete happens: an audit, a visit, a contract pulled. Never vague."))}</p>`)); flashLog(); }
+    if (c.filled >= c.size && was < c.size) { post(bi(() => E.card(esc(t("Clock full: {name}", { name: c.name })), `<p>${esc(t("Something concrete happens: an audit, a visit, a contract pulled. Never vague."))}</p>`))); flashLog(); }
     mutate(a, () => {});
   },
   deleteClock: (el, a) => mutate(a, () => a.system.clocks.splice(Number(el.dataset.index), 1)),
@@ -782,7 +784,7 @@ async function startRoom(mode, name, code) {
     toast(t(room.error) || room.error); const r = room; room = null; r.leave(true); render(); return;
   }
   render();
-  if (mode === "host") { room.sendBoard(); handlers.onLog({ id: uid(), html: E.card(esc(t("Room open")), `<p>${esc(t("Share the code {code} or the link. Players keep their own sheets; everyone sees the rolls.", { code: room.code }))}</p>`) }, true); room.broadcastTable(); }
+  if (mode === "host") { room.sendBoard(); handlers.onLog({ id: uid(), html: bilingualHtml(bi(() => E.card(esc(t("Room open")), `<p>${esc(t("Share the code {code} or the link. Players keep their own sheets; everyone sees the rolls.", { code: room.code }))}</p>`)))  }, true); room.broadcastTable(); }
   else scheduleSync();
 }
 

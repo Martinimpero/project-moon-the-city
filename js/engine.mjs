@@ -6,7 +6,7 @@
 import * as R from "./rules.mjs";
 import { SIN_LABEL, SKILL_LABEL, ATTRIBUTE_LABEL, SIN_TEXT, SIGNATURE, BOND_TYPE_LABEL } from "./config.mjs";
 import { verdictCandidates, verdictCardHtml, flashpointShape, voiceText } from "./voice.mjs";
-import { t, localized } from "./i18n.mjs";
+import { t, tNow, localized } from "./i18n.mjs";
 import { refresh, newItem, gearOf, bondsOf } from "./model.mjs";
 
 export const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -294,7 +294,7 @@ export function useTechnique(actor, sin, answers = {}) {
       if (!follows()) return { status: "need", need: "follow", name };
       if (!answers.hookType) return { status: "need", need: "hook", name };
       const who = answers.hookWho || t("the target");
-      actor.items.push(newItem("bond", t("Hooked: {who}", { who }), { type: answers.hookType, strength: 1, person: who, temporary: true }));
+      actor.items.push(newItem("bond", tNow("Hooked: {who}", { who }), { type: answers.hookType, strength: 1, person: who, temporary: true }));
       notes.push(`<p><b>${esc(t("{who} holds a 1-point {bond} Bond toward you until the scene ends.", { who, bond: BOND_TYPE_LABEL[answers.hookType] }))}</b> ${esc(t("It appears in your Bonds and in the roll dialog; spend it once like one of your own. The GM may veto if it crosses your Boundary."))}</p>`);
       break;
     }

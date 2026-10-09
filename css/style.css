@@ -384,3 +384,6 @@ body.is-gm .gm-only { display: inline-block !important; }
 /* a card written in both languages shows only the reader's */
 html[lang="es"] [data-bi] [lang="en"], html[lang="en"] [data-bi] [lang="es"] { display: none; }
 .pm-modal [data-swap] { cursor: pointer; font: 700 11px var(--pm-head); letter-spacing: .1em; text-transform: uppercase; border: 1px solid var(--pm-rule); background: transparent; padding: 3px 9px; border-radius: 2px; margin-left: auto; }
+
+/* a log card built in both languages (data-bi2 wraps an English and a Spanish copy): show the reader's */
+html[lang="es"] [data-bi2] > [lang="en"], html[lang="en"] [data-bi2] > [lang="es"] { display: none; }

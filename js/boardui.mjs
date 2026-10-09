@@ -88,9 +88,9 @@ export function createBoardUI(ctx) {
   }
 
   const trackerActions = {
-    xStart: () => { const tr = ctx.board().tracker; B.startFight(tr); if (!tr.slots.length) fill(); newTurn(tr); ctx.post(exchangeCard(tr)); ctx.changed(); },
-    xEnd: () => { const tr = ctx.board().tracker; const ev = C.endScene(tr); if (ev.length) ctx.post(eventsCard(t("The scene ends"), ev)); B.endFight(tr); timerReset(timerOf(tr)); ctx.clock.sync(timerOf(tr)); ctx.post(`<div class="pm-card"><div class="pm-card-head">${esc(t("The fight is over."))}</div></div>`); ctx.changed(); },
-    xNext: () => { const tr = ctx.board().tracker; const ev = C.tickExchange(tr); if (ev.length) ctx.post(eventsCard(t("End of Exchange {n}", { n: tr.exchange }), ev)); B.nextExchange(tr); newTurn(tr); ctx.post(exchangeCard(tr)); ctx.changed(); },
+    xStart: () => { const tr = ctx.board().tracker; B.startFight(tr); if (!tr.slots.length) fill(); newTurn(tr); ctx.post(ctx.bi(() => exchangeCard(tr))); ctx.changed(); },
+    xEnd: () => { const tr = ctx.board().tracker; const ev = C.endScene(tr); if (ev.length) ctx.post(ctx.bi(() => eventsCard(t("The scene ends"), ev))); B.endFight(tr); timerReset(timerOf(tr)); ctx.clock.sync(timerOf(tr)); ctx.post(ctx.bi(() => `<div class="pm-card"><div class="pm-card-head">${esc(t("The fight is over."))}</div></div>`)); ctx.changed(); },
+    xNext: () => { const tr = ctx.board().tracker; const ev = C.tickExchange(tr); if (ev.length) ctx.post(ctx.bi(() => eventsCard(t("End of Exchange {n}", { n: tr.exchange }), ev))); B.nextExchange(tr); newTurn(tr); ctx.post(ctx.bi(() => exchangeCard(tr))); ctx.changed(); },
     xFill: () => { fill(); ctx.changed(); },
     slotMove: el => { B.moveSlot(ctx.board().tracker, el.dataset.id, Number(el.dataset.delta)); ctx.changed(); },
     slotActed: el => { const tr = ctx.board().tracker; const s = B.toggleActed(tr, el.dataset.id); if (s?.acted && tr.active) newTurn(tr); ctx.changed(); },
