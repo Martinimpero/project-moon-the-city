@@ -22,6 +22,13 @@ export function t(key, data) {
   return s;
 }
 
+/** Translate into a chosen language ("en" or "es") whatever the app is set to; used for the second-language version of a handout. */
+export function tIn(l, key, data) {
+  let s = l === "es" ? (ES[key] ?? key) : key;
+  if (data) s = s.replace(/\{(\w+)\}/g, (m, k) => (k in data ? data[k] : m));
+  return s;
+}
+
 /** Wrap a (nested) table of English labels so that every string read from it is translated at read time. */
 export function localized(obj) {
   return new Proxy(obj, {

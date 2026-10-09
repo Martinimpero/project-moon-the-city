@@ -51,6 +51,8 @@ All made in the browser (nothing to download): dice clattering on every roll, th
 ## Handouts
 The fourth tab. The GM keeps a library of handouts (a note, a contract, a picture; text supports *italic* and **bold**, pictures are shrunk to 1400 px). **+ Contract** starts one with the paperwork fields (client, Risk, job, payment, deadline, terms). **Show** sends it to the table: each player gets a reading window at once, a line in the log, and it stays in their Handouts tab until the GM presses **Take back**. Players joining later get whatever is currently shown. Alone, Show just opens it for you.
 
+**Handouts in both languages.** Each handout has a main version and an optional version in the other language (English or Español; the editor asks which language the main one is in). A player reads the version in **their own app language**; if the handout has both, a button in the reading window flips to the other ("Leer en English" / "Read in Español"). A handout with only one language shows a note ("Este documento solo está en English") and the main text. The **+ Contract** starter fills in the field names in both languages (Client / Cliente, Risk / Riesgo...). The GM writes the translation (the app does not machine-translate), and the library shows "EN · ES" on handouts that have both. Older handouts count as English.
+
 ## Fog of war and measuring
 - **Measure** (everyone): press it, then drag on the map. A gold line shows the distance in squares; diagonals count as one square (the larger of the two axes). While you drag a token it also shows how far it has moved.
 - **Fog of war** (GM): tick **Fog of war** on the map. The whole map is covered; **Reveal** and **Cover up** paint squares by dragging, **Reveal all** / **Cover all** do the lot, and **Around token** reveals a few squares around the selected token (the number beside it). Players see solid black; the GM sees through it. Players' tokens for characters always show; any other token standing in fog is hidden from players.
@@ -62,7 +64,7 @@ Accounts, cloud save, per-player vision, dynamic lighting.
 ## Files
 - `index.html`, `css/style.css`: the page and look (same design as the rulebook).
 - `js/rules.mjs`: the pure rules (bands, E.G.O., Sins, Fit, Drift, Hail Mary, upkeep). `js/engine.mjs`: rolls, techniques, downtime. `js/model.mjs`, `js/store.mjs`: data and saving. `js/ui.mjs`: the interface. `js/room.mjs`: the shared-room protocol. `js/board.mjs`, `js/boardui.mjs`, `js/maplist.mjs`: the Exchange tracker and map. `js/handouts.mjs`, `js/handoutui.mjs`: handouts. `js/timer.mjs`: the turn timer. `js/conditions.mjs`: conditions. `js/sfx.mjs`: sounds. `js/es.mjs`, `js/ui_es.mjs`, `js/room_es.mjs`: Spanish.
-- `tests/`: `node --test tests/*.test.mjs` (needs Node 20+; 100 tests).
+- `tests/`: `node --test tests/*.test.mjs` (needs Node 20+; 103 tests).
 
 ## If you change the rules
 Edit `js/rules.mjs` (and the tests), then the text in `js/config.mjs`, `js/engine.mjs` and Spanish in `js/es.mjs`. Any new English text passed to `t("...")` must get a Spanish entry, or `tests/i18n.test.mjs` fails.

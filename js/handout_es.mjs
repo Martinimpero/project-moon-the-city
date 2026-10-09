@@ -20,5 +20,10 @@ export const HANDOUT_ES = {
   "That is the most handouts this app keeps.": "Es el máximo de documentos que guarda esta aplicación.",
   "The job": "El trabajo",
   "Deadline": "Plazo",
-  "Terms": "Condiciones"
+  "Terms": "Condiciones",
+  "This handout is only in {lang}.": "Este documento solo está en {lang}.",
+  "Read in {lang}": "Leer en {lang}",
+  "This version is in": "Esta versión está en",
+  "Optional. Players who read the other language see this version.": "Opcional. Los jugadores que leen el otro idioma ven esta versión.",
+  "Version in {lang} (optional)": "Versión en {lang} (opcional)"
 };

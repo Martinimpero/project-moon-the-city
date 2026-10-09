@@ -374,3 +374,9 @@ body.is-gm .gm-only { display: inline-block !important; }
 .hurtbtn, #pane-xchg .hurtdue { cursor: pointer; font: 700 11px var(--pm-head); letter-spacing: .1em; text-transform: uppercase; background: #7a1f2b; border: 1px solid #a33142; color: #fff; border-radius: 2px; padding: 1px 9px; margin-left: 4px; }
 .hurtbtn:hover, #pane-xchg .hurtdue:hover { background: #962436; border-color: #d4495a; }
 #pane-xchg .hurtdue { padding: 4px 9px; }
+
+/* ================= handouts in two languages ================= */
+.ho-langs { display: flex; justify-content: flex-end; }
+.ho-langs button { cursor: pointer; font: 700 11px var(--pm-head); letter-spacing: .12em; text-transform: uppercase; border: 1px solid var(--pm-gold-d); background: var(--pm-gold); color: #14151b; border-radius: 2px; padding: 4px 12px; }
+.ho-note:empty { display: none; }
+.pm-modal .ho-other { border-top: 2px solid var(--pm-gold); padding-top: 6px; }

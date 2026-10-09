@@ -3,6 +3,7 @@ import { normalizeActor, newActor, refresh, uid } from "./model.mjs";
 import { PREGENS, PREGENS_ES } from "./pregens.mjs";
 import { setLang } from "./i18n.mjs";
 import { newTracker } from "./board.mjs";
+import { normalizeHandout } from "./handouts.mjs";
 
 const KEY = "project-moon-the-city/v1";
 const LOG_LIMIT = 200;
@@ -26,7 +27,7 @@ function apply(data) {
   state.seenWarning = !!data.seenWarning;
   state.tracker = data.tracker && Array.isArray(data.tracker.slots) ? { active: !!data.tracker.active, exchange: Number(data.tracker.exchange) || 1, slots: data.tracker.slots, timer: data.tracker.timer } : newTracker();
   state.map = data.map && Array.isArray(data.map.tokens) ? data.map : null;
-  state.handouts = Array.isArray(data.handouts) ? data.handouts.filter(h => h && h.id && h.title !== undefined).slice(0, 60) : [];
+  state.handouts = Array.isArray(data.handouts) ? data.handouts.filter(h => h && h.id && h.title !== undefined).slice(0, 60).map(normalizeHandout) : [];
 }
 
 let dirty = false;

@@ -1,10 +1,10 @@
 /** The Handouts pane: the GM's library and what a player has been shown. Built with `createHandoutUI(ctx)`. */
 import * as H from "./handouts.mjs";
 import { shrinkImage } from "./board.mjs";
-import { t } from "./i18n.mjs";
+import { t, tIn } from "./i18n.mjs";
 import { esc } from "./engine.mjs";
 
-/** ctx: { state, room(), isGM(), received() -> [handout], changed(), ask(opts), toast(msg), $ } */
+/** ctx: { state, lang() -> "en"|"es", room(), isGM(), received() -> [handout], changed(), ask(opts), toast(msg), $ } */
 export function createHandoutUI(ctx) {
   const $ = ctx.$;
   const find = id => ctx.state.handouts.find(h => h.id === id) ?? ctx.received().find(h => h.id === id);
@@ -13,7 +13,7 @@ export function createHandoutUI(ctx) {
     if (ctx.isGM()) {
       const rows = ctx.state.handouts.map(h => `<li class="ho ${h.shown ? "shown" : ""}">
         ${h.img ? `<img src="${esc(h.img)}" alt="">` : `<span class="ph">&#9783;</span>`}
-        <span class="who"><b>${esc(h.title || t("Untitled"))}</b><small>${esc(h.shown ? (ctx.room()?.online ? t("Shown to the table") : t("Marked as shown")) : t("Hidden"))}</small></span>
+        <span class="who"><b>${esc(H.pick(h, ctx.lang()).title || t("Untitled"))}</b><small>${esc(H.hasAlt(h) ? "EN \u00B7 ES  " : H.LANG_NAME[h.lang].slice(0, 2).toUpperCase() + "  ")}${esc(h.shown ? (ctx.room()?.online ? t("Shown to the table") : t("Marked as shown")) : t("Hidden"))}</small></span>
         <span class="btns"><button type="button" data-action="hoView" data-id="${h.id}">${esc(t("View"))}</button>
         <button type="button" data-action="hoShow" data-id="${h.id}" class="${h.shown ? "on" : ""}">${esc(h.shown ? t("Take back") : t("Show"))}</button>
         <button type="button" data-action="hoEdit" data-id="${h.id}">${esc(t("Edit"))}</button><button type="button" data-action="hoDelete" data-id="${h.id}">&times;</button></span></li>`).join("");
@@ -22,29 +22,52 @@ export function createHandoutUI(ctx) {
     }
     const list = ctx.received();
     const rows = list.map(h => `<li class="ho"><button type="button" class="ho-open" data-action="hoView" data-id="${h.id}">
-      ${h.img ? `<img src="${esc(h.img)}" alt="">` : `<span class="ph">&#9783;</span>`}<span class="who"><b>${esc(h.title || t("Untitled"))}</b></span></button></li>`).join("");
+      ${h.img ? `<img src="${esc(h.img)}" alt="">` : `<span class="ph">&#9783;</span>`}<span class="who"><b>${esc(H.pick(h, ctx.lang()).title || t("Untitled"))}</b></span></button></li>`).join("");
     return rows ? `<ul class="ho-list">${rows}</ul>` : `<p class="hint pad">${esc(t("Nothing has been shown to you yet."))}</p>`;
   }
 
-  /** Open a handout in a reading dialog. */
+  /** Open a handout in a reading dialog, in the reader's language when the handout has it, with a button to flip to the other. */
   function view(h) {
     if (!h) return;
+    H.normalizeHandout(h);
+    let p = H.pick(h, ctx.lang());
+    const paper = v => `${h.img ? `<img class="ho-img" src="${esc(h.img)}" alt="${esc(v.title)}">` : ""}${H.textToHtml(v.text, esc)}`;
+    const note = v => (v.translated ? "" : t("This handout is only in {lang}.", { lang: H.LANG_NAME[v.lang] }));
     ctx.ask({
-      title: h.title || t("Handout"), ok: t("Close"), cancel: false, wide: true, read: () => true,
-      body: `<div class="handout-paper">${h.img ? `<img class="ho-img" src="${esc(h.img)}" alt="${esc(h.title)}">` : ""}${H.textToHtml(h.text, esc)}</div>`
+      title: p.title || t("Handout"), ok: t("Close"), cancel: false, wide: true, read: () => true,
+      body: `${p.both ? `<div class="ho-langs"><button type="button" data-switchlang>${esc(t("Read in {lang}", { lang: H.LANG_NAME[H.otherLang(p.lang)] }))}</button></div>` : ""}
+        <div class="handout-paper">${paper(p)}</div><p class="pm-note ho-note">${esc(note(p))}</p>`,
+      setup: f => {
+        f.querySelector("[data-switchlang]")?.addEventListener("click", ev => {
+          const want = H.otherLang(p.lang), v = H.versionIn(h, want);
+          if (!v) return;
+          p = { ...v, translated: want === ctx.lang(), both: true };
+          f.querySelector(".handout-paper").innerHTML = paper(p);
+          f.querySelector(".ho-note").textContent = note(p);
+          f.closest("dialog").querySelector("h2").textContent = p.title || t("Handout");
+          ev.target.textContent = t("Read in {lang}", { lang: H.LANG_NAME[H.otherLang(p.lang)] });
+        });
+      }
     });
   }
 
   async function edit(existing, preset) {
-    const h = existing ?? H.newHandout(preset ?? {});
+    const h = H.normalizeHandout(existing ?? H.newHandout({ lang: ctx.lang(), ...(preset ?? {}) }));
     let img = h.img;
+    const langOpts = H.LANGS.map(l => `<option value="${l}" ${h.lang === l ? "selected" : ""}>${H.LANG_NAME[l]}</option>`).join("");
     const r = await ctx.ask({
       title: existing ? t("Edit handout") : t("New handout"), ok: t("Save"), wide: true,
-      body: `<div class="pm-row"><label>${esc(t("Title"))}</label><input type="text" name="title" value="${esc(h.title)}" maxlength="80"></div>
-        <div class="pm-row"><label class="full">${esc(t("Text (blank line = new paragraph; *italic*, **bold**)"))}</label><textarea name="text" rows="9" maxlength="${H.MAX_TEXT}">${esc(h.text)}</textarea></div>
+      body: `<div class="pm-row"><label>${esc(t("This version is in"))}</label><select name="lang">${langOpts}</select></div>
+        <div class="pm-row"><label>${esc(t("Title"))}</label><input type="text" name="title" value="${esc(h.title)}" maxlength="80"></div>
+        <div class="pm-row"><label class="full">${esc(t("Text (blank line = new paragraph; *italic*, **bold**)"))}</label><textarea name="text" rows="7" maxlength="${H.MAX_TEXT}">${esc(h.text)}</textarea></div>
+        <div class="pm-row ho-other"><label class="full alt-label"></label></div>
+        <div class="pm-row"><label>${esc(t("Title"))}</label><input type="text" name="altTitle" value="${esc(h.alt.title)}" maxlength="80"></div>
+        <div class="pm-row"><textarea name="altText" rows="7" maxlength="${H.MAX_TEXT}" placeholder="${esc(t("Optional. Players who read the other language see this version."))}">${esc(h.alt.text)}</textarea></div>
         <div class="pm-row"><label>${esc(t("Picture"))}</label><input type="file" name="file" accept="image/*"><button type="button" data-clearimg>${esc(t("No picture"))}</button><span class="pm-note imgnote">${img ? esc(t("A picture is attached.")) : ""}</span></div>`,
-      read: f => ({ title: f.elements.title.value.trim(), text: f.elements.text.value }),
+      read: f => ({ lang: f.elements.lang.value, title: f.elements.title.value.trim(), text: f.elements.text.value, alt: { title: f.elements.altTitle.value.trim(), text: f.elements.altText.value } }),
       setup: f => {
+        const label = () => { f.querySelector(".alt-label").textContent = t("Version in {lang} (optional)", { lang: H.LANG_NAME[H.otherLang(f.elements.lang.value)] }); };
+        label(); f.elements.lang.addEventListener("change", label);
         f.elements.file.addEventListener("change", async () => {
           const file = f.elements.file.files[0]; if (!file) return;
           try { img = (await shrinkImage(file, 1400, 0.8)).src; f.querySelector(".imgnote").textContent = t("A picture is attached."); } catch { ctx.toast(t("That image could not be read.")); }
@@ -53,7 +76,8 @@ export function createHandoutUI(ctx) {
       }
     });
     if (!r) return;
-    h.title = r.title || t("Untitled"); h.text = r.text; h.img = img;
+    h.lang = r.lang; h.title = r.title || t("Untitled"); h.text = r.text; h.alt = { title: r.alt.title, text: r.alt.text }; h.img = img;
+    H.normalizeHandout(h);
     if (!existing) ctx.state.handouts.push(h);
     ctx.changed(h);
   }
@@ -62,7 +86,7 @@ export function createHandoutUI(ctx) {
     hoNew: () => { if (ctx.state.handouts.length >= H.MAX_HANDOUTS) return ctx.toast(t("That is the most handouts this app keeps.")); edit(null); },
     hoContract: () => {
       if (ctx.state.handouts.length >= H.MAX_HANDOUTS) return;
-      edit(null, H.contractTemplate({ title: t("Contract"), client: t("Client"), risk: t("Risk"), job: t("The job"), payment: t("Payment"), deadline: t("Deadline"), terms: t("Terms") }));
+      edit(null, H.contractTemplate(tIn, ctx.lang()));
     },
     hoEdit: el => edit(ctx.state.handouts.find(h => h.id === el.dataset.id)),
     hoDelete: async el => {

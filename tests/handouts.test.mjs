@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import * as H from "../js/handouts.mjs";
 import { Room } from "../js/room.mjs";
 import * as S from "../js/store.mjs";
+import { tIn } from "../js/i18n.mjs";
 
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
@@ -11,7 +12,7 @@ test("players get title, text and picture, never the GM's flags", () => {
   a.shown = true;
   const list = H.shownList([a, b]);
   assert.deepEqual(list.map(h => h.title), ["Manifest"]);
-  assert.deepEqual(Object.keys(list[0]).sort(), ["id", "img", "text", "title"]);
+  assert.deepEqual(Object.keys(list[0]).sort(), ["alt", "id", "img", "lang", "text", "title"]);
 });
 
 test("titles and text are capped", () => {
@@ -27,10 +28,43 @@ test("text becomes safe paragraphs with light emphasis", () => {
   assert.doesNotMatch(H.textToHtml("<script>alert(1)</script>", esc), /<script>/);
 });
 
-test("the contract template has the paperwork fields", () => {
-  const c = H.contractTemplate({ title: "Contract", client: "Client", risk: "Risk", job: "The job", payment: "Payment", deadline: "Deadline", terms: "Terms" });
-  assert.equal(c.title, "Contract");
-  assert.match(c.text, /Client: \nRisk: /);
+test("the contract template has the paperwork fields, in both languages", () => {
+  const c = H.contractTemplate(tIn, "en");
+  assert.equal(c.title, "Contract"); assert.equal(c.lang, "en");
+  assert.ok(c.text.startsWith("Client: \nRisk: "));
+  assert.equal(c.alt.title, "Contrato");
+  assert.ok(c.alt.text.startsWith("Cliente: \nRiesgo: "));
+  const es = H.contractTemplate(tIn, "es");
+  assert.equal(es.lang, "es"); assert.equal(es.title, "Contrato"); assert.equal(es.alt.title, "Contract");
+});
+
+test("a Spanish reader gets the Spanish version, an English reader the English one, and a one-language handout falls back", () => {
+  const h = H.newHandout({ title: "Manifest", text: "Crate 4", lang: "en", alt: { title: "Manifiesto", text: "Caja 4" } });
+  assert.deepEqual(H.pick(h, "es"), { lang: "es", title: "Manifiesto", text: "Caja 4", translated: true, both: true });
+  assert.deepEqual(H.pick(h, "en"), { lang: "en", title: "Manifest", text: "Crate 4", translated: true, both: true });
+  const solo = H.newHandout({ title: "Note", text: "Only English", lang: "en" });
+  assert.deepEqual(H.pick(solo, "es"), { lang: "en", title: "Note", text: "Only English", translated: false, both: false });
+  const spanishMain = H.newHandout({ title: "Nota", text: "Texto", lang: "es", alt: { text: "Text" } });
+  assert.equal(H.pick(spanishMain, "en").text, "Text");
+  assert.equal(H.pick(spanishMain, "en").title, "Nota");                   // no alt title: keeps the main one
+  assert.equal(H.versionIn(solo, "es"), null);
+  assert.equal(H.versionIn(h, "es").title, "Manifiesto");
+});
+
+test("older handouts without a language or a second version still work", () => {
+  const old = { id: "x", title: "Old", text: "t", img: "", shown: true };
+  H.normalizeHandout(old);
+  assert.deepEqual([old.lang, old.alt], ["en", { title: "", text: "" }]);
+  assert.equal(H.pick(old, "es").translated, false);
+  S.state.actors = []; S.state.handouts = [{ id: "y", title: "Legacy", text: "", img: "", shown: false }];
+  const text = JSON.stringify(S.exportData()); S.state.handouts = []; S.importData(text);
+  assert.equal(S.state.handouts[0].lang, "en");
+});
+
+test("both versions travel to players, and a Spanish handout list is read in Spanish", () => {
+  const h = Object.assign(H.newHandout({ title: "A", text: "x", lang: "en", alt: { title: "B", text: "y" } }), { shown: true });
+  const sent = H.forPlayers(h);
+  assert.equal(H.pick(sent, "es").title, "B");
 });
 
 test("handouts survive export and import, junk is dropped", () => {

@@ -66,7 +66,7 @@ const sfx = createSfx();
 const clock = new TimerClock();
 const received = [];            // handouts the GM has shown this player (memory only)
 const handoutUI = createHandoutUI({
-  state, $: sel => document.querySelector(sel), room: () => room, isGM, received: () => received,
+  state, lang: () => state.lang, $: sel => document.querySelector(sel), room: () => room, isGM, received: () => received,
   changed: (h, gone) => {
     persist(); renderBoard();
     if (room?.role === "host") { if (gone || !h.shown) room.sendUnhandout(h.id); else room.sendHandout(H.forPlayers(h)); }
@@ -129,6 +129,7 @@ const handlers = {
   },
   hostHandouts: () => H.shownList(state.handouts),
   onHandout: h => {
+    H.normalizeHandout(h);
     const i = received.findIndex(x => x.id === h.id);
     if (i >= 0) received[i] = h; else { received.push(h); toast(t("The GM shows you: {title}", { title: h.title })); handoutUI.view(h); }
     renderBoard();
