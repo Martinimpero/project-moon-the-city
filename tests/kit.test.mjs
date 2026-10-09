@@ -46,7 +46,7 @@ test("adding the kit sets up scenes, linked tokens, sheets, handout, Clocks, not
 test("importing twice adds nothing new, and in Spanish the names are Spanish", () => {
   const st = fresh();
   KIT.applyKit(st, KIT.parseKit(text), { lang: "es" });
-  assert.equal(st.scenes[0].name, "1. Encargo: Oficina Fixer"); assert.equal(st.clocks[0].name, "Guerra Abierta");
+  assert.equal(st.scenes[0].name, "1. Encargo: la Oficina"); assert.equal(st.clocks[0].name, "Guerra Abierta");
   const again = KIT.applyKit(st, KIT.parseKit(text), { lang: "es" });
   assert.deepEqual([again.actors, again.handouts, again.notes, again.journal, again.clocks, again.exchange], [0, 0, 0, 0, 0, 0]);
   assert.equal(st.actors.filter(a => a.name === "Marl Vessey").length, 1);

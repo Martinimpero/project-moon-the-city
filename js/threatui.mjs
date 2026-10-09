@@ -38,7 +38,7 @@ export function createThreatUI(ctx) {
       <span class="thr-step"><button type="button" data-action="thrMinus" data-id="${esc(r.tpl.id)}" aria-label="-">&minus;</button><button type="button" data-action="thrAdd" data-id="${esc(r.tpl.id)}" aria-label="+">+</button><button type="button" data-action="thrDrop" data-id="${esc(r.tpl.id)}" aria-label="${esc(t("Remove"))}">&times;</button></span></li>`).join("");
     const warn = s.soloNamed.length ? `<p class="hint">${esc(t("A named opponent of Grade 4 or lower gets one extra defensive response each Exchange (Part VI)."))}</p>` : "";
     return `<ul class="thr-enc">${rows}</ul>
-      <p class="thr-sum"><b>${esc(t("{n} Threat sheets", { n: s.sheets }))}</b> · ${esc(t("{n} dice rolled against the crew per round, if every one acts", { n: s.diceTotal }))}</p>${warn}
+      <p class="thr-sum"><b>${esc(t("{n} Threat sheets", { n: s.sheets }))}</b> · ${esc(t("{n} dice rolled against the crew per Exchange, if every one acts", { n: s.diceTotal }))}</p>${warn}
       <div class="thr-go"><label class="chk"><input type="checkbox" data-opt="exchange" ${opts.exchange ? "checked" : ""}> ${esc(t("Add to the Exchange order"))}</label>
       <label class="chk"><input type="checkbox" data-opt="map" ${opts.map ? "checked" : ""} ${ctx.hasMap() ? "" : "disabled"}> ${esc(t("Put tokens on the map"))}</label>
       <button type="button" class="primary" data-action="thrCreate">${esc(t("Create these Threats"))}</button><button type="button" data-action="thrClear">${esc(t("Clear"))}</button></div>`;

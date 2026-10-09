@@ -15,7 +15,7 @@ test("every string on the screen has a Spanish version", () => {
 
 test("Spanish keeps the **bold** marks and numbers of the English", () => {
   for (const s of strings.filter(x => x.length > 30)) {
-    const es = tIn("es", s);
+    const es = tIn("es", s).replace(/[−–]/g, "-");        // the Spanish manual writes a true minus sign and en dashes in ranges
     assert.equal((es.match(/\*\*/g) ?? []).length, (s.match(/\*\*/g) ?? []).length, s.slice(0, 40));
     assert.deepEqual((s.match(/[+-]\d/g) ?? []).sort(), (es.match(/[+-]\d/g) ?? []).sort(), s.slice(0, 50));
   }

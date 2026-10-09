@@ -141,7 +141,7 @@
   {
    "name": {
     "en": "1. Briefing: Fixer Office",
-    "es": "1. Encargo: Oficina Fixer"
+    "es": "1. Encargo: la Oficina"
    },
    "map": "storefront",
    "tokens": [
@@ -170,7 +170,7 @@
   {
    "name": {
     "en": "2. The Row: Threadmill Row",
-    "es": "2. La Fila: Threadmill Row"
+    "es": "2. La Fila del Telar"
    },
    "map": "backstreet",
    "tokens": [
@@ -332,7 +332,7 @@
    "text": "Client: A stranger, no obvious affiliation\nRisk: 3\nThe job: Protect a crate moving through Threadmill Row, from the west entrance to the east exit.\nPayment: Enough to cover a month of Office cuts, in untraceable chits.\nDeadline: Today.\nTerms: If it goes loud, all the Heat lands on the Fixers.",
    "alt": {
     "title": "El Cargamento de la Fila",
-    "text": "Cliente: Un desconocido, sin filiación clara\nRiesgo: 3\nEl trabajo: Proteger una caja que cruza Threadmill Row, de la entrada oeste a la salida este.\nPago: Lo bastante para cubrir un mes de comisiones de la Oficina, en fichas sin rastro.\nPlazo: Hoy.\nCondiciones: Si la cosa se pone fea, todo el Calor cae sobre los Fixers."
+    "text": "Cliente: Un desconocido, sin filiación clara\nRiesgo: 3\nEl trabajo: Proteger una caja que cruza la Fila del Telar, de la entrada oeste a la salida este.\nPago: Lo bastante para cubrir un mes de recortes de la Oficina, en fichas sin rastro.\nPlazo: Hoy.\nCondiciones: Si la cosa se pone fea, toda la Presión cae sobre los Agentes."
    }
   }
  ],
@@ -344,7 +344,7 @@
    },
    "text": {
     "en": "A stranger hired us to protect a crate across Threadmill Row, west entrance to east exit. Payment covers a month of Office cuts. If it goes loud, the Heat is ours. The Row is tense: Open War sits at 2/6 after a recent knifing.",
-    "es": "Un desconocido nos contrató para proteger una caja a través de Threadmill Row, de la entrada oeste a la salida este. El pago cubre un mes de comisiones de la Oficina. Si se pone fea, el Calor es nuestro. La Fila está tensa: Guerra Abierta está en 2/6 tras un apuñalamiento reciente."
+    "es": "Un desconocido nos contrató para proteger una caja a través de la Fila del Telar, de la entrada oeste a la salida este. El pago cubre un mes de recortes de la Oficina. Si se pone fea, la Presión es nuestra. La Fila del Telar está tensa: Guerra Abierta está en 2/6 tras un apuñalamiento reciente."
    },
    "pinned": true
   }
@@ -399,7 +399,10 @@
    },
    "size": 6,
    "filled": 2,
-   "scope": "Threadmill Row",
+   "scope": {
+    "en": "Threadmill Row",
+    "es": "La Fila del Telar"
+   },
    "shown": true,
    "consequence": {
     "en": "Two Syndicate crews go to open war; the Row's stalls shut and the market becomes a battleground.",
@@ -409,11 +412,14 @@
   {
    "name": {
     "en": "Coldwater Heat",
-    "es": "Calor de Coldwater"
+    "es": "Presión de Coldwater"
    },
    "size": 6,
    "filled": 0,
-   "scope": "Coldwater Concern",
+   "scope": {
+    "en": "Coldwater Concern",
+    "es": "Consorcio Coldwater"
+   },
    "shown": false,
    "consequence": {
     "en": "A Coldwater enforcer visits the PCs' Office; the Office is pressured to drop them.",
@@ -427,7 +433,10 @@
    },
    "size": 4,
    "filled": 0,
-   "scope": "Scene 3",
+   "scope": {
+    "en": "Scene 3",
+    "es": "Escena 3"
+   },
    "shown": false,
    "consequence": {
     "en": "A Coldwater crew boxes the PCs in; Sable no longer needs to talk.",

@@ -94,7 +94,7 @@ export function applyKit(state, kit, { mode = "add", lang = "en", author = "GM" 
   for (const c of kit.clocks ?? []) {
     const name = pick(c.name, lang);
     if (state.clocks.some(x => same(x.name, name))) { out.skipped++; continue; }
-    if (K.addClock(state.clocks, { name, size: c.size, filled: c.filled, scope: c.scope, consequence: pick(c.consequence, lang), shown: c.shown })) out.clocks++;
+    if (K.addClock(state.clocks, { name, size: c.size, filled: c.filled, scope: pick(c.scope, lang), consequence: pick(c.consequence, lang), shown: c.shown })) out.clocks++;
   }
   /* Exchange order: listed, not started */
   for (const ref of kit.exchange ?? []) {
