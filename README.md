@@ -104,13 +104,17 @@ The **Clocks** tab keeps the table's Clocks in one place (Open War, Coldwater He
 
 **Kits** (header) sets up a whole session from one file: scenes with maps and tokens linked to their sheets, Threat sheets, handouts, private notes, journal entries, Clocks and the Exchange order (listed, not started). A kit ships with the app: **Session 01: The Row Shipment** (4 scenes, 9 Threat sheets, the Contract in both languages, 10 GM notes from the vault, 3 Clocks); any kit file can also be opened with Kits or Import. Three modes: add what is missing (existing names are kept), scenes and notes only, or replace the Threats, scenes, handouts, notes, journal and Clocks (characters are never touched). A snapshot is kept first. The kit's descriptive text is the vault's English; names, the Contract, the journal entry and the Clocks are in both languages. `kits/session01.json` is generated from the vault; the Grade of the Stranger (7) and the Enforcers (8, group) are my sizing, since the vault gives no number for the Stranger.
 
+## GM screen (rules lookup)
+
+The **Screen** tab (everyone sees it) holds the manual's quick-reference tables from Appendices B to H: the Core Roll (Difficulty, results, opposed rolls, what a 1 does), E.G.O./Stress/Harm and the Hail Mary, Clocks, Threat Grade (with the extra defensive response for named opponents and Retreat), the GM templates and Risk calibration, the Sins (wheel, Swing, Fit, Drift) and Resources/attuned gear. A search box filters sections, paragraphs and table rows in the language you read; a search keeps only matching rows, and sections can be folded. Everything is in English and Spanish. Tests check that every screen string has a Spanish version and that the Threat Grade table agrees with the rules the app computes.
+
 ## Not built yet
 Accounts, cloud save, per-player vision, dynamic lighting.
 
 ## Files
 - `index.html`, `css/style.css`: the page and look (same design as the rulebook).
 - `js/rules.mjs`: the pure rules (bands, E.G.O., Sins, Fit, Drift, Hail Mary, upkeep). `js/engine.mjs`: rolls, techniques, downtime. `js/model.mjs`, `js/store.mjs`: data and saving. `js/ui.mjs`: the interface. `js/room.mjs`: the shared-room protocol. `js/board.mjs`, `js/boardui.mjs`, `js/maplist.mjs`: the Exchange tracker and map. `js/handouts.mjs`, `js/handoutui.mjs`: handouts. `js/timer.mjs`: the turn timer. `js/net.mjs`, `js/backup.mjs`, `js/safety.mjs`: connection checks and data safety. `js/creation.mjs`, `js/wizard.mjs`: the character builder. `js/scenes.mjs`: scenes. `js/journal.mjs`, `js/journalui.mjs`: the journal. `js/conditions.mjs`: conditions. `js/sfx.mjs`: sounds. `js/es.mjs`, `js/ui_es.mjs`, `js/room_es.mjs`: Spanish.
-- `tests/`: `node --test tests/*.test.mjs` (needs Node 20+; 198 tests).
+- `tests/`: `node --test tests/*.test.mjs` (needs Node 20+; 202 tests).
 
 ## If you change the rules
 Edit `js/rules.mjs` (and the tests), then the text in `js/config.mjs`, `js/engine.mjs` and Spanish in `js/es.mjs`. Any new English text passed to `t("...")` must get a Spanish entry, or `tests/i18n.test.mjs` fails.

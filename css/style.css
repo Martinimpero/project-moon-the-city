@@ -542,3 +542,18 @@ dialog.wizard { width: min(720px, 98vw); }
 .ck-acts { display: flex; gap: 4px; justify-content: center; flex-wrap: wrap; margin-top: 6px; }
 .ck-acts button { cursor: pointer; border: 1px solid #3a3d4a; background: #22242e; color: #cfd6e6; border-radius: 2px; padding: 2px 8px; }
 .ck-acts button.on { background: #2c4a3a; }
+
+/* ---- GM screen ---- */
+#pane-sc { color: #e6e9f0; overflow-y: auto; padding: 8px; }
+.sc-top input[type=search] { width: 100%; box-sizing: border-box; }
+.sc { background: #1c1e26; border: 1px solid #343744; border-radius: 3px; margin: 8px 0; }
+.sc-head { width: 100%; text-align: left; background: none; border: 0; color: inherit; cursor: pointer; padding: 6px 10px; }
+.sc-head h3 { margin: 0; font: 700 12px var(--pm-head); letter-spacing: .14em; text-transform: uppercase; }
+.sc-head h3::before { content: "\25B8  "; }
+.sc.open .sc-head h3::before { content: "\25BE  "; }
+.sc-body { padding: 0 10px 8px; font-size: 13px; }
+.sc-body p { margin: 6px 0; }
+.sc-table { width: 100%; border-collapse: collapse; margin: 6px 0; font-size: 12.5px; }
+.sc-table th { text-align: left; color: #9aa; font-weight: 700; border-bottom: 1px solid #343744; padding: 3px 6px; }
+.sc-table td { border-bottom: 1px solid #2a2d38; padding: 3px 6px; vertical-align: top; }
+.sc-table td.k { font-weight: 700; white-space: nowrap; }

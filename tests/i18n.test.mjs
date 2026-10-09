@@ -10,12 +10,13 @@ import { SAFETY_ES } from "../js/safety_es.mjs";
 import { CREATION_ES } from "../js/creation_es.mjs";
 import { JOURNAL_ES } from "../js/journal_es.mjs";
 import { THREAT_ES } from "../js/threat_es.mjs";
+import { SCREEN_ES } from "../js/screen_es.mjs";
 import { OCCUPATIONS, STEPS } from "../js/creation.mjs";
 import { setLang, t } from "../js/i18n.mjs";
 import { CONDITIONS } from "../js/conditions.mjs";
 
-const all = { ...ES, ...UI_ES, ...ROOM_ES, ...BOARD_ES, ...HANDOUT_ES, ...SAFETY_ES, ...CREATION_ES, ...JOURNAL_ES, ...THREAT_ES };
-const sources = ["ui.mjs", "engine.mjs", "store.mjs", "voice.mjs", "config.mjs", "boardui.mjs", "handoutui.mjs", "conditions.mjs", "wizard.mjs", "journalui.mjs", "threatui.mjs", "threats.mjs", "tablesui.mjs", "clocksui.mjs"].map(f => fs.readFileSync(new URL(`../js/${f}`, import.meta.url), "utf8"));
+const all = { ...ES, ...UI_ES, ...ROOM_ES, ...BOARD_ES, ...HANDOUT_ES, ...SAFETY_ES, ...CREATION_ES, ...JOURNAL_ES, ...THREAT_ES, ...SCREEN_ES };
+const sources = ["ui.mjs", "engine.mjs", "store.mjs", "voice.mjs", "config.mjs", "boardui.mjs", "handoutui.mjs", "conditions.mjs", "wizard.mjs", "journalui.mjs", "threatui.mjs", "threats.mjs", "tablesui.mjs", "clocksui.mjs", "screenui.mjs"].map(f => fs.readFileSync(new URL(`../js/${f}`, import.meta.url), "utf8"));
 const re = /\bt\(\s*("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|`(?:[^`\\]|\\.)*`)/g;
 
 test("every English string the app passes to t() has a Spanish entry", () => {
