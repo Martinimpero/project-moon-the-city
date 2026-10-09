@@ -11,6 +11,7 @@ import { verdictCandidates } from "./voice.mjs";
 import { Room, newCode, cleanCode } from "./room.mjs";
 import { peerOptionsFor, parseIceServers, testConnection, DEFAULT_ICE } from "./net.mjs";
 import * as K from "./backup.mjs";
+import { openWizard } from "./wizard.mjs";
 import * as safe from "./safety.mjs";
 import * as B from "./board.mjs";
 import * as C from "./conditions.mjs";
@@ -769,7 +770,13 @@ const actions = {
   room: () => roomDialog(),
   shareNpc: (el, a) => { a.shared = !a.shared; persist(); render(); toast(a.shared ? t("This Threat is now shown to the table.") : t("This Threat is hidden again.")); },
   tab: (el, a) => { tabs[a.id] = el.dataset.tab; render(); },
-  newCharacter: () => { const a = newActor("character", t("New character")); S.addActor(a); view = "sheet"; persist(); render(); },
+  newCharacter: async () => {
+    const r = await openWizard();                         // the guided builder (Part III); it can also hand back "blank"
+    if (!r) return;
+    const a = r === "blank" ? newActor("character", t("New character")) : r;
+    S.addActor(a); view = "sheet"; persist(); render();
+    if (r !== "blank") toast(t("{name} is ready. Check the sheet and press Export to keep a copy.", { name: a.name }));
+  },
   newNpc: () => { const a = newActor("npc", t("New Threat"), { grade: 5 }); S.addActor(a); view = "sheet"; persist(); render(); },
   newCrew: () => { const a = newActor("crew", t("New crew")); S.addActor(a); view = "sheet"; persist(); render(); },
   pregens: () => { const added = S.importPregens(); toast(added.length ? t("Imported: {names}", { names: added.join(", ") }) : t("The pregenerated characters already exist.")); view = "sheet"; persist(); render(); },

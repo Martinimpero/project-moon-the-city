@@ -7,11 +7,13 @@ import { ROOM_ES } from "../js/room_es.mjs";
 import { BOARD_ES } from "../js/board_es.mjs";
 import { HANDOUT_ES } from "../js/handout_es.mjs";
 import { SAFETY_ES } from "../js/safety_es.mjs";
+import { CREATION_ES } from "../js/creation_es.mjs";
+import { OCCUPATIONS, STEPS } from "../js/creation.mjs";
 import { setLang, t } from "../js/i18n.mjs";
 import { CONDITIONS } from "../js/conditions.mjs";
 
-const all = { ...ES, ...UI_ES, ...ROOM_ES, ...BOARD_ES, ...HANDOUT_ES, ...SAFETY_ES };
-const sources = ["ui.mjs", "engine.mjs", "store.mjs", "voice.mjs", "config.mjs", "boardui.mjs", "handoutui.mjs", "conditions.mjs"].map(f => fs.readFileSync(new URL(`../js/${f}`, import.meta.url), "utf8"));
+const all = { ...ES, ...UI_ES, ...ROOM_ES, ...BOARD_ES, ...HANDOUT_ES, ...SAFETY_ES, ...CREATION_ES };
+const sources = ["ui.mjs", "engine.mjs", "store.mjs", "voice.mjs", "config.mjs", "boardui.mjs", "handoutui.mjs", "conditions.mjs", "wizard.mjs"].map(f => fs.readFileSync(new URL(`../js/${f}`, import.meta.url), "utf8"));
 const re = /\bt\(\s*("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|`(?:[^`\\]|\\.)*`)/g;
 
 test("every English string the app passes to t() has a Spanish entry", () => {
@@ -26,7 +28,7 @@ test("every English string the app passes to t() has a Spanish entry", () => {
 
 test("Spanish keeps {placeholders} and <b> tags", () => {
   const bad = [];
-  for (const [k, v] of Object.entries({ ...UI_ES, ...ROOM_ES, ...BOARD_ES, ...HANDOUT_ES, ...SAFETY_ES })) {
+  for (const [k, v] of Object.entries({ ...UI_ES, ...ROOM_ES, ...BOARD_ES, ...HANDOUT_ES, ...SAFETY_ES, ...CREATION_ES })) {
     const ph = s => (s.match(/\{\w+\}/g) ?? []).sort().join();
     if (ph(k) !== ph(v)) bad.push(k);
   }
@@ -46,4 +48,10 @@ test("the token colour names are translated", () => {
 
 test("every condition rule is translated", () => {
   for (const [k, c] of Object.entries(CONDITIONS)) assert.ok(c.rule in all, k);
+});
+
+test("every character-builder step title, Occupation and package hint is translated", () => {
+  for (const o of OCCUPATIONS) { assert.ok(o.name in all, o.name); if (o.or) assert.ok(o.or in all, o.or); }
+  for (const t of ["Who is this?", "Where from, and how do you survive?", "The people and the cause", "Your Wound", "What you want, and what trips you", "Attributes", "Skills", "What you carry", "Review"]) assert.ok(t in all, t);
+  assert.equal(STEPS.length, 9);
 });

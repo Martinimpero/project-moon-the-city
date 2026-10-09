@@ -1,8 +1,8 @@
 // Lists English strings passed to t("...") in the app code that have no Spanish entry. Run: node tests/missing_keys.mjs
 import fs from "node:fs";
 import { ES } from "../js/es.mjs";
-const UI = { ...(await import("../js/ui_es.mjs")).UI_ES, ...(await import("../js/room_es.mjs")).ROOM_ES, ...(await import("../js/board_es.mjs")).BOARD_ES, ...(await import("../js/handout_es.mjs")).HANDOUT_ES, ...(await import("../js/safety_es.mjs")).SAFETY_ES };
-const files = ["ui.mjs", "engine.mjs", "store.mjs", "voice.mjs", "config.mjs", "boardui.mjs", "handoutui.mjs", "conditions.mjs"].map(f => fs.readFileSync(new URL(`../js/${f}`, import.meta.url), "utf8"));
+const UI = { ...(await import("../js/ui_es.mjs")).UI_ES, ...(await import("../js/room_es.mjs")).ROOM_ES, ...(await import("../js/board_es.mjs")).BOARD_ES, ...(await import("../js/handout_es.mjs")).HANDOUT_ES, ...(await import("../js/safety_es.mjs")).SAFETY_ES, ...(await import("../js/creation_es.mjs")).CREATION_ES };
+const files = ["ui.mjs", "engine.mjs", "store.mjs", "voice.mjs", "config.mjs", "boardui.mjs", "handoutui.mjs", "conditions.mjs", "wizard.mjs"].map(f => fs.readFileSync(new URL(`../js/${f}`, import.meta.url), "utf8"));
 const found = new Set();
 const re = /\bt\(\s*("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|`(?:[^`\\]|\\.)*`)/g;
 for (const src of files) for (const m of src.matchAll(re)) {

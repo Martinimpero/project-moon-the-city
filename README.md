@@ -23,6 +23,18 @@ Press **Room** at the top. The **GM** opens a room (a 5-letter code, plus a link
 - The GM's **New scene for all** resets every player's scene.
 - Limits: the GM's page must stay open (the room closes when the GM leaves; a reload can re-open the same code after a few seconds). Strict networks can block peer-to-peer; then play solo-style on a call. Peers learn each other's IP address (how WebRTC works), so only share the code with your table.
 
+## Staying connected, and keeping your data safe
+**The room does not give up.** If the GM reloads, a phone sleeps or the network drops, everyone's page keeps trying (a bar at the top says so, with **Stop trying**) for ten minutes, with growing pauses. A GM who reloads re-opens the same code by itself (the broker can take a few seconds to free it, so that is retried too); players come back as the same person (the same name replaces the old connection, it does not make a second player), their sheets are re-sent, and what they rolled while away is sent when they return. Leaving on purpose, being removed, or being refused ends the trying.
+**Room control (GM, in the Room window):** a **password** (players type it when joining), **Lock the room** (nobody new; people already let in can come back), and **Remove** next to each player (they are told, do not reconnect, and cannot return under that name until you reopen the room). Handing the GM job to someone else: Export, send them the file, they Import and open the room.
+**Connection** (in the join window): **Test my connection** says whether the room service answers and whether your network lets browsers find each other, and an optional **relay** (a TURN server) line can be added for strict networks. There is no free relay safe to build in; many services offer a free tier. Nothing is promised until it is tried on your real networks.
+
+**Backups.** Everything lives in the browser, which can lose it, so:
+- **Backup** (top bar): last export, **snapshots** the app keeps by itself (about every ten minutes of changes, and before any import or restore; the last ten; one click to **Restore**), an optional **backup file** the app writes to after every change (Chrome and Edge on a computer; the browser asks once and sometimes again after a restart), and **Ask the browser to keep my data** (protected storage).
+- A bar appears if a **save fails** (storage full or blocked) and if you have **changes that have not been exported for three days**.
+- **One character at a time:** press **Export** on a sheet to save that character as a small file; **Import** adds it as a new character (it never overwrites anyone). **Import** of a full save keeps a snapshot first.
+
+**Making a character: the guide.** **+ Character** opens a nine-step builder that follows Part III: name, concept and identity; background and Occupation (the eight packages from the manual, or build your own: three Skills at 2); Affiliation and Relationship (their Bonds at Strength 1 and 2), Principle; the Wound (Burden, Fear, Boundary, and the six Resonance points, at most 3 in a Sin, with your Alignment shown); Desire, Vice, Ambition; Attributes (1 each plus 6, at most 4); Skills (7 free points, none above 3); gear (Cost 2 or less, optionally attuned) and the review. It counts the points, refuses what the rules forbid, and derives E.G.O. (= Resolve, full), Stress 1, Resources 2, Grade 9 and the starting Trauma from the Burden. "Skip the guide" gives a blank sheet; "Create anyway" works with things still open (they are listed). English and Spanish.
+
 ## Exchange tracker and maps
 The right-hand pane has three tabs: **Log**, **Exchange** and **Map** (on a phone they are under **Table**).
 - **Exchange:** the manual has no initiative, so this tracks who has acted in the current Exchange. The GM adds characters and Threats ("Fill from the table"), reorders with the arrows, marks who has acted, and presses **Next Exchange**. The first one who has not acted is highlighted as "up now". Each row shows E.G.O. and Harm, or the Threat's track. Players see it read-only; each new Exchange posts its order to the log.
@@ -70,8 +82,8 @@ Accounts, cloud save, per-player vision, dynamic lighting.
 
 ## Files
 - `index.html`, `css/style.css`: the page and look (same design as the rulebook).
-- `js/rules.mjs`: the pure rules (bands, E.G.O., Sins, Fit, Drift, Hail Mary, upkeep). `js/engine.mjs`: rolls, techniques, downtime. `js/model.mjs`, `js/store.mjs`: data and saving. `js/ui.mjs`: the interface. `js/room.mjs`: the shared-room protocol. `js/board.mjs`, `js/boardui.mjs`, `js/maplist.mjs`: the Exchange tracker and map. `js/handouts.mjs`, `js/handoutui.mjs`: handouts. `js/timer.mjs`: the turn timer. `js/conditions.mjs`: conditions. `js/sfx.mjs`: sounds. `js/es.mjs`, `js/ui_es.mjs`, `js/room_es.mjs`: Spanish.
-- `tests/`: `node --test tests/*.test.mjs` (needs Node 20+; 127 tests).
+- `js/rules.mjs`: the pure rules (bands, E.G.O., Sins, Fit, Drift, Hail Mary, upkeep). `js/engine.mjs`: rolls, techniques, downtime. `js/model.mjs`, `js/store.mjs`: data and saving. `js/ui.mjs`: the interface. `js/room.mjs`: the shared-room protocol. `js/board.mjs`, `js/boardui.mjs`, `js/maplist.mjs`: the Exchange tracker and map. `js/handouts.mjs`, `js/handoutui.mjs`: handouts. `js/timer.mjs`: the turn timer. `js/net.mjs`, `js/backup.mjs`, `js/safety.mjs`: connection checks and data safety. `js/creation.mjs`, `js/wizard.mjs`: the character builder. `js/conditions.mjs`: conditions. `js/sfx.mjs`: sounds. `js/es.mjs`, `js/ui_es.mjs`, `js/room_es.mjs`: Spanish.
+- `tests/`: `node --test tests/*.test.mjs` (needs Node 20+; 155 tests).
 
 ## If you change the rules
 Edit `js/rules.mjs` (and the tests), then the text in `js/config.mjs`, `js/engine.mjs` and Spanish in `js/es.mjs`. Any new English text passed to `t("...")` must get a Spanish entry, or `tests/i18n.test.mjs` fails.
