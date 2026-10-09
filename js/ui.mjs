@@ -196,6 +196,7 @@ const boardUI = createBoardUI({
   changed: () => { persist(); renderBoard(); if (room?.role === "host") room.sendBoard(); },
   sendBoard: () => { if (room?.role === "host") room.sendBoard(); },
   redrawMap: () => renderBoard(),
+  mark: label => markUndo(label),
   sendPing: p => { if (room?.role === "host") room.sendPing(p); else if (room?.role === "player") room.sendPlayerPing(p.x, p.y, p.rev); },
   myName: () => state.name || "",
   sfx: (name, opts) => sfx.play(name, opts),
@@ -447,7 +448,7 @@ const UNDO_LABEL = {
   clockStep: "Clock change", deleteClock: "Clock change", ckStep: "Clock change", ckEdit: "Clock change",
   xStart: "Exchange change", xEnd: "Exchange change", xNext: "Exchange change", xFill: "Exchange change", slotMove: "Exchange change", slotActed: "Exchange change", slotRemove: "Exchange change", slotAdd: "Exchange change",
   condStep: "Condition change", condRemove: "Condition change", condAdd: "Condition change",
-  marksRaise: "Growth", marksUnlock: "Grade unlock", awardMarks: "Marks awarded", tokenDel: "Token removed", deleteActor: "Sheet deleted", sceneDel: "Scene deleted", deleteItem: "Item deleted"
+  marksRaise: "Growth", marksUnlock: "Grade unlock", awardMarks: "Marks awarded", tokenDel: "Token removed", marksClear: "Drawings cleared", deleteActor: "Sheet deleted", sceneDel: "Scene deleted", deleteItem: "Item deleted"
 };
 const nowJson = () => JSON.stringify(S.exportData());
 const markUndo = label => UNDO.push(undoStack, label, nowJson());

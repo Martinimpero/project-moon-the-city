@@ -119,7 +119,7 @@ export function fogRects(fog) {
 export function mapForPlayers(map) {
   if (!map) return null;
   const { tokens, ...rest } = map;
-  const copy = { ...rest, tokens: tokens.filter(t => !t.hidden && (t.pc || isRevealed(map, t.x, t.y))) };
+  const copy = { ...rest, tokens: tokens.filter(t => !t.hidden && (t.pc || isRevealed(map, t.x, t.y))), marks: marksForPlayers(map) };
   if (!map.bundled) copy.src = "";           // a custom image travels in its own message
   return copy;
 }
@@ -163,4 +163,69 @@ export const pingFits = (p, map) => !!map && p.rev === map.rev;
 export function centreView(view, map, x, y) {
   const w = Math.min(view.w, map.w), h = Math.min(view.h, map.h);
   return { w, h, x: Math.max(0, Math.min(map.w - w, x - w / 2)), y: Math.max(0, Math.min(map.h - h, y - h / 2)) };
+}
+
+/* ---- map marks: pins with a private note, and freehand drawings ---- */
+export const MAX_MARKS = 150, MAX_STROKE_POINTS = 300, MAX_LABEL = 40, MAX_NOTE = 400;
+export const MARK_COLORS = ["#ff5c5c", "#ffb347", "#ffe066", "#6bd98f", "#5cc8ff", "#9b8cff", "#ffffff", "#111111"];
+const clipStr = (v, n) => String(v ?? "").slice(0, n);
+const num = v => (Number.isFinite(Number(v)) ? Number(v) : 0);
+const colour = c => (/^#[0-9a-f]{6}$/i.test(String(c)) ? String(c) : MARK_COLORS[0]);
+/** A saved or received list of marks, repaired: anything that is not a pin or a stroke is dropped. */
+export function cleanMarks(list) {
+  const out = [];
+  for (const m of Array.isArray(list) ? list : []) {
+    if (!m || typeof m !== "object" || !m.id) continue;
+    if (m.kind === "pin") out.push({ id: String(m.id), kind: "pin", x: num(m.x), y: num(m.y), label: clipStr(m.label, MAX_LABEL), note: clipStr(m.note, MAX_NOTE), color: colour(m.color), shown: !!m.shown });
+    else if (m.kind === "stroke" && Array.isArray(m.pts) && m.pts.length >= 2) {
+      const pts = m.pts.slice(0, MAX_STROKE_POINTS).map(p => [num(p?.[0]), num(p?.[1])]);
+      out.push({ id: String(m.id), kind: "stroke", pts, color: colour(m.color), width: Math.max(2, Math.min(40, num(m.width) || 6)), shown: !!m.shown });
+    }
+    if (out.length >= MAX_MARKS) break;
+  }
+  return out;
+}
+/** The map's marks, repaired in place (maps saved before marks existed have none). */
+const cleanLists = new WeakSet();
+export function marksOf(map) {
+  if (map.marks && cleanLists.has(map.marks)) return map.marks;          // already repaired: keep the same objects
+  map.marks = cleanMarks(map.marks); cleanLists.add(map.marks);
+  return map.marks;
+}
+export function addPin(map, { x, y, label = "", note = "", color, shown = false }) {
+  const marks = marksOf(map); if (marks.length >= MAX_MARKS) return null;
+  const pin = { id: uid(), kind: "pin", x: Math.max(0, Math.min(map.w, num(x))), y: Math.max(0, Math.min(map.h, num(y))), label: clipStr(label, MAX_LABEL).trim(), note: clipStr(note, MAX_NOTE), color: colour(color), shown: !!shown };
+  marks.push(pin); return pin;
+}
+export function editPin(map, id, fields) {
+  const pin = marksOf(map).find(m => m.id === id && m.kind === "pin"); if (!pin) return null;
+  if ("label" in fields) pin.label = clipStr(fields.label, MAX_LABEL).trim();
+  if ("note" in fields) pin.note = clipStr(fields.note, MAX_NOTE);
+  if ("color" in fields) pin.color = colour(fields.color);
+  if ("shown" in fields) pin.shown = !!fields.shown;
+  return pin;
+}
+/** Thin a drawn line: keep a point only when it is at least `minDist` from the last one kept (and always the last point), at most MAX_STROKE_POINTS. */
+export function simplify(pts, minDist) {
+  if (pts.length < 3) return pts.slice();
+  const out = [pts[0]];
+  for (let i = 1; i < pts.length - 1; i++) { const p = out[out.length - 1]; if (Math.hypot(pts[i][0] - p[0], pts[i][1] - p[1]) >= minDist) out.push(pts[i]); }
+  out.push(pts[pts.length - 1]);
+  if (out.length > MAX_STROKE_POINTS) { const k = out.length / MAX_STROKE_POINTS, last = out[out.length - 1]; const thin = Array.from({ length: MAX_STROKE_POINTS }, (_, i) => out[Math.min(out.length - 1, Math.floor(i * k))]); thin[thin.length - 1] = last; return thin; }
+  return out;
+}
+export function addStroke(map, pts, { color, width = 6, shown = true } = {}) {
+  const marks = marksOf(map); if (marks.length >= MAX_MARKS) return null;
+  const line = simplify((pts ?? []).map(p => [num(p[0]), num(p[1])]), Math.max(2, (map.cell > 0 ? map.cell : 70) / 14));
+  if (line.length < 2) return null;
+  const s = { id: uid(), kind: "stroke", pts: line, color: colour(color), width: Math.max(2, Math.min(40, num(width) || 6)), shown: !!shown };
+  marks.push(s); return s;
+}
+export function removeMark(map, id) { const marks = marksOf(map), i = marks.findIndex(m => m.id === id); if (i < 0) return false; marks.splice(i, 1); return true; }
+/** Remove every drawing (and, with `pins`, every pin). Returns how many went. */
+export function clearMarks(map, { pins = false } = {}) { const marks = marksOf(map), keep = pins ? [] : marks.filter(m => m.kind === "pin"); const n = marks.length - keep.length; map.marks = keep; cleanLists.add(keep); return n; }
+/** What a player may see: drawings and pins the GM has shown; a pin loses its private note, and under fog only a pin in a revealed square is sent. */
+export function marksForPlayers(map) {
+  return marksOf(map).filter(m => m.shown && (m.kind === "stroke" || !map.fog?.on || isRevealed(map, m.x, m.y)))
+    .map(m => (m.kind === "pin" ? { ...m, note: "" } : m));
 }

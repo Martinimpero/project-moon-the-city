@@ -122,13 +122,17 @@ The **Screen** tab (everyone sees it) holds the manual's quick-reference tables 
 
 Part IX section 7: at the end of a Contract every player earns **1 Mark**, **+1** if it was Risk 3 or 4, **+1** (once per session) for a played Reckoning or a scene that grew a Bond. The GM presses **Award Marks** (under the character list), picks the Risk, the bonus and who gets them; players in a room are told and their sheet updates. Each character's **Growth** tab shows unspent and total Marks and a **Raise** button on every Skill and Attribute with its cost: a Skill costs its new rating, an Attribute costs three times its new rating. Skills stop at 3 and Attributes at 4 until the Grade rewards of section 2 unlock a dot: **Skill 4** at Grade 7 (in a Skill already at 3), **Attribute 5** at Grade 5 (in an Attribute already at 4), **Skill 5** at Grade 3 (in a Skill already at 4); the player picks where each goes, once. Raising Resolve raises the E.G.O. maximum (it follows from Resolve). Each raise posts a card to the log and is kept in a short history; it can be undone. The Grade number itself is still edited by hand on the Character tab (the manual leaves "the proving moment" to the GM). The plain number fields on the Character tab still let the GM set any value directly.
 
+## Drawing and notes on the map (GM)
+
+On the map's second toolbar the GM has **Draw** (drag to draw a freehand line in one of eight colours), **Note** (click the map to leave a pin with a label and a **private note**) and **Erase** (click a drawing or a pin to remove it). **Players see drawings** (tick box) decides whether new drawings are shown to the table; each pin has its own "players see this pin" box. Hidden marks look faded and dashed to the GM. Players receive only what is shown: a pin arrives with its label and **never its private note**, and with fog of war a pin in a covered square is not sent. Click a pin to edit it (the GM) or to read its label (players). **Clear drawings** removes the lines and keeps the pins. Marks belong to the scene's map, are saved and exported with it, are copied with **Copy** scene, and the changes can be undone. Players cannot draw. Up to 150 marks per map.
+
 ## Not built yet
 Accounts, cloud save, per-player vision, dynamic lighting.
 
 ## Files
 - `index.html`, `css/style.css`: the page and look (same design as the rulebook).
 - `js/rules.mjs`: the pure rules (bands, E.G.O., Sins, Fit, Drift, Hail Mary, upkeep). `js/engine.mjs`: rolls, techniques, downtime. `js/model.mjs`, `js/store.mjs`: data and saving. `js/ui.mjs`: the interface. `js/room.mjs`: the shared-room protocol. `js/board.mjs`, `js/boardui.mjs`, `js/maplist.mjs`: the Exchange tracker and map. `js/handouts.mjs`, `js/handoutui.mjs`: handouts. `js/timer.mjs`: the turn timer. `js/net.mjs`, `js/backup.mjs`, `js/safety.mjs`: connection checks and data safety. `js/creation.mjs`, `js/wizard.mjs`: the character builder. `js/scenes.mjs`: scenes. `js/journal.mjs`, `js/journalui.mjs`: the journal. `js/conditions.mjs`: conditions. `js/sfx.mjs`: sounds. `js/es.mjs`, `js/ui_es.mjs`, `js/room_es.mjs`: Spanish.
-- `tests/`: `node --test tests/*.test.mjs` (needs Node 20+; 226 tests).
+- `tests/`: `node --test tests/*.test.mjs` (needs Node 20+; 232 tests).
 
 ## If you change the rules
 Edit `js/rules.mjs` (and the tests), then the text in `js/config.mjs`, `js/engine.mjs` and Spanish in `js/es.mjs`. Any new English text passed to `t("...")` must get a Spanish entry, or `tests/i18n.test.mjs` fails.

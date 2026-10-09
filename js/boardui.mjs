@@ -15,7 +15,8 @@ export function createBoardUI(ctx) {
   let view = null;               // {x, y, w, h}: the visible part of the map, in image pixels (local to this browser)
   let viewKey = "";
   let sel = "";                  // selected token id
-  let tool = "";                 // "" (pan), "measure", "ping", "reveal" or "cover"
+  let tool = "";                 // "" (pan), "measure", "ping", "reveal", "cover", "draw", "pin" or "erase"
+  let markColor = B.MARK_COLORS[0], markShown = true;   // the colour of the next drawing, and whether players see it
   let look = false;              // a ping also centres everyone's view
   let lastSent = 0;
   const pings = [];              // the pings on this map right now (short-lived)
@@ -214,7 +215,13 @@ export function createBoardUI(ctx) {
       ${sel && map.tokens.some(x => x.id === sel) ? `<button type="button" data-action="tokenHide">${esc(map.tokens.find(x => x.id === sel).hidden ? t("Show") : t("Hide"))}</button><button type="button" data-action="tokenDel">${esc(t("Remove"))}</button>` : ""}` : ""}
       </div>` : "";
     const pingOnly = `<button type="button" data-action="toolSet" data-tool="ping" class="${tool === "ping" ? "on" : ""}" title="${esc(t("Click the map to point everyone to a spot"))}">${esc(t("Ping"))}</button>`;
-    const bars = gm ? sceneBar() + bar + fogBar : (map ? `<div class="m-bar">${measureBtn}${pingOnly}</div>` : "");
+    const markBar = gm && map ? `<div class="m-bar markbar"><button type="button" data-action="toolSet" data-tool="draw" class="${tool === "draw" ? "on" : ""}" title="${esc(t("Drag on the map to draw"))}">${esc(t("Draw"))}</button>
+      <button type="button" data-action="toolSet" data-tool="pin" class="${tool === "pin" ? "on" : ""}" title="${esc(t("Click the map to leave a note"))}">${esc(t("Note"))}</button>
+      <button type="button" data-action="toolSet" data-tool="erase" class="${tool === "erase" ? "on" : ""}" title="${esc(t("Click a drawing or a note to remove it"))}">${esc(t("Erase"))}</button>
+      <span class="swatches">${B.MARK_COLORS.map(c => `<button type="button" class="sw ${c === markColor ? "on" : ""}" data-action="markColor" data-c="${c}" style="background:${c}" aria-label="${c}"></button>`).join("")}</span>
+      <label class="chk" title="${esc(t("Drawings are seen by the players when this is ticked"))}"><input type="checkbox" id="m-mshown" ${markShown ? "checked" : ""}> ${esc(t("Players see drawings"))}</label>
+      <button type="button" data-action="marksClear">${esc(t("Clear drawings"))}</button></div>` : "";
+    const bars = gm ? sceneBar() + bar + markBar + fogBar : (map ? `<div class="m-bar">${measureBtn}${pingOnly}</div>` : "");
     if (!map) return `${gm ? sceneBar() + bar : ""}<p class="hint pad">${esc(gm ? t("Pick a map for this scene.") : t("The GM has not shown a map."))}</p>`;
     const src = mapSrc();
     if (!view || viewKey !== map.rev) fit(map);
@@ -230,13 +237,23 @@ export function createBoardUI(ctx) {
         ${ex.chips}${ex.pips}
         <text class="lbl" y="${rr + (ex.hasPips ? 40 : 26)}" font-size="22" text-anchor="middle">${esc(tk.name)}</text></g>`;
     }).join("");
+    const marks = marksSvg(map, gm, r);
     const svg = `<svg id="mapsvg" viewBox="${view.x} ${view.y} ${view.w} ${view.h}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
-      <rect width="${map.w}" height="${map.h}" fill="#20222a"/>${src ? `<image href="${esc(src)}" width="${map.w}" height="${map.h}"/>` : `<text x="${map.w / 2}" y="${map.h / 2}" fill="#9aa3b5" font-size="40" text-anchor="middle">${esc(t("Loading the map..."))}</text>`}${grid}${fogSvg(map, gm)}${tokens}${pingsSvg(map)}</svg>`;
+      <rect width="${map.w}" height="${map.h}" fill="#20222a"/>${src ? `<image href="${esc(src)}" width="${map.w}" height="${map.h}"/>` : `<text x="${map.w / 2}" y="${map.h / 2}" fill="#9aa3b5" font-size="40" text-anchor="middle">${esc(t("Loading the map..."))}</text>`}${grid}${marks}${fogSvg(map, gm)}${tokens}${pingsSvg(map)}</svg>`;
     const zoom = `<div class="m-zoom"><button type="button" data-action="mapZoom" data-f="0.8">+</button><button type="button" data-action="mapZoom" data-f="1.25">&minus;</button><button type="button" data-action="mapFit">${esc(t("Fit"))}</button></div>`;
     const note = map.name ? `<div class="m-name">${esc(map.name)}</div>` : "";
     return `${bars}<div class="m-stage ${tool ? "tool-" + tool : ""}">${svg}${zoom}${note}${tokenInfo(map)}</div>`;
   }
 
+  /** Drawings and note pins. The GM sees all of them (the ones players cannot see are faded); a pin's private note is never drawn. */
+  function marksSvg(map, gm, r) {
+    return (gm ? B.marksOf(map) : (map.marks ?? [])).map(m => {
+      const fade = gm && !m.shown ? ' opacity=".5" stroke-dasharray="14 10"' : "";
+      if (m.kind === "stroke") return `<polyline class="mk st" data-id="${esc(m.id)}" points="${m.pts.map(p => p.join(",")).join(" ")}" fill="none" stroke="${esc(m.color)}" stroke-width="${m.width}" stroke-linecap="round" stroke-linejoin="round"${fade}/>`;
+      const label = m.label ? `<text class="lbl" y="${r * 0.95 + 20}" font-size="24" text-anchor="middle">${esc(m.label)}</text>` : "";
+      return `<g class="mk pn" data-id="${esc(m.id)}" transform="translate(${m.x} ${m.y})"><title>${esc(m.label)}</title><path d="M0 ${-r * 0.1} L${r * 0.55} ${-r * 0.9} A${r * 0.55} ${r * 0.55} 0 1 0 ${-r * 0.55} ${-r * 0.9} Z" fill="${esc(m.color)}" stroke="#000" stroke-width="3"${gm && !m.shown ? ' opacity=".6"' : ""}/><circle cy="${-r * 0.9}" r="${r * 0.2}" fill="#fff" stroke="#000" stroke-width="2"/>${gm && m.note ? `<text y="${-r * 0.9 + 9}" font-size="26" text-anchor="middle">&#9998;</text>` : ""}${label}</g>`;
+    }).join("");
+  }
   /** The covered squares as one dark path. The GM sees through it; players do not. */
   function fogSvg(map, gm) {
     if (!map.fog?.on) return "";
@@ -302,6 +319,22 @@ export function createBoardUI(ctx) {
     let drag = null;
     svg.addEventListener("pointerdown", e => {
       if (tool === "ping") { const p = svgPoint(svg, e); sendPing(p.x, p.y); e.preventDefault(); return; }
+      if (ctx.isGM() && tool === "erase") {
+        const mk = e.target.closest(".mk"); e.preventDefault();
+        if (mk && B.marksOf(map).some(m => m.id === mk.dataset.id)) { ctx.mark?.("Drawing erased"); B.removeMark(map, mk.dataset.id); ctx.changed(); }
+        return;
+      }
+      if (ctx.isGM() && tool === "pin") { const p = svgPoint(svg, e); e.preventDefault(); newPin(map, p); return; }
+      if (ctx.isGM() && tool === "draw") {
+        const p = svgPoint(svg, e);
+        const el = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+        el.setAttribute("fill", "none"); el.setAttribute("stroke", markColor); el.setAttribute("stroke-width", map.cell * 0.08); el.setAttribute("stroke-linecap", "round"); el.setAttribute("stroke-linejoin", "round"); el.setAttribute("pointer-events", "none");
+        el.setAttribute("points", `${p.x},${p.y}`); svg.appendChild(el);
+        drag = { kind: "stroke", pts: [[p.x, p.y]], el };
+        svg.setPointerCapture(e.pointerId); svg.dataset.drag = "1"; e.preventDefault(); return;
+      }
+      const pn = e.target.closest(".pn");
+      if (pn && !e.target.closest(".tk")) { e.preventDefault(); openPin(map, pn.dataset.id); return; }
       const g = e.target.closest(".tk");
       if (g) {
         const tk = map.tokens.find(x => x.id === g.dataset.id);
@@ -332,6 +365,7 @@ export function createBoardUI(ctx) {
         svg.setAttribute("viewBox", `${view.x} ${view.y} ${view.w} ${view.h}`);
         return;
       }
+      if (drag.kind === "stroke") { const p = svgPoint(svg, e), l = drag.pts[drag.pts.length - 1]; if (Math.hypot(p.x - l[0], p.y - l[1]) > 4) { drag.pts.push([p.x, p.y]); drag.el.setAttribute("points", drag.pts.map(q => q.join(",")).join(" ")); } return; }
       if (drag.kind === "measure") { const p = svgPoint(svg, e); showRuler(svg, drag, p); return; }
       if (drag.kind === "fog") {
         const p = svgPoint(svg, e);
@@ -351,7 +385,11 @@ export function createBoardUI(ctx) {
     const end = e => {
       if (!drag) return;
       const d = drag; drag = null; delete svg.dataset.drag;
-      if (d.kind === "token" && d.moved) push(d, true);
+      if (d.kind === "stroke") {
+        d.el.remove();
+        ctx.mark?.("Drawing");
+        if (B.addStroke(map, d.pts, { color: markColor, width: map.cell * 0.08, shown: markShown })) ctx.changed(); else ctx.redrawMap();
+      } else if (d.kind === "token" && d.moved) push(d, true);
       else if (d.kind === "fog") ctx.changed();
       else if (d.kind === "measure") { /* the ruler stays until the next click */ }
       else { ctx.redrawMap(); }
@@ -390,6 +428,27 @@ export function createBoardUI(ctx) {
     tmp.innerHTML = fogSvg(map, ctx.isGM());
     const fresh = tmp.firstElementChild;
     if (old && fresh) old.replaceWith(fresh); else if (old) old.remove(); else if (fresh) svg.querySelector(".tk")?.before(fresh) ?? svg.appendChild(fresh);
+  }
+
+  const pinForm = p => `<div class="pm-row"><label>${esc(t("Label"))}</label><input type="text" name="label" maxlength="${B.MAX_LABEL}" value="${esc(p?.label ?? "")}" placeholder="${esc(t("the fire barrel"))}"></div>
+    <div class="pm-row"><label class="full">${esc(t("Private note (only you see it)"))}</label><textarea name="note" rows="4" maxlength="${B.MAX_NOTE}">${esc(p?.note ?? "")}</textarea></div>
+    <div class="pm-row"><label>${esc(t("Colour"))}</label><select name="color">${B.MARK_COLORS.map(c => `<option value="${c}" ${c === (p?.color ?? markColor) ? "selected" : ""} style="background:${c}">${c}</option>`).join("")}</select>
+      <label class="chk"><input type="checkbox" name="shown" ${p?.shown ? "checked" : ""}> ${esc(t("Players see this pin and its label"))}</label></div>`;
+  const readPin = f => ({ label: f.elements.label.value, note: f.elements.note.value, color: f.elements.color.value, shown: f.elements.shown.checked });
+  async function newPin(map, p) {
+    const r = await ctx.ask({ title: t("New note on the map"), ok: t("Add"), wide: true, body: pinForm(null), read: readPin });
+    if (!r) return;
+    ctx.mark?.("Note added");
+    if (!B.addPin(map, { x: p.x, y: p.y, ...r })) return ctx.toast(t("That is the most marks this map holds."));
+    ctx.changed();
+  }
+  async function openPin(map, id) {
+    const pin = B.marksOf(map).find(m => m.id === id && m.kind === "pin");
+    if (!pin) { const shown = (map.marks ?? []).find(m => m.id === id); if (shown?.label) ctx.toast(shown.label); return; }
+    if (!ctx.isGM()) { if (pin.label) ctx.toast(pin.label); return; }
+    const r = await ctx.ask({ title: pin.label || t("Note"), ok: t("Save"), wide: true, body: `${pinForm(pin)}<div class="pm-row"><button type="button" data-do="del">${esc(t("Delete"))}</button></div>`, read: readPin,
+      setup: f => f.querySelector('[data-do="del"]').addEventListener("click", () => { ctx.mark?.("Drawing erased"); B.removeMark(map, id); f.closest("dialog").close(); ctx.changed(); }) });
+    if (r) { ctx.mark?.("Note edited"); B.editPin(map, id, r); ctx.changed(); }
   }
 
   /** Move a token (live while dragging, final on drop). Players ask the host to do it. */
@@ -445,6 +504,13 @@ export function createBoardUI(ctx) {
       });
       ctx.changed();
     },
+    markColor: el => { markColor = el.dataset.c; ctx.redrawMap(); },
+    marksClear: async () => {
+      const m = ctx.board().map; if (!m || !ctx.isGM()) return;
+      if (!B.marksOf(m).some(x => x.kind === "stroke")) return ctx.toast(t("There are no drawings to clear."));
+      ctx.mark?.("Drawings cleared");
+      B.clearMarks(m); ctx.changed();
+    },
     toolSet: el => { tool = tool === el.dataset.tool ? "" : el.dataset.tool; ctx.redrawMap(); },
     fogAll: el => { const m = ctx.board().map; if (m?.fog) { B.fogAll(m, el.dataset.v === "1"); ctx.changed(); } },
     fogAround: () => {
@@ -498,6 +564,7 @@ export function createBoardUI(ctx) {
       else { const m = MAPS.find(x => x.id === el.value); const map = B.newMap({ src: m.file, name: m.title, w: m.w, h: m.h, cell: m.cell || 70, bundled: m.id }); map.grid = m.grid; ctx.setMap(map); }
       sel = ""; view = null; ctx.changed();
     } else if (el.id === "m-grid") { ctx.board().map.grid = el.checked; ctx.changed(); }
+    else if (el.id === "m-mshown") { markShown = el.checked; return; }
     else if (el.id === "m-fog") { const m = ctx.board().map; if (!m.fog) m.fog = B.newFog(m); m.fog.on = el.checked; if (!el.checked && (tool === "reveal" || tool === "cover")) tool = ""; ctx.changed(); }
     else if (el.id === "m-rad") { radius = Math.max(1, Math.min(12, Number(el.value) || 3)); }
     else if (el.id === "m-look") { look = el.checked; }

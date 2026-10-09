@@ -600,3 +600,12 @@ dialog.wizard { width: min(720px, 98vw); }
 .unlocks li.dim { opacity: .55; }
 .unlocks button, .pm-skills button[data-action=marksRaise] { cursor: pointer; }
 .pm-skills button[data-action=marksRaise]:disabled { opacity: .5; cursor: default; }
+
+/* ---- map drawings and notes ---- */
+.markbar .swatches { display: inline-flex; gap: 4px; align-items: center; }
+.markbar .sw { width: 18px; height: 18px; padding: 0; border: 2px solid #3a3d4a; border-radius: 50%; cursor: pointer; }
+.markbar .sw.on { border-color: #fff; box-shadow: 0 0 0 2px #c9a227; }
+.m-stage.tool-draw svg, .m-stage.tool-pin svg { cursor: crosshair; }
+.m-stage.tool-erase svg { cursor: not-allowed; }
+.mk.pn { cursor: pointer; }
+.mk.pn .lbl { fill: #fff; stroke: #000; stroke-width: 5px; paint-order: stroke; font-weight: 700; }
