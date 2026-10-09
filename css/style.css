@@ -476,3 +476,18 @@ dialog.wizard { width: min(720px, 98vw); }
 .tk-info select { background: #22242e; color: #eceff4; border: 1px solid #3a3d4a; padding: 3px 5px; font: 12px var(--pm-ui); max-width: 100%; }
 .tk-info button { cursor: pointer; font: 700 11px var(--pm-head); letter-spacing: .1em; text-transform: uppercase; border: 1px solid #3a3d4a; background: #22242e; color: #cfd6e6; border-radius: 2px; padding: 4px 9px; }
 .tk-info button:hover { border-color: var(--pm-gold); color: #fff; }
+
+/* ================= the journal ================= */
+#pane-jr { color: #e6e9f0; overflow-y: auto; }
+.jr-tabs { display: flex; border-bottom: 1px solid #0c0d10; }
+.jr-tabs button { flex: 1; cursor: pointer; font: 800 12px var(--pm-head); letter-spacing: .14em; text-transform: uppercase; background: transparent; color: #8d94a8; border: none; border-bottom: 3px solid transparent; padding: 7px 4px; }
+.jr-tabs button.on { color: var(--pm-gold); border-bottom-color: var(--pm-gold); }
+#pane-jr .m-bar button { cursor: pointer; font: 700 11px var(--pm-head); letter-spacing: .12em; text-transform: uppercase; border: 1px solid #3a3d4a; background: #22242e; color: #cfd6e6; border-radius: 2px; padding: 5px 10px; }
+.jr-list { list-style: none; margin: 0; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+.jr { background: #20222a; border-left: 5px solid #4664dc; }
+.jr.recap { border-left-color: var(--pm-gold); } .jr.pinned { background: #2b2d38; }
+.jr-open { display: flex; flex-direction: column; gap: 1px; width: 100%; text-align: left; background: transparent; border: none; color: #e6e9f0; padding: 7px 10px; cursor: pointer; }
+.jr-open b { font: 700 15px var(--pm-head); letter-spacing: .05em; text-transform: uppercase; }
+.jr-open small { color: #8d94a8; font-size: 11px; }
+.jr-open .ex { color: #b9c0d0; font-size: 12px; }
+.jr-acts button { cursor: pointer; font: 700 11px var(--pm-head); letter-spacing: .1em; text-transform: uppercase; border: 1px solid var(--pm-ink); background: transparent; color: var(--pm-ink); padding: 4px 12px; border-radius: 2px; }

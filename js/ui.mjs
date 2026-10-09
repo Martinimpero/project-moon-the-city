@@ -20,6 +20,8 @@ import * as C from "./conditions.mjs";
 import { createBoardUI } from "./boardui.mjs";
 import * as H from "./handouts.mjs";
 import { createHandoutUI } from "./handoutui.mjs";
+import * as J from "./journal.mjs";
+import { createJournalUI } from "./journalui.mjs";
 import { createSfx } from "./sfx.mjs";
 import { TimerClock, timerOf, fmt as fmtTime } from "./timer.mjs";
 
@@ -125,6 +127,27 @@ const board = () => (isGM()
 const sfx = createSfx();
 const clock = new TimerClock();
 const received = [];            // handouts the GM has shown this player (memory only)
+let remoteJournal = [];          // the party journal as the GM last sent it (players only)
+const partyJournal = () => (isGM() ? state.journal : remoteJournal);
+/** Change the party journal: the GM (or someone alone) changes it directly and tells the room; a player asks the GM's page. */
+function journalApply(op, entry) {
+  if (isGM()) {
+    const r = J.applyOp(state.journal, op, entry, state.name || "GM", { gm: true });
+    if (!r.ok) return toast(t("That could not be done."));
+    persist(); renderBoard(); if (room?.role === "host") room.sendJournal(state.journal);
+  } else if (room?.online) room.sendJournalOp(op, entry);
+  else toast(t("You are not connected to the room right now."));
+}
+const journalUI = createJournalUI({
+  state, $: sel => document.querySelector(sel), lang: () => state.lang, isGM, myName: () => (isGM() ? (state.name || "GM") : state.name),
+  party: partyJournal, apply: journalApply, notesChanged: () => { persist(); renderBoard(); },
+  ask: o => ask(o), toast: m => toast(m),
+  recapParts: () => ({
+    lines: J.logLines(state.log, state.lang),
+    scenes: state.scenes.filter(s => s.map).map(s => s.name),
+    handouts: state.handouts.filter(h => h.shown).map(h => H.pick(h, state.lang).title)
+  })
+});
 const handoutUI_names = h => { const names = room?.role === "host" ? [...room.peers.values()].map(p => p.name) : []; return h.to.map(n => names.find(x => x.toLowerCase() === n) ?? n).join(", "); };
 const handoutUI = createHandoutUI({
   state, lang: () => state.lang, $: sel => document.querySelector(sel), room: () => room, isGM, received: () => received,
@@ -246,6 +269,12 @@ const handlers = {
     const allowed = types.filter(k => k === "sinking" || (k === "poise" && own));
     if (allowed.length && C.clearForActor(state.tracker, actorId, allowed)) { persist(); renderBoard(); room.sendBoard(); }
   },
+  hostJournal: () => state.journal,
+  onJournal: entries => { remoteJournal = J.cleanList(entries); if (rtab === "jr") renderBoard(); },
+  onJournalOp: (name, op, entry) => {
+    const r = J.applyOp(state.journal, op, entry, name, { gm: false });
+    if (r.ok) { persist(); renderBoard(); room?.sendJournal(state.journal); }
+  },
   hostHandouts: name => H.shownListFor(state.handouts, name),
   onHandout: h => {
     H.normalizeHandout(h);
@@ -315,13 +344,14 @@ export function render() {
 }
 
 function renderBoard() {
-  const tabs = [["log", t("Log")], ["xchg", t("Exchange")], ["map", t("Map")], ["ho", t("Handouts")]];
+  const tabs = [["log", t("Log")], ["xchg", t("Exchange")], ["map", t("Map")], ["ho", t("Handouts")], ["jr", t("Journal")]];
   $("#rtabs").innerHTML = tabs.map(([k, l]) => `<button type="button" data-action="rtab" data-tab="${k}" class="${rtab === k ? "active" : ""}">${esc(l)}</button>`).join("");
-  for (const [k, id] of [["log", "pane-log"], ["xchg", "pane-xchg"], ["map", "pane-map"], ["ho", "pane-ho"]]) $("#" + id).hidden = rtab !== k;
+  for (const [k, id] of [["log", "pane-log"], ["xchg", "pane-xchg"], ["map", "pane-map"], ["ho", "pane-ho"], ["jr", "pane-jr"]]) $("#" + id).hidden = rtab !== k;
   $("#b-clearlog").hidden = rtab !== "log";
   if (rtab === "xchg") boardUI.renderTracker();
   if (rtab === "map") boardUI.renderMap();
   if (rtab === "ho") handoutUI.render();
+  if (rtab === "jr") journalUI.render();
 }
 
 function renderChrome() {
@@ -777,7 +807,7 @@ async function doDowntime(actors, crew) {
 
 /* ------------------------------------------------------------------ click actions */
 
-const READONLY_OK = new Set(["backups", "export", "exportCharacter", "allowBackupFile", "stopRetry", "applyHurt", "rtab", "sound", "timerGo", ...Object.keys(boardUI.actions), ...Object.keys(handoutUI.actions), "view", "select", "selectRemote", "tab", "newCharacter", "newNpc", "newCrew", "pregens", "lang", "export", "import", "help", "room", "clearLog", "downtimeAll", "newSceneAll"]);
+const READONLY_OK = new Set(["backups", "export", "exportCharacter", "allowBackupFile", "stopRetry", "applyHurt", "rtab", "sound", "timerGo", ...Object.keys(boardUI.actions), ...Object.keys(handoutUI.actions), ...Object.keys(journalUI.actions), "view", "select", "selectRemote", "tab", "newCharacter", "newNpc", "newCrew", "pregens", "lang", "export", "import", "help", "room", "clearLog", "downtimeAll", "newSceneAll"]);
 const actions = {
   stopRetry: () => { room?.leave(); room = null; saveSession(); render(); },
   applyHurt: async el => {
@@ -797,6 +827,7 @@ const actions = {
   timerGo: () => { rtab = "xchg"; view = "log"; render(); },
   ...boardUI.actions,
   ...handoutUI.actions,
+  ...journalUI.actions,
   rtab: el => { rtab = el.dataset.tab; renderBoard(); if (rtab === "log") renderLog(); },
   view: (el) => { view = el.dataset.view; render(); },
   select: (el) => { state.selected = el.dataset.id; remoteSel = ""; view = "sheet"; persist(); render(); },
@@ -985,7 +1016,7 @@ async function roomDialog() {
           if (room.kick(b.dataset.kick)) { b.parentElement.remove(); toast(t("{name} was removed from the room.", { name })); }
         }));
       } });
-    if (r) { room.leave(); room = null; saveSession(); received.length = 0; remoteBoard.tracker = B.newTracker(); remoteBoard.map = null; remoteBoard.image = null; render(); toast(t("You left the room.")); }
+    if (r) { room.leave(); room = null; saveSession(); received.length = 0; remoteJournal = []; remoteBoard.tracker = B.newTracker(); remoteBoard.map = null; remoteBoard.image = null; render(); toast(t("You left the room.")); }
     return;
   }
   if (room?.reconnecting) {

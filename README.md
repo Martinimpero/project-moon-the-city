@@ -64,6 +64,11 @@ What is still one language: anything a person **types** that the app cannot tran
 ## Sounds
 All made in the browser (nothing to download): dice clattering on every roll, then a sound for the result (a rising chime for a Critical, two notes for a Success, a flat tone for a Partial, a low thud for a Failure, a dark growl for a Critical Failure), a heartbeat before a Hail Mary, a low swell for the Voice (deeper when it is loud), a bell for each new Exchange, paper for a handout, a pop for chat, and the timer's tick and alarm. Everyone hears the other players' rolls too. The **Sound** button at the top turns it off; the slider sets the volume (both remembered). Browsers only allow sound after your first click on the page.
 
+## Journal and session recap
+The **Journal** tab has two lists. **Party journal** is shared: in a room everyone sees it and anyone can add an entry (clues, names, the terms of a Contract). You can edit or delete **your own** entries; the **GM** can edit, delete or **pin** any (pinned ones stay on top and are the last to be dropped when the 100-entry limit is reached). Entries are signed by the name you joined with, set by the GM's page, so nobody can sign as someone else. The GM's page keeps the journal (it is part of the GM's export) and sends the whole thing to players when they join and after every change. **My notes** are private: they never leave your browser and are included only in your own exports.
+**Recap (GM):** **+ Recap** opens a new entry already filled in with the headings *What happened / Scenes / Shown to the table / What the crew now knows / Open threads / Next time*, the first three pre-filled from the log (one line per roll or event, in your language), the scenes you have made and the handouts currently shown. Edit it, then save: it is a journal entry marked Recap that everyone can read.
+Text in entries is as typed (no translation); the headings and buttons are in each person's language.
+
 ## Handouts
 The fourth tab. The GM keeps a library of handouts (a note, a contract, a picture; text supports *italic* and **bold**, pictures are shrunk to 1400 px). **+ Contract** starts one with the paperwork fields (client, Risk, job, payment, deadline, terms). **Show** sends it to the table: each player gets a reading window at once, a line in the log, and it stays in their Handouts tab until the GM presses **Take back**. Players joining later get whatever is currently shown. Alone, Show just opens it for you.
 
@@ -88,8 +93,8 @@ Accounts, cloud save, per-player vision, dynamic lighting.
 
 ## Files
 - `index.html`, `css/style.css`: the page and look (same design as the rulebook).
-- `js/rules.mjs`: the pure rules (bands, E.G.O., Sins, Fit, Drift, Hail Mary, upkeep). `js/engine.mjs`: rolls, techniques, downtime. `js/model.mjs`, `js/store.mjs`: data and saving. `js/ui.mjs`: the interface. `js/room.mjs`: the shared-room protocol. `js/board.mjs`, `js/boardui.mjs`, `js/maplist.mjs`: the Exchange tracker and map. `js/handouts.mjs`, `js/handoutui.mjs`: handouts. `js/timer.mjs`: the turn timer. `js/net.mjs`, `js/backup.mjs`, `js/safety.mjs`: connection checks and data safety. `js/creation.mjs`, `js/wizard.mjs`: the character builder. `js/scenes.mjs`: scenes. `js/conditions.mjs`: conditions. `js/sfx.mjs`: sounds. `js/es.mjs`, `js/ui_es.mjs`, `js/room_es.mjs`: Spanish.
-- `tests/`: `node --test tests/*.test.mjs` (needs Node 20+; 164 tests).
+- `js/rules.mjs`: the pure rules (bands, E.G.O., Sins, Fit, Drift, Hail Mary, upkeep). `js/engine.mjs`: rolls, techniques, downtime. `js/model.mjs`, `js/store.mjs`: data and saving. `js/ui.mjs`: the interface. `js/room.mjs`: the shared-room protocol. `js/board.mjs`, `js/boardui.mjs`, `js/maplist.mjs`: the Exchange tracker and map. `js/handouts.mjs`, `js/handoutui.mjs`: handouts. `js/timer.mjs`: the turn timer. `js/net.mjs`, `js/backup.mjs`, `js/safety.mjs`: connection checks and data safety. `js/creation.mjs`, `js/wizard.mjs`: the character builder. `js/scenes.mjs`: scenes. `js/journal.mjs`, `js/journalui.mjs`: the journal. `js/conditions.mjs`: conditions. `js/sfx.mjs`: sounds. `js/es.mjs`, `js/ui_es.mjs`, `js/room_es.mjs`: Spanish.
+- `tests/`: `node --test tests/*.test.mjs` (needs Node 20+; 175 tests).
 
 ## If you change the rules
 Edit `js/rules.mjs` (and the tests), then the text in `js/config.mjs`, `js/engine.mjs` and Spanish in `js/es.mjs`. Any new English text passed to `t("...")` must get a Spanish entry, or `tests/i18n.test.mjs` fails.

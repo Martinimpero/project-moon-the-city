@@ -3,10 +3,11 @@
  * This file is the protocol only: it takes a Peer constructor, so Node can test it with an in-memory fake.
  *
  * Messages (plain objects, field `k` is the kind):
- *   player -> host: hello {name, password?}, sheets {actors}, log {entry}, effect {actorId, value}, token {id, x, y}, cond {actorId, types}, ping {x, y, rev}
+ *   player -> host: hello {name, password?}, journal {op, entry}, sheets {actors}, log {entry}, effect {actorId, value}, token {id, x, y}, cond {actorId, types}, ping {x, y, rev}
  *   host -> player: welcome {name} (you are in), denied {reason} ("password" | "locked" | "removed"), kicked {},
  *                   history {entries}, log {entry}, table {table}, effect {actorId, value}, scene {},
  *                   ping {ping} (the GM points at a spot on the map),
+ *                   journal {entries} (the party journal, in full),
  *                   harm {actorId, delta} (the GM applies Hurt to a player's character),
  *                   handout {h} / unhandout {id} (a handout the GM shows or takes back),
  *                   board {tracker, map} (the Exchange tracker and the map without hidden tokens), mapimg {rev, src} (a custom map image)
@@ -218,6 +219,7 @@ export class Room {
       conn.send({ k: "history", entries: this.history.slice(-40) });
       this.broadcastTable(); this.h.onStatus?.();
       this.sendBoard(pid);
+      conn.send({ k: "journal", entries: this.h.hostJournal?.() ?? [] });
       for (const h of this.h.hostHandouts?.(name) ?? []) { try { conn.send({ k: "handout", h }); } catch { /* closed */ } }
     } else if (!this.peers.has(pid)) {
       return;                       // ignore anything before hello
@@ -235,6 +237,8 @@ export class Room {
       if (now - (p.lastPing ?? 0) < 500) return;                       // one ping every half second per player
       p.lastPing = now;
       this.h.onPlayerPing?.(pid, p.name, { x: Number(msg.x), y: Number(msg.y), rev: msg.rev });
+    } else if (msg.k === "journal" && msg.entry) {
+      this.h.onJournalOp?.(this.peers.get(pid).name, msg.op, msg.entry);
     } else if (msg.k === "cond") {
       this.h.onCond?.(pid, msg.actorId, Array.isArray(msg.types) ? msg.types : []);
     } else if (msg.k === "token") {
@@ -279,6 +283,7 @@ export class Room {
     else if (msg.k === "scene") this.h.onScene?.();
     else if (msg.k === "ping" && msg.ping) this.h.onPing?.(msg.ping);
     else if (msg.k === "harm") this.h.onHarm?.(msg.actorId, Number(msg.delta) || 0);
+    else if (msg.k === "journal") this.h.onJournal?.(msg.entries);
     else if (msg.k === "handout" && msg.h) this.h.onHandout?.(msg.h);
     else if (msg.k === "unhandout") this.h.onUnhandout?.(msg.id);
     else if (msg.k === "board") this.h.onBoard?.(msg.board);
@@ -347,6 +352,10 @@ export class Room {
     for (const [, p] of this.peers) if (p.actors.some(a => a.id === actorId)) { try { p.conn.send({ k: "harm", actorId, delta }); return true; } catch { return false; } }
     return false;
   }
+  /** Host: send the whole party journal to everyone. */
+  sendJournal(entries) { this._sendTo({ k: "journal", entries }, []); }
+  /** Player: add, edit or remove a party journal entry. The host decides whether it is allowed and who it is signed by. */
+  sendJournalOp(op, entry) { if (this.online && this.role === "player") this.hostConn?.send({ k: "journal", op, entry }); }
   /** Host: show a handout to the table, or take it back. */
   sendHandout(h, names = []) { this._sendTo({ k: "handout", h }, names); }
   sendUnhandout(id, names = []) { this._sendTo({ k: "unhandout", id }, names); }

@@ -8,12 +8,13 @@ import { BOARD_ES } from "../js/board_es.mjs";
 import { HANDOUT_ES } from "../js/handout_es.mjs";
 import { SAFETY_ES } from "../js/safety_es.mjs";
 import { CREATION_ES } from "../js/creation_es.mjs";
+import { JOURNAL_ES } from "../js/journal_es.mjs";
 import { OCCUPATIONS, STEPS } from "../js/creation.mjs";
 import { setLang, t } from "../js/i18n.mjs";
 import { CONDITIONS } from "../js/conditions.mjs";
 
-const all = { ...ES, ...UI_ES, ...ROOM_ES, ...BOARD_ES, ...HANDOUT_ES, ...SAFETY_ES, ...CREATION_ES };
-const sources = ["ui.mjs", "engine.mjs", "store.mjs", "voice.mjs", "config.mjs", "boardui.mjs", "handoutui.mjs", "conditions.mjs", "wizard.mjs"].map(f => fs.readFileSync(new URL(`../js/${f}`, import.meta.url), "utf8"));
+const all = { ...ES, ...UI_ES, ...ROOM_ES, ...BOARD_ES, ...HANDOUT_ES, ...SAFETY_ES, ...CREATION_ES, ...JOURNAL_ES };
+const sources = ["ui.mjs", "engine.mjs", "store.mjs", "voice.mjs", "config.mjs", "boardui.mjs", "handoutui.mjs", "conditions.mjs", "wizard.mjs", "journalui.mjs"].map(f => fs.readFileSync(new URL(`../js/${f}`, import.meta.url), "utf8"));
 const re = /\bt\(\s*("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|`(?:[^`\\]|\\.)*`)/g;
 
 test("every English string the app passes to t() has a Spanish entry", () => {
@@ -28,7 +29,7 @@ test("every English string the app passes to t() has a Spanish entry", () => {
 
 test("Spanish keeps {placeholders} and <b> tags", () => {
   const bad = [];
-  for (const [k, v] of Object.entries({ ...UI_ES, ...ROOM_ES, ...BOARD_ES, ...HANDOUT_ES, ...SAFETY_ES, ...CREATION_ES })) {
+  for (const [k, v] of Object.entries({ ...UI_ES, ...ROOM_ES, ...BOARD_ES, ...HANDOUT_ES, ...SAFETY_ES, ...CREATION_ES, ...JOURNAL_ES })) {
     const ph = s => (s.match(/\{\w+\}/g) ?? []).sort().join();
     if (ph(k) !== ph(v)) bad.push(k);
   }
@@ -55,3 +56,5 @@ test("every character-builder step title, Occupation and package hint is transla
   for (const t of ["Who is this?", "Where from, and how do you survive?", "The people and the cause", "Your Wound", "What you want, and what trips you", "Attributes", "Skills", "What you carry", "Review"]) assert.ok(t in all, t);
   assert.equal(STEPS.length, 9);
 });
+
+test("the recap headings are translated", () => { for (const k of ["What happened", "Scenes", "Shown to the table", "What the crew now knows", "Open threads", "Next time"]) assert.ok(k in all, k); });
