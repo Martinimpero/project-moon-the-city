@@ -5,7 +5,7 @@
  * `portraitId`, and the picture itself travels once, as its own message. Plain functions here (the canvas part is in `fileToPortrait`).
  */
 export const MAX_DATA = 90_000;                                             // longest data URL kept (characters)
-export const BUNDLED_RE = /^tokens\/[A-Za-z0-9_-]{1,60}\.png$/;
+export const BUNDLED_RE = /^(?:tokens\/[A-Za-z0-9_-]{1,60}\.png|portraits\/[a-z0-9-]{1,60}\.svg)$/;
 export const DATA_RE = /^data:image\/(?:png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/;
 
 export const isBundled = p => typeof p === "string" && BUNDLED_RE.test(p);

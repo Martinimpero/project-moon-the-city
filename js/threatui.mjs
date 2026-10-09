@@ -24,7 +24,7 @@ export function createThreatUI(ctx) {
     const line = (k, v) => (v ? `<p><b>${esc(t(k))}:</b> ${esc(v)}</p>` : "");
     return `<div class="thr-more">${stats}${tech ? `<ul>${tech}</ul>` : ""}${line("Want", x.want)}${line("Bond hook", x.bond)}${line("Detail", x.detail)}${line("Use in play", x.use)}${x.mine ? `<p><button type="button" data-action="thrDel" data-id="${esc(x.id)}">${esc(t("Remove from my library"))}</button></p>` : ""}</div>`;
   }
-  const row = x => `<li class="thr ${open.has(x.id) ? "open" : ""}"><div class="thr-head"><button type="button" class="thr-name" data-action="thrOpen" data-id="${esc(x.id)}" aria-expanded="${open.has(x.id)}"><b>${esc(T.nameIn(x, ctx.lang()))}</b><small>${esc(x.danger || x.cat)}</small></button>
+  const row = x => `<li class="thr ${open.has(x.id) ? "open" : ""}"><div class="thr-head">${x.portrait ? `<img class="thr-pic" src="${esc(x.portrait)}" alt="">` : ""}<button type="button" class="thr-name" data-action="thrOpen" data-id="${esc(x.id)}" aria-expanded="${open.has(x.id)}"><b>${esc(T.nameIn(x, ctx.lang()))}</b><small>${esc(x.danger || x.cat)}</small></button>
     <span class="thr-badges">${badges(x)}</span><button type="button" class="thr-add" data-action="thrAdd" data-id="${esc(x.id)}" title="${esc(t("Add to the encounter"))}">+</button></div>${open.has(x.id) ? details(x) : ""}</li>`;
 
   function listHtml() {
@@ -34,7 +34,7 @@ export function createThreatUI(ctx) {
   function encounterHtml() {
     const s = T.summary(enc, custom());
     if (!s.rows.length) return `<p class="hint pad">${esc(t("Add Threats with + to build an encounter. Dice come from the Grade (Appendix E)."))}</p>`;
-    const rows = s.rows.map(r => `<li><span class="thr-n">${r.count}&times;</span> <b>${esc(T.nameIn(r.tpl, ctx.lang()))}</b> <small>${r.dice} ${esc(t("dice"))} · ${esc(t("Difficulty {n}", { n: r.difficulty }))}${r.tpl.group ? ` · ${esc(t("one group"))}` : ""}</small>
+    const rows = s.rows.map(r => `<li>${r.tpl.portrait ? `<img class="thr-pic sm" src="${esc(r.tpl.portrait)}" alt="">` : ""}<span class="thr-n">${r.count}&times;</span> <b>${esc(T.nameIn(r.tpl, ctx.lang()))}</b> <small>${r.dice} ${esc(t("dice"))} · ${esc(t("Difficulty {n}", { n: r.difficulty }))}${r.tpl.group ? ` · ${esc(t("one group"))}` : ""}</small>
       <span class="thr-step"><button type="button" data-action="thrMinus" data-id="${esc(r.tpl.id)}" aria-label="-">&minus;</button><button type="button" data-action="thrAdd" data-id="${esc(r.tpl.id)}" aria-label="+">+</button><button type="button" data-action="thrDrop" data-id="${esc(r.tpl.id)}" aria-label="${esc(t("Remove"))}">&times;</button></span></li>`).join("");
     const warn = s.soloNamed.length ? `<p class="hint">${esc(t("A named opponent of Grade 4 or lower gets one extra defensive response each Exchange (Part VI)."))}</p>` : "";
     return `<ul class="thr-enc">${rows}</ul>

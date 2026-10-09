@@ -674,3 +674,5 @@ dialog.wizard { width: min(720px, 98vw); }
 .cropper canvas { display: block; width: 100%; max-width: 360px; aspect-ratio: 1; margin: 0 auto 8px; border: 1px solid #3a3d4a; border-radius: 4px; cursor: grab; touch-action: none; background: #14151b; }
 .cropper canvas:active { cursor: grabbing; }
 .cropper input[type=range] { flex: 1; min-width: 120px; }
+.thr-pic { width: 34px; height: 42px; object-fit: cover; border-radius: 3px; border: 1px solid #3a3d4a; flex: 0 0 auto; background: #22242e; }
+.thr-pic.sm { width: 26px; height: 32px; }

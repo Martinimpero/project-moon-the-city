@@ -6,14 +6,15 @@
 import { THREATS } from "./threatdata.mjs";
 import { npcDice, npcDifficulty, npcSinRating } from "./rules.mjs";
 import { uid } from "./model.mjs";
+import { clean as cleanPicture } from "./portrait.mjs";
 
-export const MAX_CUSTOM = 100, MAX_ENCOUNTER = 40;
+export const MAX_CUSTOM = 100, MAX_ENCOUNTER = 40, MAX_TEMPLATE_PICTURE = 30000;     // an uploaded picture is kept in a template only if it is this small (characters)
 const clip = (v, n) => String(v ?? "").slice(0, n);
 const SINS = ["wrath", "lust", "sloth", "gluttony", "gloom", "pride", "envy"];
 
 /** Bundled templates followed by the table's own, each with its pool worked out. */
 export function allTemplates(custom = []) {
-  return [...THREATS.map(x => ({ ...x, mine: false })), ...cleanCustom(custom).map(x => ({ ...x, mine: true }))].map(withPool);
+  return [...THREATS.map(x => ({ ...x, mine: false, portrait: `portraits/threat-${x.id}.svg` })), ...cleanCustom(custom).map(x => ({ ...x, mine: true }))].map(withPool);
 }
 export function withPool(tpl) {
   return { ...tpl, dice: npcDice(tpl.grade, tpl.group), difficulty: npcDifficulty(tpl.grade), sinRating: tpl.sin ? npcSinRating(tpl.grade) : 0 };
@@ -46,10 +47,10 @@ export function statNotes(tpl, tr = k => k) {
  */
 export function build(tpl, { count = 1, lang = "en", sin, tr = k => k, newActor }) {
   const n = Math.max(1, Math.min(20, Math.floor(Number(count)) || 1)), base = nameIn(tpl, lang);
-  const make = name => newActor("npc", name, {
+  const make = name => Object.assign(newActor("npc", name, {
     concept: tpl.danger || "", grade: tpl.grade, isGroup: !!tpl.group, alignment: SINS.includes(sin ?? tpl.sin) ? (sin ?? tpl.sin) : "",
     want: tpl.want || "", bondHook: tpl.bond || "", detail: tpl.detail || "", notes: statNotes(tpl, tr)
-  });
+  }), { portrait: cleanPicture(tpl.portrait) });
   if (tpl.group) return [make(n > 1 ? `${base} x${n}` : base)];
   return Array.from({ length: n }, (_, i) => make(n > 1 ? `${base} ${i + 1}` : base));
 }
@@ -84,11 +85,13 @@ export function cleanCustom(list) {
     id: String(x.id), name: clip(x.name, 60) || "Threat", es: clip(x.es, 60), cat: "Mine", danger: clip(x.danger, 40), grade: Math.max(1, Math.min(9, Math.floor(Number(x.grade)) || 9)),
     sin: SINS.includes(x.sin) ? x.sin : "", track: clip(x.track, 60), group: !!x.group, atk: 0, def: 0, res: 0,
     tech: (Array.isArray(x.tech) ? x.tech : []).slice(0, 6).map(y => ({ name: clip(y?.name, 40), text: clip(y?.text, 400) })),
-    want: clip(x.want, 200), bond: clip(x.bond, 200), detail: clip(x.detail, 200), use: clip(x.use, 400)
+    want: clip(x.want, 200), bond: clip(x.bond, 200), detail: clip(x.detail, 200), use: clip(x.use, 400), portrait: smallPicture(x.portrait)
   }));
 }
+/** The picture of a template: the app's own art, or an uploaded one if it is small enough to keep in the library. */
+const smallPicture = p => { const c = cleanPicture(p); return c.startsWith("data:") && c.length > MAX_TEMPLATE_PICTURE ? "" : c; };
 /** A template from a Threat sheet (the sheet's notes become the "use" text). */
 export function fromActor(actor) {
   const s = actor.system;
-  return { id: uid(), name: actor.name, es: "", cat: "Mine", danger: s.concept, grade: s.grade, sin: s.alignment, track: s.isGroup ? "Threat" : "", group: !!s.isGroup, atk: 0, def: 0, res: 0, tech: [], want: s.want, bond: s.bondHook, detail: s.detail, use: s.notes };
+  return { id: uid(), name: actor.name, es: "", cat: "Mine", danger: s.concept, grade: s.grade, sin: s.alignment, track: s.isGroup ? "Threat" : "", group: !!s.isGroup, atk: 0, def: 0, res: 0, tech: [], want: s.want, bond: s.bondHook, detail: s.detail, use: s.notes, portrait: smallPicture(actor.portrait) };
 }

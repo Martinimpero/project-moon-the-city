@@ -41,7 +41,7 @@ export function characterPage(a, tr) {
 export function threatPage(a, tr) {
   const s = a.system, d = a.derived, harm = [0, 1, 2, 3, 4].map(i => `${box(s.harm >= i && i > 0)} ${esc(HARM_LABEL[i])}`).join("&nbsp;&nbsp; ");
   return page(a.name, `
-    <p class="pr-badges"><b>${esc(tr("Grade"))} ${s.grade}</b>${s.isGroup ? ` · ${esc(tr("group"))}` : ""} · ${d.dice} ${esc(tr("dice"))} · ${esc(tr("Difficulty {n}", { n: d.difficulty }))}${s.alignment ? ` · ${esc(SIN_LABEL[s.alignment])} ${d.sinRating}` : ""}</p>
+    ${a.portrait ? `<p class="pr-portrait"><img src="${esc(a.portrait)}" alt=""></p>` : ""}<p class="pr-badges"><b>${esc(tr("Grade"))} ${s.grade}</b>${s.isGroup ? ` · ${esc(tr("group"))}` : ""} · ${d.dice} ${esc(tr("dice"))} · ${esc(tr("Difficulty {n}", { n: d.difficulty }))}${s.alignment ? ` · ${esc(SIN_LABEL[s.alignment])} ${d.sinRating}` : ""}</p>
     <div class="pr-grid2">${line(tr("Concept"), s.concept)}${line(tr("Want"), s.want)}${line(tr("Bond hook"), s.bondHook)}${line(tr("Detail"), s.detail)}</div>
     <p class="pr-harm"><b>${esc(tr("Threat Clock"))}:</b> ${box(false)} ${esc(tr("Holding"))} &nbsp; ${box(false)} ${esc(tr("Breaking"))} &nbsp; ${box(false)} ${esc(tr("Routed"))}</p>
     <p class="pr-harm"><b>${esc(tr("Harm"))}:</b> ${harm}</p>
