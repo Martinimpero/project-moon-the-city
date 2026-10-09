@@ -10,6 +10,7 @@
  *                   journal {entries} (the party journal, in full),
  *                   harm {actorId, delta} (the GM applies Hurt to a player's character),
  *                   grant {actorId, n} (the GM awards Marks to a player's character),
+ *                   img {id, src} (a picture a sheet refers to by its portraitId; players send theirs to the host, which passes it on to everyone)
  *                   handout {h} / unhandout {id} (a handout the GM shows or takes back),
  *                   board {tracker, map} (the Exchange tracker and the map without hidden tokens), mapimg {rev, src} (a custom map image)
  * `entry` = { id, html, private?, to? }. Private entries stay with the player and the host.
@@ -19,6 +20,7 @@
  * name as the same person coming back. A GM who reloads re-opens the same code (the broker can take a few seconds to free it, so that is retried too).
  * Leaving on purpose, being removed, or a refusal (wrong password, locked) stops the retrying.
  */
+import { isData, idOf } from "./portrait.mjs";
 export const PREFIX = "pmoon-city-";
 const ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
@@ -55,6 +57,7 @@ export class Room {
     this.peer = null; this.hostConn = null;
     this.peers = new Map();        // host only: pid -> { conn, name, actors }
     this.table = { players: [], npcs: [] };
+    this.images = new Map();                                    // host: the pictures it holds (id -> data URL), sent to everyone who joins
     this.history = [];             // host only: recent public entries for late joiners
     this.lastImgRev = "";
     this.myId = "";
@@ -218,12 +221,15 @@ export class Room {
       this.peers.set(pid, { conn, name, actors: [] });
       conn.send({ k: "welcome", name });
       conn.send({ k: "history", entries: this.history.slice(-40) });
+      for (const [id, src] of this.images) { try { conn.send({ k: "img", id, src }); } catch { /* closed */ } }
       this.broadcastTable(); this.h.onStatus?.();
       this.sendBoard(pid);
       conn.send({ k: "journal", entries: this.h.hostJournal?.() ?? [] });
       for (const h of this.h.hostHandouts?.(name) ?? []) { try { conn.send({ k: "handout", h }); } catch { /* closed */ } }
     } else if (!this.peers.has(pid)) {
       return;                       // ignore anything before hello
+    } else if (msg.k === "img") {
+      this._takeImage(msg.id, msg.src, pid);
     } else if (msg.k === "sheets") {
       this.peers.get(pid).actors = Array.isArray(msg.actors) ? msg.actors.slice(0, 12) : [];
       this.broadcastTable();
@@ -288,6 +294,7 @@ export class Room {
     else if (msg.k === "journal") this.h.onJournal?.(msg.entries);
     else if (msg.k === "handout" && msg.h) this.h.onHandout?.(msg.h);
     else if (msg.k === "unhandout") this.h.onUnhandout?.(msg.id);
+    else if (msg.k === "img" && isData(msg.src) && idOf(msg.src) === msg.id) this.h.onImage?.(msg.id, msg.src);
     else if (msg.k === "board") this.h.onBoard?.(msg.board);
     else if (msg.k === "mapimg") this.h.onMapImg?.(msg.rev, msg.src);
   }
@@ -361,6 +368,21 @@ export class Room {
     if (!this.online) return false;
     for (const [, p] of this.peers) if (p.actors.some(a => a.id === actorId)) { try { p.conn.send({ k: "grant", actorId, n }); return true; } catch { return false; } }
     return false;
+  }
+  /** Send a picture a sheet refers to. A player sends it to the host; the host keeps it and passes it on to every player. */
+  sendImage(id, src) {
+    if (!this.online || !isData(src) || idOf(src) !== id) return false;
+    if (this.role === "player") { try { this.hostConn?.send({ k: "img", id, src }); return true; } catch { return false; } }
+    this._takeImage(id, src, "");
+    return true;
+  }
+  /** Host: remember a picture (the id must be the picture's own, and the picture small) and send it to everyone else. */
+  _takeImage(id, src, fromPid) {
+    if (this.role !== "host" || !isData(src) || idOf(src) !== id) return;
+    this.images.delete(id); this.images.set(id, src);
+    while (this.images.size > 80) this.images.delete(this.images.keys().next().value);
+    for (const [pid, p] of this.peers) if (pid !== fromPid) { try { p.conn.send({ k: "img", id, src }); } catch { /* closed */ } }
+    if (fromPid) this.h.onImage?.(id, src);
   }
   /** Host: send the whole party journal to everyone. */
   sendJournal(entries) { this._sendTo({ k: "journal", entries }, []); }

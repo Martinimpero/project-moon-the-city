@@ -1,5 +1,6 @@
 /** Plain data for characters, Threats, crews and items, plus the derived numbers. No browser APIs, so Node can test it. */
 import * as R from "./rules.mjs";
+import { clean as cleanPortrait, cleanId as cleanPortraitId } from "./portrait.mjs";
 
 let counter = 0;
 export const uid = () => `${Date.now().toString(36)}${(counter++).toString(36)}${Math.random().toString(36).slice(2, 6)}`;
@@ -58,7 +59,7 @@ export function newItem(type, name, system = {}) {
 }
 export function newActor(type, name, system = {}, items = []) {
   const base = type === "character" ? characterDefaults() : (type === "npc" ? npcDefaults() : crewDefaults());
-  const actor = { id: uid(), type, name, system: deepMerge(base, system), items: items.map(i => newItem(i.type, i.name, i.system)) };
+  const actor = { id: uid(), type, name, system: deepMerge(base, system), items: items.map(i => newItem(i.type, i.name, i.system)), portrait: "" };
   refresh(actor);
   return actor;
 }
@@ -93,7 +94,8 @@ export function refresh(actor) {
 /** Fill in any missing fields of data loaded from an older save, then refresh. */
 export function normalizeActor(raw) {
   const base = raw.type === "character" ? characterDefaults() : (raw.type === "npc" ? npcDefaults() : crewDefaults());
-  const actor = { id: raw.id || uid(), type: raw.type, name: raw.name || "?", system: deepMerge(base, clone(raw.system ?? {})), items: [], shared: !!raw.shared };
+  const actor = { id: raw.id || uid(), type: raw.type, name: raw.name || "?", system: deepMerge(base, clone(raw.system ?? {})), items: [], shared: !!raw.shared, portrait: cleanPortrait(raw.portrait) };
+  const pid = cleanPortraitId(raw.portraitId); if (pid && !actor.portrait) actor.portraitId = pid;
   actor.items = (raw.items ?? []).map(i => {
     const it = { id: i.id || uid(), type: i.type, name: i.name || "?", system: deepMerge(itemDefaults(i.type), clone(i.system ?? {})) };
     return deriveItem(it);

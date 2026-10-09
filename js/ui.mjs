@@ -30,6 +30,7 @@ import * as CK from "./clocks.mjs";
 import * as KIT from "./kit.mjs";
 import * as PR from "./printout.mjs";
 import * as UNDO from "./undo.mjs";
+import { createWindow } from "./win.mjs";
 import { TOKENS } from "./maplist.mjs";
 import { createSfx } from "./sfx.mjs";
 import { TimerClock, timerOf, fmt as fmtTime } from "./timer.mjs";
@@ -200,7 +201,7 @@ const boardUI = createBoardUI({
   sendPing: p => { if (room?.role === "host") room.sendPing(p); else if (room?.role === "player") room.sendPlayerPing(p.x, p.y, p.rev); },
   myName: () => state.name || "",
   sfx: (name, opts) => sfx.play(name, opts),
-  showMap: () => { rtab = "map"; view = "log"; render(); },
+  showMap: () => { if (!desktop()) { rtab = "map"; view = "log"; } render(); },
   setMap: m => { viewedScene(state).map = m; },
   sceneInfo: () => ({ list: state.scenes.map(s => ({ id: s.id, name: s.name })), shownId: state.sceneId, viewId: state.viewId }),
   sceneDo: (op, arg) => {
@@ -211,7 +212,7 @@ const boardUI = createBoardUI({
   },
   openSheet: id => {                                         // look at a character's or Threat's sheet from a token
     if (S.byId(id)) { state.selected = id; remoteSel = ""; } else if (findRemote(id)) remoteSel = id; else return false;
-    view = "sheet"; persist(); render(); return true;
+    view = "sheet"; persist(); render(); appWin?.minimise(false); return true;
   },
   addToExchange: id => addToExchange(id),
   post: html => post(html), ask: o => ask(o), toast: m => toast(m)
@@ -489,6 +490,16 @@ async function finishSession() {
   renderWarn();
   toast(t("Session saved: {file}", { file: name }));
 }
+/* ---- layout: on a wide screen the map is the centre and the sheet floats above it; on a phone everything is tabs ---- */
+const wideMq = globalThis.matchMedia?.("(min-width: 821px)");
+const desktop = () => !!wideMq?.matches;
+let appWin = null;
+/** Put the map where the layout wants it: in the centre stage (wide) or in the log's tabs (phone). */
+function placeMap() {
+  const pane = $("#pane-map"), target = desktop() ? $("#stage") : $("#log");
+  if (pane && target && pane.parentElement !== target) target.appendChild(pane);
+  document.body.classList.toggle("stage-map", desktop());
+}
 const BUNDLED_KITS = [["kits/session01.json", "Session 01: The Row Shipment (Risk 3)"]];
 const confirmDlg = (title, message, ok = t("OK")) => ask({ title, body: `<p>${message}</p>`, ok, read: () => true }).then(Boolean);
 
@@ -508,13 +519,14 @@ export function render() {
 
 function renderBoard() {
   if ((rtab === "thr" || rtab === "tb") && !isGM()) rtab = "log";
-  const tabs = [["log", t("Log")], ["xchg", t("Exchange")], ["map", t("Map")], ["ho", t("Handouts")], ["jr", t("Journal")], ["ck", t("Clocks")], ["sc", t("Screen")], ...(isGM() ? [["thr", t("Threats")], ["tb", t("Tables")]] : [])];
+  if (desktop() && rtab === "map") rtab = "log";
+  const tabs = [["log", t("Log")], ["xchg", t("Exchange")], ...(desktop() ? [] : [["map", t("Map")]]), ["ho", t("Handouts")], ["jr", t("Journal")], ["ck", t("Clocks")], ["sc", t("Screen")], ...(isGM() ? [["thr", t("Threats")], ["tb", t("Tables")]] : [])];
   $("#rtabs").innerHTML = tabs.map(([k, l]) => `<button type="button" data-action="rtab" data-tab="${k}" class="${rtab === k ? "active" : ""}">${esc(l)}</button>`).join("");
-  for (const [k, id] of [["log", "pane-log"], ["xchg", "pane-xchg"], ["map", "pane-map"], ["ho", "pane-ho"], ["jr", "pane-jr"], ["thr", "pane-thr"], ["tb", "pane-tb"], ["ck", "pane-ck"], ["sc", "pane-sc"]]) $("#" + id).hidden = rtab !== k;
+  for (const [k, id] of [["log", "pane-log"], ["xchg", "pane-xchg"], ["map", "pane-map"], ["ho", "pane-ho"], ["jr", "pane-jr"], ["thr", "pane-thr"], ["tb", "pane-tb"], ["ck", "pane-ck"], ["sc", "pane-sc"]]) $("#" + id).hidden = k === "map" ? !desktop() && rtab !== k : rtab !== k;
   $("#b-clearlog").hidden = rtab !== "log";
   $("#b-secret").hidden = rtab !== "log" || !isGM();
   if (rtab === "xchg") boardUI.renderTracker();
-  if (rtab === "map") boardUI.renderMap();
+  if (desktop() || rtab === "map") boardUI.renderMap();
   if (rtab === "ho") handoutUI.render();
   if (rtab === "jr") journalUI.render();
   if (rtab === "thr") threatUI.render();
@@ -583,9 +595,25 @@ function remoteHtml() {
   return `<div class="side-room"><b>${esc(t("At the table"))}</b> <small>${esc(room.code)} · ${room.count}</small></div><ul class="actor-list remote-list">${rows || `<li class="hint pad">${esc(t("Nobody else is here yet."))}</li>`}</ul>`;
 }
 
+/** The sheet window has a title bar (drag it; double-click it to minimise) and a body that holds the sheet. Built once. */
+function winParts() {
+  const win = $("#main");
+  if (!win.querySelector(".win-bar")) {
+    win.classList.add("win");
+    win.innerHTML = `<div class="win-bar" tabindex="0"><span class="win-av"></span><b class="win-title"></b><small class="win-sub"></small><span class="win-btns"><button type="button" data-action="winReset" class="win-btn"></button><button type="button" data-action="winMin" class="win-btn"></button></span></div><div class="win-body"></div>`;
+  }
+  const bar = win.querySelector(".win-bar");
+  bar.title = t("Drag to move. Double-click to minimise or open.");
+  const [reset, min] = bar.querySelectorAll(".win-btn");
+  reset.textContent = "\u2922"; reset.title = t("Put the window back where it started");
+  min.textContent = win.classList.contains("min") ? "\u25A1" : "\u2013"; min.title = t("Minimise or open");
+  return { bar, body: win.querySelector(".win-body") };
+}
 function renderMain() {
   const a = viewActor();
-  const el = $("#main");
+  const { bar, body: el } = winParts();
+  bar.querySelector(".win-title").textContent = a ? a.name : t("Welcome to the City");
+  bar.querySelector(".win-sub").textContent = !a ? "" : (a.type === "character" ? `E.G.O. ${a.derived.egoCurrent}/${a.system.ego.max} \u00B7 ${HARM_LABEL[a.system.harm]}` : (a.type === "npc" ? `${t("Grade")} ${a.system.grade}` : t("Crew")));
   if (!a) { el.innerHTML = `<div class="empty"><h2>${esc(t("Welcome to the City"))}</h2><p>${esc(t("Add the four pregenerated characters, or make your own. Roll from the sheet; the log keeps every result."))}</p><p><button type="button" class="primary" data-action="pregens">${esc(t("Add the 4 pregens"))}</button></p></div>`; return; }
   const scroll = el.querySelector(".pm-body")?.scrollTop ?? 0;
   el.innerHTML = a.type === "character" ? characterSheet(a) : (a.type === "npc" ? npcSheet(a) : crewSheet(a));
@@ -999,7 +1027,7 @@ async function doDowntime(actors, crew) {
 
 /* ------------------------------------------------------------------ click actions */
 
-const READONLY_OK = new Set(["backups", "export", "exportCharacter", "allowBackupFile", "stopRetry", "applyHurt", "rtab", "sound", "timerGo", ...Object.keys(boardUI.actions), ...Object.keys(handoutUI.actions), ...Object.keys(journalUI.actions), ...Object.keys(threatUI.actions), ...Object.keys(tablesUI.actions), ...Object.keys(clocksUI.actions), ...Object.keys(screenUI.actions), "view", "select", "selectRemote", "tab", "kits", "print", "awardMarks", "finish", "undo", "secretRoll", "revealRoll", "newCharacter", "newNpc", "newCrew", "pregens", "lang", "export", "import", "help", "room", "clearLog", "downtimeAll", "newSceneAll"]);
+const READONLY_OK = new Set(["backups", "export", "exportCharacter", "allowBackupFile", "stopRetry", "applyHurt", "rtab", "sound", "timerGo", ...Object.keys(boardUI.actions), ...Object.keys(handoutUI.actions), ...Object.keys(journalUI.actions), ...Object.keys(threatUI.actions), ...Object.keys(tablesUI.actions), ...Object.keys(clocksUI.actions), ...Object.keys(screenUI.actions), "view", "select", "selectRemote", "tab", "kits", "print", "awardMarks", "finish", "winMin", "winReset", "undo", "secretRoll", "revealRoll", "newCharacter", "newNpc", "newCrew", "pregens", "lang", "export", "import", "help", "room", "clearLog", "downtimeAll", "newSceneAll"]);
 const actions = {
   ...threatUI.actions, ...tablesUI.actions, ...clocksUI.actions, ...screenUI.actions,
   stopRetry: () => { room?.leave(); room = null; saveSession(); render(); },
@@ -1023,8 +1051,10 @@ const actions = {
   ...journalUI.actions,
   rtab: el => { rtab = el.dataset.tab; renderBoard(); if (rtab === "log") renderLog(); },
   view: (el) => { view = el.dataset.view; render(); },
-  select: (el) => { state.selected = el.dataset.id; remoteSel = ""; view = "sheet"; persist(); render(); },
-  selectRemote: (el) => { remoteSel = el.dataset.id; view = "sheet"; render(); },
+  select: (el) => { state.selected = el.dataset.id; remoteSel = ""; view = "sheet"; persist(); render(); appWin?.minimise(false); },
+  selectRemote: (el) => { remoteSel = el.dataset.id; view = "sheet"; render(); appWin?.minimise(false); },
+  winMin: () => appWin?.toggle(),
+  winReset: () => appWin?.reset(),
   room: () => roomDialog(),
   shareNpc: (el, a) => { a.shared = !a.shared; persist(); render(); toast(a.shared ? t("This Threat is now shown to the table.") : t("This Threat is hidden again.")); },
   tab: (el, a) => { tabs[a.id] = el.dataset.tab; render(); },
@@ -1396,6 +1426,8 @@ export function init() {
     if (backupFile) { backupFilePerm = await safe.filePermission(backupFile); renderWarn(); }
   })();
   sfx.settings.on = state.sound.on; sfx.setVolume(state.sound.vol);
+  placeMap(); appWin = createWindow($("#main"));
+  wideMq?.addEventListener?.("change", () => { placeMap(); render(); });
   for (const ev of ["pointerdown", "keydown"]) document.addEventListener(ev, () => sfx.unlock(), { once: true });
   $("#vol").addEventListener("input", e => { state.sound.vol = Number(e.target.value) / 100; sfx.setVolume(state.sound.vol); });
   $("#vol").addEventListener("change", () => { persist(); sfx.play("place"); });

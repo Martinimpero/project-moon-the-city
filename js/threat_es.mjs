@@ -208,5 +208,8 @@ export const THREAT_ES = {
   "Everyone: press Finish session to save your own sheet.": "Todos: pulsad Terminar sesión para guardar vuestra ficha.",
   "Session saved: {file}": "Sesión guardada: {file}",
   "Before a kit": "Antes de un kit",
-  "End of session": "Fin de sesión"
+  "End of session": "Fin de sesión",
+  "Drag to move. Double-click to minimise or open.": "Arrastra para mover. Doble clic para minimizar o abrir.",
+  "Put the window back where it started": "Devolver la ventana a su sitio",
+  "Minimise or open": "Minimizar o abrir"
 };
