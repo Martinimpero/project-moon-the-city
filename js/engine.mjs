@@ -100,11 +100,15 @@ export function rollDraft(actor, input, target, rng = defaultRng()) {
 
   const unmovedTarget = !!target?.unmoved;
   const helpDice = unmovedTarget ? 0 : n("help");
-  const effects = (rampage ? -1 : 0) + (unmovedTarget ? -2 : 0) + (bf ? 1 : 0) + (s.scene.nextPenalty ?? 0);
+  const sinking = Math.max(0, Math.min(3, Math.floor(Number(input.sinking) || 0)));      // Sinking on the roller: a die off per stack
+  const poise = tagSin === "pride" ? Math.max(0, Math.floor(Number(input.poise) || 0)) : 0;   // Poise: a die on per stack, on a Pride roll
+  const effects = (rampage ? -1 : 0) + (unmovedTarget ? -2 : 0) + (bf ? 1 : 0) + (s.scene.nextPenalty ?? 0) - sinking + poise;
   if (rampage) notes.push(`<b>${esc(t("Rampage:"))}</b> ${esc(t("the second attack, at -1 die."))}`);
   if (unmovedTarget) notes.push(`<b>${esc(t("{name} is Unmoved:", { name: target.name }))}</b> ${esc(t("-2 dice to this roll and no Help."))}`);
   if (bf) notes.push(`<b>${esc(t("Borrowed Face:"))}</b> ${esc(t("you copy {sin}. The matchup is neutral and you add +1 die.", { sin: SIN_LABEL[targetSin] }))}`);
   if (s.scene.nextPenalty < 0) notes.push(`<b>${esc(t("Sorrow's Weight:"))}</b> ${esc(t("{n} dice on this roll.", { n: s.scene.nextPenalty }))}`);
+  if (sinking) notes.push(`<b>${esc(t("Sinking:"))}</b> ${esc(t("-{n} dice on this roll. It is used up.", { n: sinking }))}`);
+  if (poise) notes.push(`<b>${esc(t("Poise:"))}</b> ${esc(t("+{n} dice on this Pride roll. A Failure spends it all.", { n: poise }))}`);
 
   const bond = input.bond ? bondsOf(actor).find(b => b.id === input.bond) : null;
   const bondDie = bond && bond.system.strength >= 1 ? 1 : 0;
@@ -114,6 +118,8 @@ export function rollDraft(actor, input, target, rng = defaultRng()) {
   const egoSpend = Math.max(0, Math.min(n("ego"), d.egoCurrent));
   const difficulty = Math.max(1, n("difficulty", 2));
   let oppDice = Math.max(0, n("opposition"));
+  let targetSinking = 0;
+  if (oppDice > 0 && target?.sinking > 0) { targetSinking = Math.min(3, target.sinking); oppDice = Math.max(0, oppDice - targetSinking); notes.push(`<b>${esc(t("{name} is Sinking:", { name: target.name }))}</b> ${esc(t("-{n} dice on their roll. It is used up.", { n: targetSinking }))}`); }
   if (oppDice > 0 && target && target.weight < 0) { oppDice = Math.max(0, oppDice + target.weight); notes.push(`<b>${esc(t("{name} is weighed down:", { name: target.name }))}</b> ${esc(t("{n} dice on their roll.", { n: target.weight }))}`); }
 
   const base = rollN(pool, rng), ego = rollN(egoSpend, rng);
@@ -122,7 +128,7 @@ export function rollDraft(actor, input, target, rng = defaultRng()) {
 
   const draft = {
     actorId: actor.id, rng, input, target, attribute, skill, attrVal, skillVal, harmPen, tagSin, tagRating, sin, boon, borrowing, gear, bond, bondDie, bf,
-    helpDice, effects, pool, egoSpend, difficulty, oppDice, oppSuccesses, base, ego, notes, rampage,
+    sinking, poise, targetSinking, helpDice, effects, pool, egoSpend, difficulty, oppDice, oppSuccesses, base, ego, notes, rampage,
     startUnsteady: d.unsteady, startEmpty: d.empty, changed: new Set(), unbowedUsed: false, modifier: n("modifier")
   };
   evaluateDraft(draft);
@@ -206,7 +212,9 @@ export function commitRoll(actor, draft) {
       <span class="pm-band ${band}">${esc(bandLabel(band))}</span></div>
     ${notes.length ? `<div class="pm-notes">${notes.map(x => `<p>${x}</p>`).join("")}</div>` : ""}
   </div>`;
-  return { html, voice: voiceTransition(before, actor) };
+  // Conditions this roll used up, for the app to clear: Sinking always; Poise only if a Pride roll failed
+  const consumed = { sinking: draft.sinking > 0, poise: draft.poise > 0 && (band === "failure" || band === "criticalFailure"), targetSinking: draft.targetSinking > 0 };
+  return { html, voice: voiceTransition(before, actor), consumed };
 }
 
 /* ------------------------------------------------------------------ the Hail Mary */
@@ -247,15 +255,16 @@ export { verdictCandidates };
 
 /* ------------------------------------------------------------------ Threats */
 
-export function npcRoll(actor, rng = defaultRng()) {
+export function npcRoll(actor, rng = defaultRng(), { sinking = 0 } = {}) {
   const s = actor.system, dd = actor.derived;
   const weight = s.nextPenalty ?? 0;
-  const dice = Math.max(0, dd.dice + weight);
+  const sunk = Math.max(0, Math.min(3, sinking));
+  const dice = Math.max(0, dd.dice + weight - sunk);
   const base = rollN(dice, rng);
   const successes = R.countSuccesses(base);
   if (weight < 0) s.nextPenalty = 0;
   return `<div class="pm-card"><div class="pm-card-head">${esc(actor.name)} (${esc(t("Grade"))} ${s.grade}${s.isGroup ? `, ${esc(t("group"))}` : ""})</div>
-    <div class="pm-card-lines"><div>${dice} ${esc(t("dice"))}${weight < 0 ? ` (${esc(t("{a} less Sorrow's Weight {b}", { a: dd.dice, b: -weight }))})` : ""}${s.alignment ? ` &middot; ${esc(SIN_LABEL[s.alignment])} ${esc(t("rating"))} ${dd.sinRating}` : ""}</div></div>
+    <div class="pm-card-lines"><div>${dice} ${esc(t("dice"))}${weight < 0 ? ` (${esc(t("{a} less Sorrow's Weight {b}", { a: dd.dice, b: -weight }))})` : ""}${sunk ? ` (${esc(t("Sinking -{n}", { n: sunk }))})` : ""}${s.alignment ? ` &middot; ${esc(SIN_LABEL[s.alignment])} ${esc(t("rating"))} ${dd.sinRating}` : ""}</div></div>
     ${diceHtml(base, [])}<div class="pm-result">${esc(successesText(successes))}</div></div>`;
 }
 

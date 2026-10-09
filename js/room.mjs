@@ -3,7 +3,7 @@
  * This file is the protocol only: it takes a Peer constructor, so Node can test it with an in-memory fake.
  *
  * Messages (plain objects, field `k` is the kind):
- *   player -> host: hello {name}, sheets {actors}, log {entry}, effect {actorId, value}, token {id, x, y}
+ *   player -> host: hello {name}, sheets {actors}, log {entry}, effect {actorId, value}, token {id, x, y}, cond {actorId, types}
  *   host -> player: history {entries}, log {entry}, table {table}, effect {actorId, value}, scene {},
  *                   handout {h} / unhandout {id} (a handout the GM shows or takes back),
  *                   board {tracker, map} (the Exchange tracker and the map without hidden tokens), mapimg {rev, src} (a custom map image)
@@ -86,6 +86,8 @@ export class Room {
       if (!entry.private) { this._remember(entry); this._sendAll({ k: "log", entry }, pid); }
     } else if (msg.k === "effect") {
       this.sendEffect(msg.actorId, msg.value);
+    } else if (msg.k === "cond") {
+      this.h.onCond?.(pid, msg.actorId, Array.isArray(msg.types) ? msg.types : []);
     } else if (msg.k === "token") {
       this.h.onToken?.(pid, msg.id, Number(msg.x), Number(msg.y));
     }
@@ -179,6 +181,8 @@ export class Room {
   /** Host: show a handout to the table, or take it back. */
   sendHandout(h) { if (this.role === "host" && this.online) this._sendAll({ k: "handout", h }); }
   sendUnhandout(id) { if (this.role === "host" && this.online) this._sendAll({ k: "unhandout", id }); }
+  /** Player: tell the host a roll used up these conditions (Sinking, Poise) on an actor. */
+  sendCond(actorId, types) { if (this.online && this.role === "player") this.hostConn?.send({ k: "cond", actorId, types }); }
   /** Player: ask the host to move a token. */
   sendToken(id, x, y) { if (this.online && this.role === "player") this.hostConn?.send({ k: "token", id, x, y }); }
   broadcastScene() { if (this.role === "host" && this.online) this._sendAll({ k: "scene" }); }

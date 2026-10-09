@@ -34,7 +34,11 @@ Each row in the Exchange tab has **+ Condition** (GM). The seven Sins' signature
 - **Burn** (Wrath): Hurt at the end of each Exchange, for 3 Exchanges unless put out (x removes it). Adding Burn again renews it.
 - **Bleed** (Lust): Hurt whenever the target spends E.G.O. or acts under strain; no timer, the GM removes it when treated.
 - **Tremor** (Sloth): a delayed hit; bursts for Harm at the end of the Exchange after the one it was placed in.
-- **Rupture** (Gluttony), **Sinking** (Gloom, max 3), **Poise** (Pride), **Charge** (Envy): stacks, spent one at a time with the - button (Sinking: each stack is a die off the next roll; Poise: +1 die on the next Pride roll; Rupture: +1 Harm on the next hit; Charge: dice or Harm). Unspent Charge discharges as a Complication when the fight ends.
+- **Rupture** (Gluttony), **Sinking** (Gloom, max 3), **Poise** (Pride), **Charge** (Envy): stacks, spent one at a time with the - button (Rupture: +1 Harm on the next hit; Charge: dice or Harm). Unspent Charge discharges as a Complication when the fight ends.
+- **Sinking and Poise change the rolls by themselves**, for any character or Threat the GM has put in the order (the row must be that character, not just a name). The roll dialog says so before you roll.
+  - **Sinking:** a die off the next roll per stack (max -3), then it is used up. It also works on the other side: a Sinking opponent rolls that many fewer dice against you. A Threat's own roll loses the dice too.
+  - **Poise:** a die on per stack, on a roll **tagged Pride**. The manual says a Failure spends it all but not what a Success does, so my reading is: it stays through successes and every Pride roll gets the bonus; a Failure (or Critical Failure) on a Pride roll spends it all. Change it in `js/engine.mjs` if you read it differently.
+  - Used-up conditions disappear from the tracker; when a player's roll used them up, their browser tells the GM's, which clears them. Hail Mary rolls are not affected.
 **Next Exchange** applies the end-of-Exchange effects and posts them to the log ("Wren is burning and takes Hurt"); **End fight** discharges Charge and clears everything. Hover a condition to read its rule; players see them read-only. The tracker reports what happens and leaves applying Hurt or Harm to the GM, because the manual does not fix how Hurt stacks.
 The manual gives these effects but not how long they last, so the durations above are my defaults; change them in `js/conditions.mjs` or per condition when adding it.
 
@@ -58,7 +62,7 @@ Accounts, cloud save, per-player vision, dynamic lighting.
 ## Files
 - `index.html`, `css/style.css`: the page and look (same design as the rulebook).
 - `js/rules.mjs`: the pure rules (bands, E.G.O., Sins, Fit, Drift, Hail Mary, upkeep). `js/engine.mjs`: rolls, techniques, downtime. `js/model.mjs`, `js/store.mjs`: data and saving. `js/ui.mjs`: the interface. `js/room.mjs`: the shared-room protocol. `js/board.mjs`, `js/boardui.mjs`, `js/maplist.mjs`: the Exchange tracker and map. `js/handouts.mjs`, `js/handoutui.mjs`: handouts. `js/timer.mjs`: the turn timer. `js/conditions.mjs`: conditions. `js/sfx.mjs`: sounds. `js/es.mjs`, `js/ui_es.mjs`, `js/room_es.mjs`: Spanish.
-- `tests/`: `node --test tests/*.test.mjs` (needs Node 20+; 89 tests).
+- `tests/`: `node --test tests/*.test.mjs` (needs Node 20+; 96 tests).
 
 ## If you change the rules
 Edit `js/rules.mjs` (and the tests), then the text in `js/config.mjs`, `js/engine.mjs` and Spanish in `js/es.mjs`. Any new English text passed to `t("...")` must get a Spanish entry, or `tests/i18n.test.mjs` fails.

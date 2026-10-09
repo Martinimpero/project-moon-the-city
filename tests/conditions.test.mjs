@@ -90,3 +90,84 @@ test("conditions survive saving and an older slot without them still works", () 
   assert.equal(C.conditionsOf(S.state.tracker.slots[0]).length, 0);
   assert.deepEqual(C.tickExchange(S.state.tracker), []);
 });
+
+/* ---- Sinking and Poise in the rolls ---- */
+import * as E from "../js/engine.mjs";
+import { newActor } from "../js/model.mjs";
+import { Room } from "../js/room.mjs";
+
+const seq = (...v) => { let i = 0; return () => v[i++ % v.length]; };
+const roller = () => newActor("character", "Tomas", { attributes: { body: 1, mind: 3, presence: 3, resolve: 2 }, skills: { investigation: 3, persuasion: 2 }, resonance: { pride: 3 } });
+const input = o => ({ attribute: "mind", skill: "investigation", difficulty: 2, ...o });
+
+test("tracker lookups: stacks by actor, none when the actor is not in the order", () => {
+  const tr = B.newTracker(); const s = B.addSlot(tr, { name: "Tomas", kind: "pc", actorId: "a1" });
+  C.addCondition(s, "sinking", { stacks: 2 }); C.addCondition(s, "poise");
+  assert.deepEqual(C.rollConditions(tr, "a1"), { sinking: 2, poise: 1 });
+  assert.deepEqual(C.rollConditions(tr, "nobody"), { sinking: 0, poise: 0 });
+  assert.equal(C.clearForActor(tr, "a1", ["sinking"]), true);
+  assert.deepEqual(C.rollConditions(tr, "a1"), { sinking: 0, poise: 1 });
+  assert.equal(C.clearForActor(tr, "a1", ["sinking"]), false);
+});
+
+test("Sinking takes a die per stack off the roll, and is used up", () => {
+  const a = roller();
+  const plain = E.rollDraft(a, input(), null, seq(8));
+  const sunk = E.rollDraft(a, input({ sinking: 2 }), null, seq(8));
+  assert.equal(sunk.pool, plain.pool - 2);
+  const out = E.commitRoll(a, sunk);
+  assert.equal(out.consumed.sinking, true);
+  assert.match(out.html, /Sinking/);
+  assert.equal(E.commitRoll(a, E.rollDraft(a, input(), null, seq(8))).consumed.sinking, false);
+});
+
+test("Sinking is capped at -3 and cannot make the pool negative", () => {
+  const a = roller();
+  assert.equal(E.rollDraft(a, input({ sinking: 9 }), null, seq(8)).pool, E.rollDraft(a, input(), null, seq(8)).pool - 3);
+  assert.equal(E.rollDraft(a, input({ attribute: "body", skill: "", sinking: 3 }), null, seq(8)).pool, 0);
+});
+
+test("Poise adds dice only on a Pride roll; it is spent only if that roll fails", () => {
+  const a = roller();
+  const base = E.rollDraft(a, input({ tag: "pride" }), null, seq(8)).pool;
+  const withPoise = E.rollDraft(a, input({ tag: "pride", poise: 2 }), null, seq(8));
+  assert.equal(withPoise.pool, base + 2);
+  assert.equal(E.commitRoll(a, withPoise).consumed.poise, false);          // a success keeps it
+  const failing = E.rollDraft(a, input({ tag: "pride", poise: 2, difficulty: 6 }), null, seq(2));
+  assert.equal(E.commitRoll(a, failing).consumed.poise, true);             // a Failure spends it all
+  const notPride = E.rollDraft(a, input({ tag: "wrath", poise: 2 }), null, seq(8));
+  assert.equal(notPride.pool, E.rollDraft(a, input({ tag: "wrath" }), null, seq(8)).pool);
+  assert.equal(E.commitRoll(a, notPride).consumed.poise, false);
+});
+
+test("a Sinking opponent rolls fewer dice against you, and it is used up", () => {
+  const a = roller(); const guard = newActor("npc", "Guard", { grade: 5 });
+  const tg = E.targetInfo(guard); tg.sinking = 2;
+  const d = E.rollDraft(a, input({ opposition: 4 }), tg, seq(8));
+  assert.equal(d.oppDice, 2);
+  assert.equal(E.commitRoll(a, d).consumed.targetSinking, true);
+});
+
+test("a Threat's own roll loses a die per Sinking stack", () => {
+  const guard = newActor("npc", "Guard", { grade: 5 });
+  assert.match(E.npcRoll(guard, seq(8, 8, 8, 8), { sinking: 2 }), /2 dice[\s\S]*Sinking -2/);
+  assert.match(E.npcRoll(guard, seq(8, 8, 8, 8)), /4 dice/);
+});
+
+test("room: a player's used-up conditions reach the host", async () => {
+  const peers = new Map(); let n = 0;
+  class Em { constructor() { this.l = {}; } on(e, f) { (this.l[e] ??= []).push(f); } emit(e, ...a) { (this.l[e] ?? []).forEach(f => f(...a)); } }
+  class Conn extends Em { constructor(p) { super(); this.peer = p; } send(m) { const o = this.other; queueMicrotask(() => o.emit("data", JSON.parse(JSON.stringify(m)))); } close() { } }
+  class Peer extends Em {
+    constructor(id) { super(); this.id = id ?? `p${++n}`; queueMicrotask(() => { peers.set(this.id, this); this.emit("open", this.id); }); }
+    connect(t) { const m = new Conn(t); queueMicrotask(() => { const th = new Conn(this.id); m.other = th; th.other = m; peers.get(t).emit("connection", th); m.emit("open"); }); return m; }
+    destroy() { peers.delete(this.id); }
+  }
+  const got = [];
+  const gm = new Room({ Peer, handlers: { onLog() {}, onCond: (pid, id, types) => got.push([id, types]) } });
+  const pl = new Room({ Peer, handlers: { onLog() {} } });
+  await gm.host("CND01", "GM"); await pl.join("CND01", "Ana");
+  pl.sendCond("a1", ["sinking", "poise"]);
+  await new Promise(r => setTimeout(r, 20));
+  assert.deepEqual(got, [["a1", ["sinking", "poise"]]]);
+});

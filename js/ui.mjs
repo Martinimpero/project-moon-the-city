@@ -10,6 +10,7 @@ import { state } from "./store.mjs";
 import { verdictCandidates } from "./voice.mjs";
 import { Room, newCode, cleanCode } from "./room.mjs";
 import * as B from "./board.mjs";
+import * as C from "./conditions.mjs";
 import { createBoardUI } from "./boardui.mjs";
 import * as H from "./handouts.mjs";
 import { createHandoutUI } from "./handoutui.mjs";
@@ -112,6 +113,13 @@ const handlers = {
     B.moveToken(map, id, x, y); persist(); renderBoard(); room.sendBoard();
   },
   hostBoard: () => { const T = timerOf(state.tracker); return { tracker: { ...state.tracker, timer: { ...T, left: T.running ? Math.ceil(clock.remaining(T)) : T.left } }, map: B.mapForPlayers(state.map), mapImage: state.map && !state.map.bundled && state.map.src ? { rev: state.map.rev, src: state.map.src } : null  }; },
+  onCond: (pid, actorId, types) => {
+    // a player's roll used these up: Sinking on anyone it was rolled against or on, Poise only on their own characters
+    const peer = room?.peers.get(pid);
+    const own = !!peer?.actors.some(a => a.id === actorId);
+    const allowed = types.filter(k => k === "sinking" || (k === "poise" && own));
+    if (allowed.length && C.clearForActor(state.tracker, actorId, allowed)) { persist(); renderBoard(); room.sendBoard(); }
+  },
   hostHandouts: () => H.shownList(state.handouts),
   onHandout: h => {
     const i = received.findIndex(x => x.id === h.id);
@@ -452,7 +460,7 @@ function onField(e) {
 
 /* ------------------------------------------------------------------ dialogs */
 
-function rollDialog(actor, preset, others) {
+function rollDialog(actor, preset, others, conds = { sinking: 0, poise: 0 }) {
   const s = actor.system, d = actor.derived;
   const gear = gearOf(actor).filter(g => g.derived.attuned && !g.derived.spent);
   const bonds = bondsOf(actor).filter(b => b.system.strength >= 1);
@@ -462,6 +470,8 @@ function rollDialog(actor, preset, others) {
   if (armed) notes.push(t("Rampage armed: this roll is the second attack, tagged Wrath at -1 die."));
   if (s.scene.nextPenalty < 0) notes.push(t("Sorrow's Weight: {n} dice on this roll.", { n: s.scene.nextPenalty }));
   if (under) notes.push(t("Under {sin}: Fit applies.", { sin: esc(SIN_LABEL[under]) }));
+  if (conds.sinking) notes.push(t("Sinking: -{n} dice on this roll (applied automatically; it is used up).", { n: conds.sinking }));
+  if (conds.poise) notes.push(t("Poise: +{n} dice if you tag Pride (a Failure spends it all).", { n: conds.poise }));
   const targets = Object.fromEntries(others.map(o => [o.id, o.name]));
   const body = `
     <div class="pm-row"><label>${esc(t("Attribute"))}</label><select name="attribute">${opts(ATTRIBUTE_LABEL, preset.attribute)}</select>
@@ -484,32 +494,44 @@ function rollDialog(actor, preset, others) {
 
 async function doRoll(actor, preset) {
   const others = [...state.actors, ...remoteActors()].filter(o => o.id !== actor.id && (o.type === "npc" || o.type === "character"));
+  const conds = C.rollConditions(board().tracker, actor.id);
+  const withSinking = a => { const tg = E.targetInfo(a); if (tg) tg.sinking = C.stacksOf(board().tracker, a.id, "sinking"); return tg; };
   const picked = await ask({
     title: t("Roll: {name}", { name: actor.name }), ok: t("Roll"), wide: true,
-    body: rollDialog(actor, { skill: preset.skill ?? "", attribute: preset.attribute ?? (R.DEFAULT_ATTRIBUTE[preset.skill] ?? "body"), context: preset.context ?? "other" }, others),
+    body: rollDialog(actor, { skill: preset.skill ?? "", attribute: preset.attribute ?? (R.DEFAULT_ATTRIBUTE[preset.skill] ?? "body"), context: preset.context ?? "other" }, others, conds),
     read: f => { const v = Object.fromEntries(new FormData(f).entries()); v.borrowedFace = f.elements.borrowedFace?.checked ?? false; return v; },
     setup: f => {
       f.elements.targetActor.addEventListener("change", () => {
-        const tg = E.targetInfo(findActor(f.elements.targetActor.value));
+        const tg = withSinking(findActor(f.elements.targetActor.value));
         f.elements.opposition.value = tg ? tg.dice : 0;
         f.elements.target.value = tg?.sin ?? "";
-        f.querySelector(".target-note").textContent = tg ? t("Target: {name}", { name: tg.name }) + (tg.unmoved ? t(" (Unmoved: -2 dice to your roll, no Help)") : "") + (tg.weight < 0 ? t(" (weighed down {n})", { n: tg.weight }) : "") : "";
+        f.querySelector(".target-note").textContent = tg ? t("Target: {name}", { name: tg.name }) + (tg.unmoved ? t(" (Unmoved: -2 dice to your roll, no Help)") : "") + (tg.weight < 0 ? t(" (weighed down {n})", { n: tg.weight }) : "") + (tg.sinking ? t(" (Sinking: -{n} dice to them)", { n: tg.sinking }) : "") : "";
       });
     }
   });
   if (!picked) return;
-  const target = E.targetInfo(findActor(picked.targetActor));
-  const draft = E.rollDraft(actor, picked, target);
+  const target = withSinking(findActor(picked.targetActor));
+  const draft = E.rollDraft(actor, { ...picked, sinking: conds.sinking, poise: conds.poise }, target);
   if (draft.canUnbowed) {
     const yes = await confirmDlg(t("Unbowed"), t("{name} is Pride-rated. Use <b>Unbowed</b> to reroll up to three dice that didn't succeed? If the reroll still fails, you take a Complication. (Once per scene, twice at rating 4.)", { name: esc(actor.name) }), t("Use Unbowed"));
     if (yes) E.unbowed(draft);
   }
+  let consumed = {};
   mutate(actor, () => {
     const out = E.commitRoll(actor, draft);
+    consumed = out.consumed;
     post(out.html);
   });
+  useUpConditions(actor.id, [consumed.sinking && "sinking", consumed.poise && "poise"].filter(Boolean));
+  if (target && consumed.targetSinking) useUpConditions(target.actor.id, ["sinking"]);
   if (target) { refresh(target.actor); if (target.weight < 0 && draft.oppDice > 0) syncRemote(target.actor, 0); }
   flashLog();
+}
+/** A roll used up Sinking or Poise: the GM clears them from the tracker; a player asks the GM to. */
+function useUpConditions(actorId, types) {
+  if (!types.length) return;
+  if (isGM()) { if (C.clearForActor(state.tracker, actorId, types)) { persist(); renderBoard(); if (room?.role === "host") room.sendBoard(); } }
+  else room.sendCond(actorId, types);
 }
 function flashLog() { const el = $("#log"); el.classList.remove("ping"); void el.offsetWidth; el.classList.add("ping"); }
 
@@ -651,7 +673,7 @@ const actions = {
   editItem: (el, a) => editItem(a, el.dataset.id),
   deleteItem: (el, a) => { a.items = a.items.filter(i => i.id !== el.dataset.id); refresh(a); persist(); render(); },
   wear: (el, a) => { const g = a.items.find(i => i.id === el.dataset.id); if (g) { E.adjustWear(g, Number(el.dataset.delta)); persist(); render(); } },
-  rollNpc: (el, a) => { post(E.npcRoll(a)); mutate(a, () => {}); flashLog(); },
+  rollNpc: (el, a) => { const sunk = C.stacksOf(board().tracker, a.id, "sinking"); post(E.npcRoll(a, undefined, { sinking: sunk })); mutate(a, () => {}); if (sunk) useUpConditions(a.id, ["sinking"]); flashLog(); },
   addClock: async (el, a) => {
     const data = await ask({ title: t("New Clock"), ok: t("Add"), body: `<div class="pm-row"><label>${esc(t("Name"))}</label><input type="text" name="name" placeholder="${esc(t("Coldwater Heat"))}"><label>${esc(t("Segments"))}</label><select name="size"><option>4</option><option selected>6</option><option>8</option></select></div>`, read: f => ({ name: f.elements.name.value || t("Clock"), size: Number(f.elements.size.value) }) });
     if (data) mutate(a, () => a.system.clocks.push({ name: data.name, size: data.size, filled: 0 }));
@@ -809,7 +831,7 @@ export function init() {
   $("#vol").addEventListener("input", e => { state.sound.vol = Number(e.target.value) / 100; sfx.setVolume(state.sound.vol); });
   $("#vol").addEventListener("change", () => { persist(); sfx.play("place"); });
   setInterval(tickTimer, 250);
-  globalThis.__pm = { get room() { return room; }, sfx, clock };   // for debugging in the console
+  globalThis.__pm = { get room() { return room; }, sfx, clock, board };   // for debugging in the console
   document.addEventListener("click", e => {
     const el = e.target.closest("[data-action]");
     if (!el || el.disabled) return;

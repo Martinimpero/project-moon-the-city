@@ -87,3 +87,22 @@ export function endScene(tracker) {
   }
   return events;
 }
+
+/* ---- conditions that change rolls (Sinking, Poise) ---- */
+
+/** The tracker slot standing for an actor, if the GM has put them in the order. */
+export const slotForActor = (tracker, actorId) => (actorId ? tracker.slots.find(s => s.actorId === actorId) ?? null : null);
+export function stacksOf(tracker, actorId, type) {
+  const slot = slotForActor(tracker, actorId);
+  return slot ? conditionsOf(slot).filter(c => c.type === type).reduce((n, c) => n + c.stacks, 0) : 0;
+}
+/** What changes this actor's next roll: Sinking takes a die per stack off any roll; Poise adds a die per stack to a Pride roll. */
+export const rollConditions = (tracker, actorId) => ({ sinking: stacksOf(tracker, actorId, "sinking"), poise: stacksOf(tracker, actorId, "poise") });
+/** Remove every condition of these types from an actor's slot (they were used up). Returns true if anything went. */
+export function clearForActor(tracker, actorId, types) {
+  const slot = slotForActor(tracker, actorId);
+  if (!slot) return false;
+  const before = conditionsOf(slot).length;
+  slot.conditions = conditionsOf(slot).filter(c => !types.includes(c.type));
+  return slot.conditions.length !== before;
+}

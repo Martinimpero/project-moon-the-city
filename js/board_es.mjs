@@ -83,5 +83,15 @@ export const BOARD_ES = {
   "Each Poise adds +1 die to your next Pride roll. A Failure spends it all.": "Cada Aplomo suma +1 dado a tu siguiente tirada de Orgullo. Un Fallo lo gasta todo.",
   "Spend Charge to add dice or Harm. Unspent Charge discharges as a Complication at the end of the scene.": "Gasta Carga para sumar dados o Daño. La Carga sin gastar se descarga como Complicación al final de la escena.",
   "A condition of your own.": "Una condición propia.",
+  "Sinking: -{n} dice on this roll (applied automatically; it is used up).": "Hundimiento: -{n} dados en esta tirada (se aplica solo; se gasta).",
+  "Poise: +{n} dice if you tag Pride (a Failure spends it all).": "Aplomo: +{n} dados si marcas Orgullo (un Fallo lo gasta todo).",
+  " (Sinking: -{n} dice to them)": " (Hundimiento: -{n} dados para él)",
+  "Sinking:": "Hundimiento:",
+  "-{n} dice on this roll. It is used up.": "-{n} dados en esta tirada. Se gasta.",
+  "Poise:": "Aplomo:",
+  "+{n} dice on this Pride roll. A Failure spends it all.": "+{n} dados en esta tirada de Orgullo. Un Fallo lo gasta todo.",
+  "{name} is Sinking:": "{name} se hunde:",
+  "-{n} dice on their roll. It is used up.": "-{n} dados en su tirada. Se gasta.",
+  "Sinking -{n}": "Hundimiento -{n}",
   "Red": "Rojo", "Orange": "Naranja", "Gold": "Dorado", "Green": "Verde", "Teal": "Turquesa", "Blue": "Azul", "Purple": "Morado", "White": "Blanco"
 };
