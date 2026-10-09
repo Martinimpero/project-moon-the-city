@@ -332,7 +332,7 @@ export class Room {
     if (this.role !== "host" || !this.online) return;
     const b = this.h.hostBoard?.();
     if (!b) return;
-    const msg = { k: "board", board: { tracker: b.tracker, map: b.map } };
+    const msg = { k: "board", board: { tracker: b.tracker, map: b.map, clocks: b.clocks ?? [] } };
     const targets = toPid ? [[toPid, this.peers.get(toPid)]].filter(([, p]) => p) : [...this.peers];
     for (const [, p] of targets) {
       try {

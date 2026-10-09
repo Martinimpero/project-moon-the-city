@@ -96,13 +96,21 @@ The **Threats** tab (only the GM, or someone playing alone, sees it) holds 39 re
 
 The **Tables** tab rolls the manual's own generators: a **Contract** (Client, Objective, Complication seed, Risk with its calibration; Part VIII §3), an **Abnormality** (Behavior, Trigger, Breach category; §7), an **NPC seed** (Want, Bond hook, One detail, Sin; §2, drawn from the Bestiary, in English) and a **Complication by Sin** (the Sin's Complication text). Each part has its own re-roll button. **Show to the table** posts the result as a log card that every player reads in their own language; **Keep as a note** saves it to your private notes. There are no name or per-district rumour tables because the manual and vault have no source lists for them yet (only Threadmill Row exists).
 
+## Clocks board
+
+The **Clocks** tab keeps the table's Clocks in one place (Open War, Coldwater Heat, a chase...). The GM adds, moves (+/-), edits and deletes them and chooses which ones the players can see. Players see the name, segments and how full each is, and the consequence only once a Clock is full. When one fills, a log card says so in both languages. Clocks are saved and exported with everything else. (The crew sheet still has its own Clocks.)
+
+## Session kits
+
+**Kits** (header) sets up a whole session from one file: scenes with maps and tokens linked to their sheets, Threat sheets, handouts, private notes, journal entries, Clocks and the Exchange order (listed, not started). A kit ships with the app: **Session 01: The Row Shipment** (4 scenes, 9 Threat sheets, the Contract in both languages, 10 GM notes from the vault, 3 Clocks); any kit file can also be opened with Kits or Import. Three modes: add what is missing (existing names are kept), scenes and notes only, or replace the Threats, scenes, handouts, notes, journal and Clocks (characters are never touched). A snapshot is kept first. The kit's descriptive text is the vault's English; names, the Contract, the journal entry and the Clocks are in both languages. `kits/session01.json` is generated from the vault; the Grade of the Stranger (7) and the Enforcers (8, group) are my sizing, since the vault gives no number for the Stranger.
+
 ## Not built yet
 Accounts, cloud save, per-player vision, dynamic lighting.
 
 ## Files
 - `index.html`, `css/style.css`: the page and look (same design as the rulebook).
 - `js/rules.mjs`: the pure rules (bands, E.G.O., Sins, Fit, Drift, Hail Mary, upkeep). `js/engine.mjs`: rolls, techniques, downtime. `js/model.mjs`, `js/store.mjs`: data and saving. `js/ui.mjs`: the interface. `js/room.mjs`: the shared-room protocol. `js/board.mjs`, `js/boardui.mjs`, `js/maplist.mjs`: the Exchange tracker and map. `js/handouts.mjs`, `js/handoutui.mjs`: handouts. `js/timer.mjs`: the turn timer. `js/net.mjs`, `js/backup.mjs`, `js/safety.mjs`: connection checks and data safety. `js/creation.mjs`, `js/wizard.mjs`: the character builder. `js/scenes.mjs`: scenes. `js/journal.mjs`, `js/journalui.mjs`: the journal. `js/conditions.mjs`: conditions. `js/sfx.mjs`: sounds. `js/es.mjs`, `js/ui_es.mjs`, `js/room_es.mjs`: Spanish.
-- `tests/`: `node --test tests/*.test.mjs` (needs Node 20+; 188 tests).
+- `tests/`: `node --test tests/*.test.mjs` (needs Node 20+; 198 tests).
 
 ## If you change the rules
 Edit `js/rules.mjs` (and the tests), then the text in `js/config.mjs`, `js/engine.mjs` and Spanish in `js/es.mjs`. Any new English text passed to `t("...")` must get a Spanish entry, or `tests/i18n.test.mjs` fails.

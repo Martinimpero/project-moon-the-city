@@ -24,6 +24,9 @@ import * as J from "./journal.mjs";
 import { createJournalUI } from "./journalui.mjs";
 import { createThreatUI } from "./threatui.mjs";
 import { createTablesUI } from "./tablesui.mjs";
+import { createClocksUI } from "./clocksui.mjs";
+import * as CK from "./clocks.mjs";
+import * as KIT from "./kit.mjs";
 import { TOKENS } from "./maplist.mjs";
 import { createSfx } from "./sfx.mjs";
 import { TimerClock, timerOf, fmt as fmtTime } from "./timer.mjs";
@@ -121,7 +124,7 @@ let room = null;                // the Room, once the player has opened one
 let remoteSel = "";             // id of a remote actor being looked at (read-only), or ""
 let syncTimer = null;
 let rtab = "log";               // right-hand pane: "log" | "xchg" | "map"
-const remoteBoard = { tracker: B.newTracker(), map: null, image: null };   // what the GM sent (players only)
+const remoteBoard = { tracker: B.newTracker(), map: null, image: null, clocks: [] };   // what the GM sent (players only)
 const dragging = () => !!document.querySelector("#mapsvg")?.dataset.drag;
 const isGM = () => !room?.online || room.role === "host";
 const board = () => (isGM()
@@ -206,6 +209,12 @@ const boardUI = createBoardUI({
   addToExchange: id => addToExchange(id),
   post: html => post(html), ask: o => ask(o), toast: m => toast(m)
 });
+const clocksUI = createClocksUI({
+  $: sel => document.querySelector(sel), isGM, list: () => (isGM() ? state.clocks : remoteBoard.clocks), mine: () => state.clocks,
+  svg: (size, filled) => clockSvg(size, filled), post: build => post(bi(build)),
+  changed: () => { persist(); renderBoard(); if (room?.role === "host") room.sendBoard(); },
+  ask: o => ask(o), toast: m => toast(m)
+});
 const tablesUI = createTablesUI({
   $: sel => document.querySelector(sel), lang: () => state.lang,
   post: build => post(bi(build)),
@@ -277,14 +286,14 @@ const handlers = {
     boardUI.showPing(p, { remote: true });
     room?.sendPing(p, pid);
   },
-  onBoard: b => { if (dragging()) return; remoteBoard.tracker = b.tracker; remoteBoard.map = b.map; clock.sync(timerOf(b.tracker)); renderBoard(); },
+  onBoard: b => { if (dragging()) return; remoteBoard.tracker = b.tracker; remoteBoard.map = b.map; remoteBoard.clocks = CK.cleanClocks(b.clocks); clock.sync(timerOf(b.tracker)); renderBoard(); },
   onMapImg: (rev, src) => { remoteBoard.image = { rev, src }; renderBoard(); },
   onToken: (pid, id, x, y) => {
     const map = S.shownMap(), tk = map?.tokens.find(k => k.id === id), peer = room?.peers.get(pid);
     if (!tk || !peer || !tk.actorId || !peer.actors.some(a => a.id === tk.actorId)) return;     // players move only their own characters' tokens
     B.moveToken(map, id, x, y); persist(); renderBoard(); room.sendBoard();
   },
-  hostBoard: () => { const T = timerOf(state.tracker); return { tracker: { ...state.tracker, timer: { ...T, left: T.running ? Math.ceil(clock.remaining(T)) : T.left } }, map: B.mapForPlayers(S.shownMap()), mapImage: S.shownMap() && !S.shownMap().bundled && S.shownMap().src ? { rev: S.shownMap().rev, src: S.shownMap().src } : null  }; },
+  hostBoard: () => { const T = timerOf(state.tracker); return { tracker: { ...state.tracker, timer: { ...T, left: T.running ? Math.ceil(clock.remaining(T)) : T.left } }, map: B.mapForPlayers(S.shownMap()), clocks: CK.forPlayers(state.clocks), mapImage: S.shownMap() && !S.shownMap().bundled && S.shownMap().src ? { rev: S.shownMap().rev, src: S.shownMap().src } : null  }; },
   onHarm: (actorId, delta) => {
     const a = S.byId(actorId);
     if (!a || a.type !== "character" || delta < 1) return;
@@ -358,6 +367,28 @@ export function ask({ title, body, ok = t("OK"), wide = false, read = f => Objec
     dlg.showModal();
   });
 }
+/** Show what a kit holds, let the GM choose how to bring it in, and do it. A snapshot of what exists now is kept first. */
+async function kitDialog(kit) {
+  if (room?.online && room.role !== "host") return toast(t("Only the GM can import a kit."));
+  const c = KIT.contents(kit), lang = state.lang;
+  const li = (n, label) => (n ? `<li>${esc(t(label, { n }))}</li>` : "");
+  const r = await ask({
+    title: KIT.pick(kit.title, lang), ok: t("Import kit"), wide: true,
+    body: `<p>${esc(KIT.pick(kit.about, lang))}</p><ul>${li(c.scenes, "{n} scenes with maps")}${li(c.tokens, "{n} tokens")}${li(c.actors, "{n} Threat sheets")}${li(c.handouts, "{n} handouts")}${li(c.notes, "{n} private notes")}${li(c.journal, "{n} journal entries")}${li(c.clocks, "{n} Clocks")}</ul>
+      <div class="pm-row"><label class="chk"><input type="radio" name="mode" value="add" checked> ${esc(t("Add to what I have (nothing is replaced; names that already exist are kept)"))}</label></div>
+      <div class="pm-row"><label class="chk"><input type="radio" name="mode" value="prep"> ${esc(t("Only scenes and notes"))}</label></div>
+      <div class="pm-row"><label class="chk"><input type="radio" name="mode" value="replace"> ${esc(t("Replace my Threats, scenes, handouts, notes, journal and Clocks (characters are kept)"))}</label></div>
+      <p class="pm-note">${esc(t("A snapshot of what you have now is kept first, so you can go back."))}</p>`,
+    read: f => f.elements.mode.value
+  });
+  if (!r) return;
+  if (r === "replace" && !(await confirmDlg(t("Replace"), esc(t("This replaces your Threats, scenes, handouts, notes, journal and Clocks with the kit's. Characters stay.")), t("Replace")))) return;
+  await takeSnapshot("before kit", true);
+  const out = KIT.applyKit(state, kit, { mode: r, lang, author: state.name || "GM" });
+  persist(); render(); if (room?.role === "host") { room.sendBoard(); room.sendJournal(state.journal); }
+  toast(t("Kit imported: {a} Threats, {s} scenes, {h} handouts, {n} notes, {c} Clocks.", { a: out.actors, s: out.scenes, h: out.handouts, n: out.notes, c: out.clocks }) + (out.skipped ? " " + t("{n} left as they were.", { n: out.skipped }) : ""));
+}
+const BUNDLED_KITS = [["kits/session01.json", "Session 01: The Row Shipment (Risk 3)"]];
 const confirmDlg = (title, message, ok = t("OK")) => ask({ title, body: `<p>${message}</p>`, ok, read: () => true }).then(Boolean);
 
 /* ------------------------------------------------------------------ rendering */
@@ -375,9 +406,9 @@ export function render() {
 
 function renderBoard() {
   if ((rtab === "thr" || rtab === "tb") && !isGM()) rtab = "log";
-  const tabs = [["log", t("Log")], ["xchg", t("Exchange")], ["map", t("Map")], ["ho", t("Handouts")], ["jr", t("Journal")], ...(isGM() ? [["thr", t("Threats")], ["tb", t("Tables")]] : [])];
+  const tabs = [["log", t("Log")], ["xchg", t("Exchange")], ["map", t("Map")], ["ho", t("Handouts")], ["jr", t("Journal")], ["ck", t("Clocks")], ...(isGM() ? [["thr", t("Threats")], ["tb", t("Tables")]] : [])];
   $("#rtabs").innerHTML = tabs.map(([k, l]) => `<button type="button" data-action="rtab" data-tab="${k}" class="${rtab === k ? "active" : ""}">${esc(l)}</button>`).join("");
-  for (const [k, id] of [["log", "pane-log"], ["xchg", "pane-xchg"], ["map", "pane-map"], ["ho", "pane-ho"], ["jr", "pane-jr"], ["thr", "pane-thr"], ["tb", "pane-tb"]]) $("#" + id).hidden = rtab !== k;
+  for (const [k, id] of [["log", "pane-log"], ["xchg", "pane-xchg"], ["map", "pane-map"], ["ho", "pane-ho"], ["jr", "pane-jr"], ["thr", "pane-thr"], ["tb", "pane-tb"], ["ck", "pane-ck"]]) $("#" + id).hidden = rtab !== k;
   $("#b-clearlog").hidden = rtab !== "log";
   if (rtab === "xchg") boardUI.renderTracker();
   if (rtab === "map") boardUI.renderMap();
@@ -385,6 +416,7 @@ function renderBoard() {
   if (rtab === "jr") journalUI.render();
   if (rtab === "thr") threatUI.render();
   if (rtab === "tb") tablesUI.render();
+  if (rtab === "ck") clocksUI.render();
 }
 
 function renderChrome() {
@@ -394,7 +426,7 @@ function renderChrome() {
   $("#phone-tabs").innerHTML = ["people", "sheet", "log"].map(v => `<button type="button" data-action="view" data-view="${v}" class="${view === v ? "active" : ""}">${esc(labels[v])}</button>`).join("");
   $("#t-title").textContent = t("Project Moon: The City");
   $("#t-sub").textContent = t("A free table companion. Your sheets are saved in this browser.");
-  for (const [id, key] of [["b-backup", "Backup"], ["b-export", "Export"], ["b-import", "Import"], ["b-help", "Help"]]) $("#" + id).textContent = t(key);
+  for (const [id, key] of [["b-backup", "Backup"], ["b-export", "Export"], ["b-import", "Import"], ["b-kits", "Kits"], ["b-help", "Help"]]) $("#" + id).textContent = t(key);
   renderWarn();
   const sb = $("#b-sound");
   sb.textContent = state.sound.on ? `\u266A ${t("Sound on")}` : `\u266A ${t("Sound off")}`;
@@ -840,9 +872,9 @@ async function doDowntime(actors, crew) {
 
 /* ------------------------------------------------------------------ click actions */
 
-const READONLY_OK = new Set(["backups", "export", "exportCharacter", "allowBackupFile", "stopRetry", "applyHurt", "rtab", "sound", "timerGo", ...Object.keys(boardUI.actions), ...Object.keys(handoutUI.actions), ...Object.keys(journalUI.actions), ...Object.keys(threatUI.actions), ...Object.keys(tablesUI.actions), "view", "select", "selectRemote", "tab", "newCharacter", "newNpc", "newCrew", "pregens", "lang", "export", "import", "help", "room", "clearLog", "downtimeAll", "newSceneAll"]);
+const READONLY_OK = new Set(["backups", "export", "exportCharacter", "allowBackupFile", "stopRetry", "applyHurt", "rtab", "sound", "timerGo", ...Object.keys(boardUI.actions), ...Object.keys(handoutUI.actions), ...Object.keys(journalUI.actions), ...Object.keys(threatUI.actions), ...Object.keys(tablesUI.actions), ...Object.keys(clocksUI.actions), "view", "select", "selectRemote", "tab", "kits", "newCharacter", "newNpc", "newCrew", "pregens", "lang", "export", "import", "help", "room", "clearLog", "downtimeAll", "newSceneAll"]);
 const actions = {
-  ...threatUI.actions, ...tablesUI.actions,
+  ...threatUI.actions, ...tablesUI.actions, ...clocksUI.actions,
   stopRetry: () => { room?.leave(); room = null; saveSession(); render(); },
   applyHurt: async el => {
     if (!isGM()) return;
@@ -963,6 +995,17 @@ const actions = {
   backups: () => backupDialog(),
   import: () => $("#file").click(),
   clearLog: async () => { if (await confirmDlg(t("Clear log"), esc(t("Delete every message in the log?")), t("Clear log"))) { state.log = []; persist(); render(); } },
+  kits: async () => {
+    const r = await ask({
+      title: t("Session kits"), ok: t("Open"), wide: true,
+      body: `<p>${esc(t("A kit sets up a whole session at once: scenes, Threats, handouts, notes and Clocks."))}</p>${BUNDLED_KITS.map(([f, name], i) => `<div class="pm-row"><label class="chk"><input type="radio" name="kit" value="${f}" ${i ? "" : "checked"}> ${esc(t(name))}</label></div>`).join("")}
+        <div class="pm-row"><label class="chk"><input type="radio" name="kit" value="__file"> ${esc(t("A kit file from my computer..."))}</label></div>`,
+      read: f => f.elements.kit.value
+    });
+    if (!r) return;
+    if (r === "__file") { $("#file").click(); return; }
+    try { const res = await fetch(r, { cache: "no-cache" }); if (!res.ok) throw new Error(); await kitDialog(KIT.parseKit(await res.text())); } catch (err) { toast(t("That kit could not be opened.")); }
+  },
   help: () => ask({ title: t("How to use this"), ok: t("Close"), cancel: false, wide: true, body: helpHtml(), read: () => true })
 };
 
@@ -1195,7 +1238,9 @@ export function init() {
     const file = e.target.files[0]; e.target.value = "";
     if (!file) return;
     try {
-      const parsed = K.parseImport(await file.text());
+      const raw = await file.text();
+      if (/"kind"\s*:\s*"project-moon-kit"/.test(raw.slice(0, 400))) { await kitDialog(KIT.parseKit(raw)); return; }
+      const parsed = K.parseImport(raw);
       if (parsed.kind === "character") {                    // one character joins the others; nothing is replaced
         const a = K.newCharacterFrom(parsed.actor, state.actors.map(x => x.name));
         S.addActor(a); view = "sheet"; persist(); render(); toast(t("Imported {name}.", { name: a.name }));

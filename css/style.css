@@ -531,3 +531,14 @@ dialog.wizard { width: min(720px, 98vw); }
 .tb-v { flex: 1; }
 .tb-res button { padding: 1px 6px; }
 .tb-acts { display: flex; gap: 8px; }
+
+/* ---- Clocks board ---- */
+#pane-ck { color: #e6e9f0; overflow-y: auto; }
+.ck-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; padding: 8px; }
+.ck-grid .pm-clockcard { background: #20222a; border: 1px solid #343744; border-radius: 3px; padding: 8px; text-align: center; }
+.ck-grid .pm-clockcard.full { border-color: #d9453d; }
+.ck-grid .pm-clockcard.hidden-clock { opacity: .6; border-style: dashed; }
+.ck-grid .cq { font-size: 12px; color: #aab; margin-top: 4px; }
+.ck-acts { display: flex; gap: 4px; justify-content: center; flex-wrap: wrap; margin-top: 6px; }
+.ck-acts button { cursor: pointer; border: 1px solid #3a3d4a; background: #22242e; color: #cfd6e6; border-radius: 2px; padding: 2px 8px; }
+.ck-acts button.on { background: #2c4a3a; }
