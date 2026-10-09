@@ -148,7 +148,7 @@ export const THREAT_ES = {
   "Marks awarded": "Marcas otorgadas",
   "Marks each: {n} ({names})": "Marcas para cada uno: {n} ({names})",
   "Some players could not be reached.": "No se pudo avisar a algunos jugadores.",
-  "Resolve rises, so the E.G.O. maximum rises by 1.": "La Resolución sube, así que el máximo de E.G.O. sube 1.",
+  "Resolve rises, so the E.G.O. maximum rises by 1.": "La Voluntad sube, así que el máximo de E.G.O. sube 1.",
   "Growth": "Crecimiento",
   "rises to {n}": "sube a {n}",
   "Grade unlock": "Desbloqueo de Grado"
