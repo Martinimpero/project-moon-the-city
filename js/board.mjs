@@ -144,9 +144,16 @@ export async function shrinkImage(file, max = 1800, quality = 0.8) {
 
 export const PING_MS = 3800;
 /** A ping at image coordinates, kept on the map. `look` also asks everyone's view to centre there. `rev` is the map it belongs to. */
-export function makePing(map, x, y, look = false, now = Date.now()) {
+export function makePing(map, x, y, look = false, now = Date.now(), who = "") {
   if (!map || !Number.isFinite(x) || !Number.isFinite(y)) return null;
-  return { id: uid(), rev: map.rev, x: Math.max(0, Math.min(map.w, x)), y: Math.max(0, Math.min(map.h, y)), look: !!look, at: now };
+  const name = String(who ?? "").trim().slice(0, 30);
+  return { id: uid(), rev: map.rev, x: Math.max(0, Math.min(map.w, x)), y: Math.max(0, Math.min(map.h, y)), look: !!look && !name, at: now, who: name, color: name ? pingColor(name) : "#c9a227" };
+}
+/** A player's ping takes a colour from their name, so the same person always shows the same one (the GM's is gold). */
+export function pingColor(name) {
+  let h = 0;
+  for (const ch of String(name)) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return TOKEN_COLORS[h % (TOKEN_COLORS.length - 1)];          // not the last (white): it is the GM-neutral one
 }
 export const pingAlive = (p, now = Date.now()) => now - p.at < PING_MS;
 /** A ping that arrived from the GM is only for the map the viewer has. */

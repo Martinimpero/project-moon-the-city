@@ -188,3 +188,37 @@ test("room: only the host's ping goes out, and every player gets it", async () =
   await new Promise(r => setTimeout(r, 30));
   assert.deepEqual(got, { a: [ping.id], b: [ping.id] });
 });
+
+/* ---- player pings ---- */
+test("a player's ping carries their name and a colour from it, and can never move anyone's view", () => {
+  const m = B.newMap();
+  const a = B.makePing(m, 100, 100, true, 0, "Ana"), a2 = B.makePing(m, 5, 5, false, 0, "Ana"), gm = B.makePing(m, 1, 1, true, 0);
+  assert.equal(a.who, "Ana"); assert.equal(a.look, false);                     // "look here" is the GM's alone
+  assert.equal(a.color, a2.color); assert.ok(B.TOKEN_COLORS.slice(0, -1).includes(a.color));
+  assert.equal(gm.look, true); assert.equal(gm.color, "#c9a227"); assert.equal(gm.who, "");
+  assert.equal(B.makePing(m, 1, 1, false, 0, "x".repeat(99)).who.length, 30);
+  assert.equal(new Set(["Ana", "Ben", "Chen", "Dolores", "Eli"].map(B.pingColor)).size > 1, true);
+});
+
+test("room: a player's ping reaches the host, is passed to everyone else but the sender, and is rate-limited", async () => {
+  const peers = new Map(); let n = 0;
+  class Em { constructor() { this.l = {}; } on(e, f) { (this.l[e] ??= []).push(f); } emit(e, ...a) { (this.l[e] ?? []).forEach(f => f(...a)); } }
+  class Conn extends Em { constructor(p) { super(); this.peer = p; } send(m) { const o = this.other; queueMicrotask(() => o.emit("data", JSON.parse(JSON.stringify(m)))); } close() { } }
+  class Peer extends Em {
+    constructor(id) { super(); this.id = id ?? `p${++n}`; queueMicrotask(() => { peers.set(this.id, this); this.emit("open", this.id); }); }
+    connect(t) { const m = new Conn(t); queueMicrotask(() => { const th = new Conn(this.id); m.other = th; th.other = m; peers.get(t).emit("connection", th); m.emit("open"); }); return m; }
+    destroy() { peers.delete(this.id); }
+  }
+  const seen = { host: [], ana: [], ben: [] };
+  let gm;
+  gm = new Room({ Peer, handlers: { onLog() {}, onPlayerPing: (pid, name, p) => { seen.host.push([name, p.x, p.y, p.rev]); gm.sendPing({ id: "relay-" + seen.host.length, who: name }, pid); } } });
+  const ana = new Room({ Peer, handlers: { onLog() {}, onPing: p => seen.ana.push(p.id) } });
+  const ben = new Room({ Peer, handlers: { onLog() {}, onPing: p => seen.ben.push(p.id) } });
+  await gm.host("PNG02", "GM"); await ana.join("PNG02", "Ana"); await ben.join("PNG02", "Ben");
+  ana.sendPlayerPing(300, 200, "rev1"); ana.sendPlayerPing(310, 210, "rev1");   // the second is inside the half second: dropped
+  await new Promise(r => setTimeout(r, 40));
+  assert.deepEqual(seen.host, [["Ana", 300, 200, "rev1"]]);
+  assert.deepEqual(seen.ana, []);                                               // not echoed to the sender
+  assert.deepEqual(seen.ben, ["relay-1"]);
+  gm.sendPlayerPing?.(1, 1, "x");                                               // the host has no such call to make
+});

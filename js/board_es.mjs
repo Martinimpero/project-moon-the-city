@@ -111,5 +111,6 @@ export const BOARD_ES = {
   "Also centre everyone's view on the spot": "Centra también la vista de todos en ese punto",
   "Look here": "Mirad aquí",
   "The GM pinged the map": "El DJ ha señalado el mapa",
+  "{name} pinged the map": "{name} ha señalado el mapa",
   "Red": "Rojo", "Orange": "Naranja", "Gold": "Dorado", "Green": "Verde", "Teal": "Turquesa", "Blue": "Azul", "Purple": "Morado", "White": "Blanco"
 };

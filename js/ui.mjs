@@ -81,7 +81,8 @@ const boardUI = createBoardUI({
   changed: () => { persist(); renderBoard(); if (room?.role === "host") room.sendBoard(); },
   sendBoard: () => { if (room?.role === "host") room.sendBoard(); },
   redrawMap: () => renderBoard(),
-  sendPing: p => { if (room?.role === "host") room.sendPing(p); },
+  sendPing: p => { if (room?.role === "host") room.sendPing(p); else if (room?.role === "player") room.sendPlayerPing(p.x, p.y, p.rev); },
+  myName: () => state.name || "",
   sfx: name => sfx.play(name),
   showMap: () => { rtab = "map"; view = "log"; render(); },
   setMap: m => { state.map = m; },
@@ -110,6 +111,14 @@ const handlers = {
   },
   onScene: () => { state.actors.filter(x => x.type === "character").forEach(E.newScene); persist(); render(); toast(t("The GM started a new scene.")); },
   onPing: p => boardUI.showPing(p, { remote: true }),
+  onPlayerPing: (pid, name, { x, y, rev }) => {                   // a player pinged: check it, show it here, pass it to everyone else
+    const map = state.map;
+    if (!map || rev !== map.rev) return;
+    const p = B.makePing(map, x, y, false, Date.now(), name);
+    if (!p) return;
+    boardUI.showPing(p, { remote: true });
+    room?.sendPing(p, pid);
+  },
   onBoard: b => { if (dragging()) return; remoteBoard.tracker = b.tracker; remoteBoard.map = b.map; clock.sync(timerOf(b.tracker)); renderBoard(); },
   onMapImg: (rev, src) => { remoteBoard.image = { rev, src }; renderBoard(); },
   onToken: (pid, id, x, y) => {

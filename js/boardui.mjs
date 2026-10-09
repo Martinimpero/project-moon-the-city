@@ -17,6 +17,7 @@ export function createBoardUI(ctx) {
   let sel = "";                  // selected token id
   let tool = "";                 // "" (pan), "measure", "ping", "reveal" or "cover"
   let look = false;              // a ping also centres everyone's view
+  let lastSent = 0;
   const pings = [];              // the pings on this map right now (short-lived)
   let radius = 3;                // squares revealed around a token
   const $ = ctx.$;
@@ -167,7 +168,8 @@ export function createBoardUI(ctx) {
       <button type="button" data-action="tokenAdd">+ ${esc(t("Token"))}</button>
       ${sel && map.tokens.some(x => x.id === sel) ? `<button type="button" data-action="tokenHide">${esc(map.tokens.find(x => x.id === sel).hidden ? t("Show") : t("Hide"))}</button><button type="button" data-action="tokenDel">${esc(t("Remove"))}</button>` : ""}` : ""}
       </div>` : "";
-    const bars = gm ? bar + fogBar : (map ? `<div class="m-bar">${measureBtn}</div>` : "");
+    const pingOnly = `<button type="button" data-action="toolSet" data-tool="ping" class="${tool === "ping" ? "on" : ""}" title="${esc(t("Click the map to point everyone to a spot"))}">${esc(t("Ping"))}</button>`;
+    const bars = gm ? bar + fogBar : (map ? `<div class="m-bar">${measureBtn}${pingOnly}</div>` : "");
     if (!map) return `${bar}<p class="hint pad">${esc(gm ? t("Pick a map to show the table.") : t("The GM has not shown a map."))}</p>`;
     const src = mapSrc();
     if (!view || viewKey !== map.rev) fit(map);
@@ -199,8 +201,10 @@ export function createBoardUI(ctx) {
   /* ---- pings ---- */
   const pingGroup = (p, map) => {
     const r = (map.cell > 0 ? map.cell : 70) * 1.2, age = Math.max(0, Date.now() - p.at);
-    const ring = n => `<circle r="${r}" style="animation-delay:${n * 380 - age}ms"/>`;
-    return `<g class="ping" data-ping="${p.id}" transform="translate(${p.x} ${p.y})" pointer-events="none">${ring(0)}${ring(1)}${ring(2)}<circle class="dot" r="${r * 0.16}"/></g>`;
+    const col = p.color || "#c9a227";
+    const ring = n => `<circle r="${r}" style="animation-delay:${n * 380 - age}ms;stroke:${esc(col)}"/>`;
+    const label = p.who ? `<text class="plbl" y="${r * 0.42}" font-size="${Math.max(22, r * 0.34)}" text-anchor="middle" style="fill:${esc(col)}">${esc(p.who)}</text>` : "";
+    return `<g class="ping" data-ping="${p.id}" transform="translate(${p.x} ${p.y})" pointer-events="none">${ring(0)}${ring(1)}${ring(2)}<circle class="dot" r="${r * 0.16}" style="stroke:${esc(col)}"/>${label}</g>`;
   };
   function pingsSvg(map) {
     const now = Date.now();
@@ -214,7 +218,7 @@ export function createBoardUI(ctx) {
     pings.push(p);
     ctx.sfx("ping");
     if (p.look && view) view = B.centreView(view, map, p.x, p.y);
-    if (remote) { ctx.toast(t("The GM pinged the map")); if (p.look) ctx.showMap(); }
+    if (remote) { ctx.toast(p.who ? t("{name} pinged the map", { name: p.who }) : t("The GM pinged the map")); if (p.look) ctx.showMap(); }
     const svg = $("#mapsvg");
     if (svg && !(p.look && view)) {
       const tmp = document.createElementNS("http://www.w3.org/2000/svg", "g");
@@ -226,8 +230,11 @@ export function createBoardUI(ctx) {
   /** The GM clicks the map with the Ping tool. */
   function sendPing(x, y) {
     const map = ctx.board().map;
-    const p = B.makePing(map, x, y, look);
+    const p = B.makePing(map, x, y, look && ctx.isGM(), Date.now(), ctx.isGM() ? "" : ctx.myName());   // only the GM's ping can move everyone's view
     if (!p) return;
+    const now = Date.now();
+    if (!ctx.isGM() && now - lastSent < 500) return;                      // a player pings at most twice a second
+    lastSent = now;
     showPing(p);
     ctx.sendPing(p);
   }
@@ -248,7 +255,7 @@ export function createBoardUI(ctx) {
     const map = ctx.board().map;
     let drag = null;
     svg.addEventListener("pointerdown", e => {
-      if (tool === "ping" && ctx.isGM()) { const p = svgPoint(svg, e); sendPing(p.x, p.y); e.preventDefault(); return; }
+      if (tool === "ping") { const p = svgPoint(svg, e); sendPing(p.x, p.y); e.preventDefault(); return; }
       const g = e.target.closest(".tk");
       if (g) {
         const tk = map.tokens.find(x => x.id === g.dataset.id);

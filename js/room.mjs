@@ -3,7 +3,7 @@
  * This file is the protocol only: it takes a Peer constructor, so Node can test it with an in-memory fake.
  *
  * Messages (plain objects, field `k` is the kind):
- *   player -> host: hello {name}, sheets {actors}, log {entry}, effect {actorId, value}, token {id, x, y}, cond {actorId, types}
+ *   player -> host: hello {name}, sheets {actors}, log {entry}, effect {actorId, value}, token {id, x, y}, cond {actorId, types}, ping {x, y, rev}
  *   host -> player: history {entries}, log {entry}, table {table}, effect {actorId, value}, scene {},
  *                   ping {ping} (the GM points at a spot on the map),
  *                   harm {actorId, delta} (the GM applies Hurt to a player's character),
@@ -88,6 +88,11 @@ export class Room {
       if (!entry.private) { this._remember(entry); this._sendAll({ k: "log", entry }, pid); }
     } else if (msg.k === "effect") {
       this.sendEffect(msg.actorId, msg.value);
+    } else if (msg.k === "ping") {
+      const now = Date.now(), p = this.peers.get(pid);
+      if (now - (p.lastPing ?? 0) < 500) return;                       // one ping every half second per player
+      p.lastPing = now;
+      this.h.onPlayerPing?.(pid, p.name, { x: Number(msg.x), y: Number(msg.y), rev: msg.rev });
     } else if (msg.k === "cond") {
       this.h.onCond?.(pid, msg.actorId, Array.isArray(msg.types) ? msg.types : []);
     } else if (msg.k === "token") {
@@ -183,7 +188,9 @@ export class Room {
     if (b.mapImage) this.lastImgRev = b.mapImage.rev;
   }
   /** Host: ping the map for everyone. */
-  sendPing(ping) { if (this.role === "host" && this.online) this._sendAll({ k: "ping", ping }); }
+  sendPing(ping, exceptPid = "") { if (this.role === "host" && this.online) this._sendAll({ k: "ping", ping }, exceptPid); }
+  /** Player: ping the map. The host checks it and shows it to everyone else. */
+  sendPlayerPing(x, y, rev) { if (this.online && this.role === "player") this.hostConn?.send({ k: "ping", x, y, rev }); }
   /** Host: tell whoever owns this character that it takes Hurt (Harm advances `delta` tiers). Returns false if nobody here owns it. */
   sendHarm(actorId, delta = 1) {
     if (this.role !== "host" || !this.online) return false;
