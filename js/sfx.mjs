@@ -61,6 +61,7 @@ export function createSfx({ AudioCtx = globalThis.AudioContext || globalThis.web
   }
 
   /* ---- the sounds ---- */
+  const PLAYER_NOTES = [523.25, 587.33, 659.25, 783.99, 880, 1046.5, 1174.66];     // C D E G A C D: a pentatonic scale, so any mix of players sounds consonant
   const RESULT = {
     critical: at => { [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => { tone(at + i * 0.07, f, 0.45, { type: "triangle", gain: 0.22 }); tone(at + i * 0.07, f * 2, 0.35, { gain: 0.06 }); }); },
     success: at => { tone(at, 392, 0.2, { type: "triangle", gain: 0.22 }); tone(at + 0.11, 523.25, 0.4, { type: "triangle", gain: 0.24 }); },
@@ -79,6 +80,11 @@ export function createSfx({ AudioCtx = globalThis.AudioContext || globalThis.web
     bell: () => { const t = ctx.currentTime; [880, 1318.5].forEach((f, i) => tone(t + i * 0.01, f, 1.1, { gain: 0.14 / (i + 1), attack: 0.003 })); },
     handout: () => { const t = ctx.currentTime; click(t, 2600, 0.12, 0.08); click(t + 0.07, 3400, 0.1, 0.1); tone(t + 0.12, 659.25, 0.3, { gain: 0.1 }); },
     chat: () => { const t = ctx.currentTime; tone(t, 700, 0.08, { gain: 0.12, to: 1000 }); },
+    // a player's ping: a softer two-note pop whose pitch belongs to that player (the same name always sounds the same), so the table can tell who by ear
+    pingPlayer: ({ note = 0 } = {}) => {
+      const t = ctx.currentTime, f = PLAYER_NOTES[Math.max(0, Math.min(PLAYER_NOTES.length - 1, Math.floor(note) || 0))];
+      tone(t, f, 0.16, { type: "triangle", gain: 0.14, attack: 0.004 }); tone(t + 0.09, f * 1.5, 0.3, { type: "triangle", gain: 0.11, attack: 0.004 });
+    },
     ping: () => { const t = ctx.currentTime; tone(t, 880, 0.5, { gain: 0.16, to: 1320, attack: 0.01 }); tone(t + 0.16, 1320, 0.6, { gain: 0.08, attack: 0.01 }); },
     tick: () => { click(ctx.currentTime, 1800, 0.22, 0.03); },
     alarm: () => { const t = ctx.currentTime; for (let i = 0; i < 3; i++) tone(t + i * 0.22, 440, 0.18, { type: "square", gain: 0.12, to: 400 }); },

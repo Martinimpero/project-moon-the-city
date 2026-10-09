@@ -216,7 +216,7 @@ export function createBoardUI(ctx) {
     const map = ctx.board().map;
     if (!B.pingFits(p, map)) return;
     pings.push(p);
-    ctx.sfx("ping");
+    ctx.sfx(p.who ? "pingPlayer" : "ping", { note: p.who ? B.pingNote(p.who) : 0 });
     if (p.look && view) view = B.centreView(view, map, p.x, p.y);
     if (remote) { ctx.toast(p.who ? t("{name} pinged the map", { name: p.who }) : t("The GM pinged the map")); if (p.look) ctx.showMap(); }
     const svg = $("#mapsvg");

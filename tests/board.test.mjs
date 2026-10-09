@@ -222,3 +222,30 @@ test("room: a player's ping reaches the host, is passed to everyone else but the
   assert.deepEqual(seen.ben, ["relay-1"]);
   gm.sendPlayerPing?.(1, 1, "x");                                               // the host has no such call to make
 });
+
+/* ---- the player ping sound ---- */
+import { createSfx } from "../js/sfx.mjs";
+test("each player's ping has its own pitch (same name, same note) and the colour follows the same rule", () => {
+  for (const n of ["Ana", "Ben", "Chen", "Dolores", "Eli", "x"]) {
+    assert.equal(B.pingNote(n), B.pingNote(n));
+    assert.ok(B.pingNote(n) >= 0 && B.pingNote(n) <= 6);
+    assert.equal(B.pingColor(n), B.TOKEN_COLORS[B.pingNote(n)]);
+  }
+  assert.ok(new Set(["Ana", "Ben", "Chen", "Dolores", "Eli", "Fay", "Gus"].map(B.pingNote)).size > 2);
+});
+
+test("the player ping sound plays for every note, is separate from the GM's, and never throws", () => {
+  const made = { osc: 0 };
+  const param = () => ({ value: 0, setValueAtTime() {}, exponentialRampToValueAtTime() {} });
+  class Ctx { constructor() { this.currentTime = 0; this.sampleRate = 8000; this.state = "running"; this.destination = {}; }
+    createGain() { return { gain: param(), connect() {} }; } createOscillator() { made.osc++; return { type: "", frequency: param(), connect() {}, start() {}, stop() {} }; }
+    createBiquadFilter() { return { frequency: param(), Q: param(), connect() {} }; } createBufferSource() { return { connect() {}, start() {}, stop() {} }; }
+    createBuffer(c, len) { return { getChannelData: () => new Float32Array(len) }; } }
+  const sfx = createSfx({ AudioCtx: Ctx });
+  for (let note = 0; note < 7; note++) assert.equal(sfx.play("pingPlayer", { note }), true);
+  assert.equal(sfx.play("pingPlayer"), true);                                  // no note given
+  assert.equal(sfx.play("pingPlayer", { note: 99 }), true);                    // out of range is clamped
+  assert.equal(sfx.play("pingPlayer", { note: "junk" }), true);
+  assert.equal(sfx.play("ping"), true);
+  assert.equal(createSfx({ AudioCtx: undefined }).play("pingPlayer", { note: 2 }), false);
+});

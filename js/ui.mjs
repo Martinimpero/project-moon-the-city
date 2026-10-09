@@ -83,7 +83,7 @@ const boardUI = createBoardUI({
   redrawMap: () => renderBoard(),
   sendPing: p => { if (room?.role === "host") room.sendPing(p); else if (room?.role === "player") room.sendPlayerPing(p.x, p.y, p.rev); },
   myName: () => state.name || "",
-  sfx: name => sfx.play(name),
+  sfx: (name, opts) => sfx.play(name, opts),
   showMap: () => { rtab = "map"; view = "log"; render(); },
   setMap: m => { state.map = m; },
   post: html => post(html), ask: o => ask(o), toast: m => toast(m)

@@ -150,11 +150,12 @@ export function makePing(map, x, y, look = false, now = Date.now(), who = "") {
   return { id: uid(), rev: map.rev, x: Math.max(0, Math.min(map.w, x)), y: Math.max(0, Math.min(map.h, y)), look: !!look && !name, at: now, who: name, color: name ? pingColor(name) : "#c9a227" };
 }
 /** A player's ping takes a colour from their name, so the same person always shows the same one (the GM's is gold). */
-export function pingColor(name) {
+export function pingNote(name) {
   let h = 0;
   for (const ch of String(name)) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
-  return TOKEN_COLORS[h % (TOKEN_COLORS.length - 1)];          // not the last (white): it is the GM-neutral one
+  return h % (TOKEN_COLORS.length - 1);                         // not the last colour (white): that one is the GM-neutral one
 }
+export const pingColor = name => TOKEN_COLORS[pingNote(name)];
 export const pingAlive = (p, now = Date.now()) => now - p.at < PING_MS;
 /** A ping that arrived from the GM is only for the map the viewer has. */
 export const pingFits = (p, map) => !!map && p.rev === map.rev;
