@@ -136,6 +136,10 @@ Limits to know: a square counts as seen when a straight line from the token to i
 
 **Area** (on the map's drawing toolbar) lays a **circle**, **cone** or **line** on the map: pick the shape, press where it starts (it snaps to the middle of a square) and drag; a dashed preview shows its size in squares. When you let go the area stays on the map and a message says **who is inside** (every token whose middle is in the shape, hidden ones too). A circle's size is its radius; a cone is as wide at its end as it is long and points where you dragged; a line has a length and a width (set Width, in squares). Areas use the same colour and "Players see drawings and areas" box as drawings, are erased with **Erase** or **Clear drawings**, are saved with the map and can be undone. The manual has no area rules (combat is abstract), so this is only a table aid for measuring who is in the way.
 
+## Table guide
+
+`guia/index.html` is a short, navigable guide in Spanish and English (27 one-screen pages): opening the app, opening a room as GM, joining as a player, rolling, the map, saving, fixing connection problems. It is a single file that works on GitHub Pages and offline; the app's Help window links to it. `tests/guide.test.mjs` checks that every button name in the guide is the name the app really shows, in both languages.
+
 ## Not built yet
 Accounts, cloud save, per-player vision (the fog is the same for everyone), light sources and darkness, players drawing on the map, a co-GM or spectator role, handing the GM role over mid-session (export and import instead).
 

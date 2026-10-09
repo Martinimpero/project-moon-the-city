@@ -1174,7 +1174,7 @@ function helpHtml() {
     t("Signature Techniques are on the Sins tab. Press New scene when a scene ends."),
     t("Your sheets are saved in this browser only. Use Export now and then to keep a file, and Import to load it on another device."),
     t("To play together, press Room: the GM opens a room and players join with the code. Everyone sees the rolls; the GM sees each player's sheet.")
-  ].map(li).join("")}</ul>`;
+  ].map(li).join("")}<li><a href="guia/index.html?lang=${state.lang}" target="_blank" rel="noopener">${esc(t("Open the table guide: how to open rooms and play"))}</a></li></ul>`;
 }
 
 /* ---- the room dialog ---- */

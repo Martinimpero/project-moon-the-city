@@ -196,5 +196,6 @@ export const THREAT_ES = {
   "Width": "Anchura",
   "Players see drawings and areas": "Los jugadores ven los dibujos y las áreas",
   "Inside: {names}": "Dentro: {names}",
-  "Nobody is inside.": "No hay nadie dentro."
+  "Nobody is inside.": "No hay nadie dentro.",
+  "Open the table guide: how to open rooms and play": "Abrir la guía de la mesa: cómo abrir salas y jugar"
 };

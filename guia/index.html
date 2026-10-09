@@ -1,0 +1,589 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guía de la mesa</title>
+<meta name="description" content="Cómo abrir la app, crear salas y jugar con ella, para DJs y jugadores.">
+<style>
+:root{
+  --bg:#f4f0e6; --panel:#fbf8f0; --ink:#1c1d24; --mute:#5b5e6b; --line:#d8d1bf;
+  --accent:#8a1f2c; --gold:#c9a227; --nav:#1b1d26; --navink:#e6e9f0; --chip:#22242e; --chipink:#f2f4f8;
+  --tip:#e4efe3; --tipline:#5a9a62; --warn:#f6e3c8; --warnline:#c9812c;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --bg:#14151b; --panel:#1c1e26; --ink:#e8eaf0; --mute:#a3a8b8; --line:#33364a; --accent:#e0575b; --nav:#101117; --chip:#2c2f3d; --tip:#1f3022; --warn:#3a2c17; }
+}
+:root[data-theme="dark"]{ --bg:#14151b; --panel:#1c1e26; --ink:#e8eaf0; --mute:#a3a8b8; --line:#33364a; --accent:#e0575b; --nav:#101117; --chip:#2c2f3d; --tip:#1f3022; --warn:#3a2c17; }
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:17px/1.55 Georgia,"Times New Roman",serif}
+header.top{position:sticky;top:0;z-index:5;background:var(--nav);color:var(--navink);display:flex;gap:12px;align-items:center;padding:10px 16px;border-bottom:3px solid var(--gold)}
+header.top h1{font:700 15px/1 "Segoe UI",system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;margin:0;flex:1}
+button,.btn{font:600 14px "Segoe UI",system-ui,sans-serif;cursor:pointer;border:1px solid var(--line);background:var(--chip);color:var(--chipink);border-radius:4px;padding:7px 12px}
+button:focus-visible,a:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+#menu{display:none}
+.layout{display:grid;grid-template-columns:260px minmax(0,1fr);max-width:1100px;margin:0 auto}
+nav#nav{padding:18px 12px 40px 16px;position:sticky;top:55px;align-self:start;max-height:calc(100vh - 55px);overflow:auto;font:15px/1.3 "Segoe UI",system-ui,sans-serif}
+nav h2{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--mute);margin:18px 0 6px}
+nav h2:first-child{margin-top:0}
+nav a{display:block;padding:7px 10px;border-radius:4px;color:var(--ink);text-decoration:none;border-left:3px solid transparent}
+nav a:hover{background:var(--panel)}
+nav a[aria-current="page"]{background:var(--panel);border-left-color:var(--accent);font-weight:700}
+main{padding:28px 24px 80px;min-width:0}
+.crumb{font:700 11px "Segoe UI",system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin:0 0 6px}
+h2.title{font:700 30px/1.15 "Segoe UI",system-ui,sans-serif;margin:0 0 10px}
+.lead{font-size:19px;color:var(--ink);margin:0 0 20px}
+ol.steps{list-style:none;counter-reset:s;padding:0;margin:0 0 18px}
+ol.steps li{counter-increment:s;position:relative;padding:10px 12px 10px 52px;margin:0 0 8px;background:var(--panel);border:1px solid var(--line);border-radius:6px}
+ol.steps li::before{content:counter(s);position:absolute;left:12px;top:9px;width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;font:700 15px/28px "Segoe UI",system-ui,sans-serif;text-align:center}
+ul.list{padding:0;margin:0 0 18px;list-style:none}
+ul.list li{padding:8px 12px;margin:0 0 6px;background:var(--panel);border:1px solid var(--line);border-radius:6px}
+.chip{display:inline-block;font:700 .78em "Segoe UI",system-ui,sans-serif;letter-spacing:.06em;text-transform:uppercase;background:var(--chip);color:var(--chipink);border-radius:3px;padding:2px 7px;margin:0 1px;white-space:nowrap}
+.note{border-left:5px solid var(--tipline);background:var(--tip);padding:10px 14px;border-radius:4px;margin:0 0 14px}
+.note.warn{border-left-color:var(--warnline);background:var(--warn)}
+.note b.tag{font:700 11px "Segoe UI",system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;display:block;margin-bottom:2px}
+table{border-collapse:collapse;width:100%;margin:0 0 18px;font-size:15px;background:var(--panel)}
+th,td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+th{font:700 12px "Segoe UI",system-ui,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
+.url{display:block;font:700 18px/1.3 "Segoe UI",system-ui,sans-serif;word-break:break-all;background:var(--panel);border:2px dashed var(--accent);border-radius:6px;padding:14px;margin:0 0 18px;color:var(--accent);text-decoration:none;text-align:center}
+.pager{display:flex;justify-content:space-between;gap:10px;margin-top:30px}
+.pager a{flex:1;max-width:48%;text-decoration:none;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:12px 14px;font:600 15px "Segoe UI",system-ui,sans-serif}
+.pager a small{display:block;font-weight:400;color:var(--mute);font-size:12px;letter-spacing:.1em;text-transform:uppercase}
+.pager a.next{text-align:right;margin-left:auto}
+.pager a:hover{border-color:var(--accent)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin:0 0 18px}
+.card{display:block;text-decoration:none;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px}
+.card:hover{border-color:var(--accent)}
+.card b{display:block;font:700 18px "Segoe UI",system-ui,sans-serif;margin-bottom:4px}
+.card span{color:var(--mute);font-size:15px}
+svg.diagram{width:100%;height:auto;background:var(--panel);border:1px solid var(--line);border-radius:8px;margin:0 0 18px}
+svg.diagram text{font:600 13px "Segoe UI",system-ui,sans-serif;fill:var(--ink)}
+@media (max-width:820px){
+  .layout{grid-template-columns:1fr}
+  #menu{display:inline-block}
+  nav#nav{display:none;position:fixed;inset:55px 0 0 0;max-height:none;background:var(--bg);z-index:4;padding:14px 16px 60px}
+  nav#nav.open{display:block}
+  main{padding:20px 16px 80px}
+  h2.title{font-size:25px}
+  .lead{font-size:17px}
+}
+@media print{header.top,nav#nav,.pager{display:none}.layout{display:block}}
+</style>
+</head>
+<body>
+<header class="top">
+  <button id="menu" aria-expanded="false" aria-controls="nav"></button>
+  <h1 id="brand"></h1>
+  <button id="lang" aria-label="Language"></button>
+</header>
+<div class="layout">
+  <nav id="nav" aria-label="Secciones"></nav>
+  <main id="main" tabindex="-1"></main>
+</div>
+
+<script>
+/* ---------------------------------------------------------------------------------------------------------------
+   Content. Every page is short on purpose. `[[Word]]` is a button name as it appears in the app; `**x**` is bold.
+   Each text is { es, en }. Button names are written in the language of the app the reader has open.
+   --------------------------------------------------------------------------------------------------------------- */
+const APP = "https://martinimpero.github.io/project-moon-the-city/";
+const UI = {
+  es: { brand: "Guía de la mesa", menu: "Menú", close: "Cerrar", prev: "Anterior", next: "Siguiente", tip: "Consejo", warn: "Ojo", lang: "English", home: "Inicio" },
+  en: { brand: "Table guide", menu: "Menu", close: "Close", prev: "Previous", next: "Next", tip: "Tip", warn: "Careful", lang: "Español", home: "Home" }
+};
+const GROUPS = {
+  start: { es: "Empezar", en: "Start" },
+  gm: { es: "Para el DJ", en: "For the GM" },
+  pl: { es: "Para jugadores", en: "For players" },
+  fix: { es: "Si algo falla", en: "If something fails" },
+  ref: { es: "Referencia", en: "Reference" }
+};
+// A button name differs per language: write it once as [[es|en]]
+const PAGES = [
+  { id: "inicio", group: "start", home: true,
+    title: { es: "Bienvenido a la mesa", en: "Welcome to the table" },
+    lead: { es: "Una mesa digital gratuita para jugar Project Moon: The City. Sin cuentas, sin instalar nada.", en: "A free digital table for playing Project Moon: The City. No accounts, nothing to install." },
+    cards: [
+      { to: "rapido", t: { es: "Primera partida en 5 minutos", en: "First game in 5 minutes" }, d: { es: "Lo mínimo para empezar hoy.", en: "The minimum to start today." } },
+      { to: "abrir", t: { es: "Soy nuevo", en: "I am new" }, d: { es: "Abrir la app y reconocer la pantalla.", en: "Open the app and learn the screen." } },
+      { to: "dj-sala", t: { es: "Soy el DJ", en: "I am the GM" }, d: { es: "Crear la sala y dirigir.", en: "Open the room and run the game." } },
+      { to: "j-entrar", t: { es: "Soy jugador", en: "I am a player" }, d: { es: "Entrar a una sala y jugar.", en: "Join a room and play." } }
+    ] },
+  { id: "rapido", group: "start",
+    title: { es: "Primera partida en 5 minutos", en: "First game in 5 minutes" },
+    lead: { es: "Para la primera vez. Cada paso tiene su página si quieres más detalle.", en: "For the first time. Each step has its own page if you want more detail." },
+    steps: { es: [
+      "**Todos** abren la web (la página «Abrir la app» tiene el enlace).",
+      "**Cada jugador** pulsa [[Añadir los 4 prefabricados|Add the 4 pregens]] y se queda con uno.",
+      "**El DJ** pulsa [[Sala|Room]] → [[Soy el DJ: abrir una sala|I am the GM: open a room]] → [[Adelante|Go]].",
+      "**El DJ** manda el **enlace** o el **código** de la sala.",
+      "**Cada jugador** abre el enlace y pulsa [[Adelante|Go]]. La cabecera dirá «Sala CÓDIGO · 2».",
+      "**Jugad:** pulsad el nombre de una Habilidad para tirar. Todos lo ven en [[Historial|Log]]."
+    ], en: [
+      "**Everyone** opens the site (the “Open the app” page has the link).",
+      "**Each player** presses [[Add the 4 pregens]] and keeps one.",
+      "**The GM** presses [[Room]] → [[I am the GM: open a room]] → [[Go]].",
+      "**The GM** sends the players the **link** or the **code** shown in the room.",
+      "**Each player** opens the link and presses [[Go]]. The header button now reads “Room CODE · 2”.",
+      "**Play:** press a Skill name on the sheet to roll. Everyone sees the roll in [[Log]]."
+    ] },
+    notes: [{ type: "tip", es: "El DJ puede importar la Sesión 01 con [[Kits|Kits]] y tener escenas, mapas y PNJ listos.", en: "The GM can import Session 01 with [[Kits]] and have scenes, maps and NPCs ready." }] },
+  { id: "abrir", group: "start",
+    title: { es: "Abrir la app", en: "Open the app" },
+    lead: { es: "Funciona en el navegador del ordenador o del móvil.", en: "It runs in your computer's or phone's browser." },
+    url: true,
+    steps: { es: [
+      "Abre el enlace de arriba en **Edge, Chrome, Firefox o Safari**.",
+      "Cambia el idioma con el botón **ES / EN** de la esquina de arriba a la derecha.",
+      "Añade la página a favoritos para volver rápido."
+    ], en: [
+      "Open the link above in **Edge, Chrome, Firefox or Safari**.",
+      "Switch the language with the **ES / EN** button in the top right corner.",
+      "Bookmark the page so you can come back quickly."
+    ] },
+    notes: [{ type: "warn", es: "Tus fichas se guardan **solo en este navegador**. Pulsa [[Exportar|Export]] de vez en cuando para guardar un archivo.", en: "Your sheets are saved **in this browser only**. Press [[Export]] now and then to keep a file." }] },
+  { id: "pantalla", group: "start",
+    title: { es: "La pantalla", en: "The screen" },
+    lead: { es: "Cuatro zonas. En el móvil se ven por pestañas.", en: "Four areas. On a phone they appear as tabs." },
+    diagram: true,
+    list: { es: [
+      "**Cabecera:** [[Copia|Backup]] [[Exportar|Export]] [[Importar|Import]] [[Sala|Room]] [[Deshacer|Undo]] [[Imprimir|Print]] [[Kits|Kits]] [[Ayuda|Help]] y el idioma.",
+      "**Izquierda:** tus personajes (y los de la sala).",
+      "**Centro:** la ficha del personaje elegido.",
+      "**Derecha:** [[Historial|Log]] [[Intercambio|Exchange]] [[Mapa|Map]] [[Documentos|Handouts]] [[Diario|Journal]] [[Relojes|Clocks]] [[Pantalla|Screen]]. El DJ ve además [[Amenazas|Threats]] y [[Tablas|Tables]].",
+      "**En el móvil:** pestañas de abajo [[Personas|People]] [[Ficha|Sheet]] [[Mesa|Table]]."
+    ], en: [
+      "**Header:** [[Backup]] [[Export]] [[Import]] [[Room]] [[Undo]] [[Print]] [[Kits]] [[Help]] and the language.",
+      "**Left:** your characters (and the room's).",
+      "**Centre:** the chosen character's sheet.",
+      "**Right:** [[Log]] [[Exchange]] [[Map]] [[Handouts]] [[Journal]] [[Clocks]] [[Screen]]. The GM also sees [[Threats]] and [[Tables]].",
+      "**On a phone:** bottom tabs [[People]] [[Sheet]] [[Table]]."
+    ] } },
+
+  { id: "dj-sala", group: "gm",
+    title: { es: "Abrir una sala", en: "Open a room" },
+    lead: { es: "El DJ crea la sala. Los jugadores entran con un código.", en: "The GM creates the room. Players join with a code." },
+    steps: { es: [
+      "Pulsa [[Sala|Room]].",
+      "Elige [[Soy el DJ: abrir una sala|I am the GM: open a room]].",
+      "Escribe **tu nombre**. Deja el **código** que sale (o escribe uno de 3 o más letras).",
+      "Si quieres, pon una **contraseña**.",
+      "Pulsa [[Adelante|Go]]."
+    ], en: [
+      "Press [[Room]].",
+      "Choose [[I am the GM: open a room]].",
+      "Type **your name**. Keep the suggested **code** (or type one of 3 or more letters).",
+      "If you like, set a **password**.",
+      "Press [[Go]]."
+    ] },
+    notes: [{ type: "tip", es: "Antes, pulsa [[Probar mi conexión|Test my connection]]: te dice si tu red deja crear salas.", en: "First press [[Test my connection]]: it tells you whether your network allows rooms." }] },
+  { id: "dj-invitar", group: "gm",
+    title: { es: "Invitar a los jugadores", en: "Invite the players" },
+    lead: { es: "Dales el enlace o el código.", en: "Give them the link or the code." },
+    steps: { es: [
+      "Con la sala abierta, pulsa el botón [[Sala|Room]] de la cabecera.",
+      "Copia el **Enlace** (lo más fácil) o el **Código**.",
+      "Envíaselo por chat. Si hay contraseña, díselo aparte."
+    ], en: [
+      "With the room open, press the [[Room]] button in the header.",
+      "Copy the **Link** (easiest) or the **Code**.",
+      "Send it by chat. If there is a password, tell them separately."
+    ] },
+    list: { es: [
+      "[[Bloquear la sala|Lock the room]]: nadie nuevo entra; quien ya estaba puede volver.",
+      "[[Quitar|Remove]]: expulsa a alguien.",
+      "Cambia o quita la **contraseña** cuando quieras."
+    ], en: [
+      "[[Lock the room]]: nobody new can join; people who were in can return.",
+      "[[Remove]]: removes someone.",
+      "Change or remove the **password** whenever you like."
+    ] } },
+  { id: "dj-viva", group: "gm",
+    title: { es: "Mantener la sala viva", en: "Keep the room alive" },
+    lead: { es: "Tu navegador es el servidor de la partida.", en: "Your browser is the game's server." },
+    list: { es: [
+      "**No cierres** la pestaña del DJ mientras se juega.",
+      "Si **recargas**, la sala se reabre sola y los jugadores vuelven.",
+      "Si el móvil o el ordenador se duerme, la sala se corta. Desactiva el reposo.",
+      "[[Salir de la sala|Leave room]] **cierra** la sala para todos."
+    ], en: [
+      "**Do not close** the GM tab during play.",
+      "If you **reload**, the room reopens by itself and players come back.",
+      "If your phone or computer sleeps, the room drops. Turn off sleep.",
+      "[[Leave room]] **closes** the room for everyone."
+    ] },
+    notes: [{ type: "tip", es: "Usa un ordenador con buena conexión como DJ. Los jugadores pueden ir con móvil.", en: "Use a computer with a good connection as GM. Players can use phones." }] },
+  { id: "dj-preparar", group: "gm",
+    title: { es: "Preparar la sesión", en: "Prepare the session" },
+    lead: { es: "Todo lo del DJ está a un clic.", en: "Everything for the GM is a click away." },
+    list: { es: [
+      "[[Kits|Kits]]: importa la **Sesión 01** (escenas, mapas, PNJ, documentos, relojes).",
+      "[[Amenazas|Threats]]: 39 oponentes listos; arma un encuentro y créalo.",
+      "[[Tablas|Tables]]: Contrato, Anormalidad, semilla de PNJ, Complicación.",
+      "[[Pantalla|Screen]]: reglas a mano, con buscador.",
+      "[[Diario|Journal]] → **Mis notas**: notas que solo ves tú."
+    ], en: [
+      "[[Kits]]: import **Session 01** (scenes, maps, NPCs, handouts, clocks).",
+      "[[Threats]]: 39 ready opponents; build an encounter and create it.",
+      "[[Tables]]: Contract, Abnormality, NPC seed, Complication.",
+      "[[Screen]]: rules at hand, with search.",
+      "[[Journal]] → **My notes**: notes only you see."
+    ] } },
+  { id: "dj-tirar", group: "gm",
+    title: { es: "Tiradas y turnos", en: "Rolls and turns" },
+    lead: { es: "El DJ dice la Dificultad antes de tirar.", en: "The GM says the Difficulty before rolling." },
+    list: { es: [
+      "[[Historial|Log]]: todas las tiradas, con los dados a la vista.",
+      "[[Tirada secreta|Secret roll]]: solo la ves tú hasta pulsar [[Mostrar a la mesa|Show to the table]].",
+      "[[Intercambio|Exchange]]: orden de turnos, condiciones (Quemadura…) y temporizador.",
+      "[[Deshacer|Undo]] (o Ctrl+Z): vuelve atrás el último cambio. El registro no se borra."
+    ], en: [
+      "[[Log]]: every roll, dice in view.",
+      "[[Secret roll]]: only you see it until you press [[Show to the table]].",
+      "[[Exchange]]: turn order, conditions (Burn…) and timer.",
+      "[[Undo]] (or Ctrl+Z): takes back the last change. The log is kept."
+    ] } },
+  { id: "dj-mapa", group: "gm",
+    title: { es: "El mapa", en: "The map" },
+    lead: { es: "Prepara en privado; enseña cuando quieras.", en: "Prepare in private; show when you want." },
+    steps: { es: [
+      "En [[Mapa|Map]] elige la escena. Verás «Preparando: la mesa no puede ver esto».",
+      "Pon fichas: [[+ Ficha|+ Token]] o [[+ Personajes|+ Characters]].",
+      "Pulsa [[Mostrar a la mesa|Show to the table]]: ahora la ven los jugadores."
+    ], en: [
+      "In [[Map]] pick the scene. You will see “Preparing: the table cannot see this”.",
+      "Place tokens: [[+ Token]] or [[+ Characters]].",
+      "Press [[Show to the table]]: now the players see it."
+    ] },
+    notes: [{ type: "tip", es: "Cada escena tiene su mapa, fichas y niebla. Cambias de escena sin perder nada.", en: "Each scene has its own map, tokens and fog. Switch scenes without losing anything." }] },
+  { id: "dj-niebla", group: "gm",
+    title: { es: "Niebla, muros y dibujos", en: "Fog, walls and drawings" },
+    lead: { es: "Esconde y enseña el mapa a tu ritmo.", en: "Hide and reveal the map at your pace." },
+    list: { es: [
+      "[[Niebla de guerra|Fog of war]]: tapa el mapa. [[Revelar|Reveal]] y [[Ocultar zona|Cover up]] a mano.",
+      "[[Visión automática|Automatic vision]]: las fichas de jugador revelan lo que ven. Dibuja [[Muro|Wall]] y [[Puerta|Door]] (clic en una puerta para abrirla).",
+      "[[Dibujar|Draw]]: líneas. [[Nota|Note]]: chincheta con nota privada. [[Área|Area]]: círculo, cono o línea.",
+      "[[Borrar|Erase]]: quita un dibujo, nota o muro.",
+      "Los jugadores **no ven** los muros ni tus notas privadas."
+    ], en: [
+      "[[Fog of war]]: covers the map. [[Reveal]] and [[Cover up]] by hand.",
+      "[[Automatic vision]]: player tokens reveal what they see. Draw [[Wall]] and [[Door]] (click a door to open it).",
+      "[[Draw]]: lines. [[Note]]: pin with a private note. [[Area]]: circle, cone or line.",
+      "[[Erase]]: removes a drawing, note or wall.",
+      "Players **never see** walls or your private notes."
+    ] },
+    notes: [{ type: "warn", es: "La niebla esconde cosas en pantalla; no es un secreto frente a alguien que mire los datos de la página.", en: "Fog hides things on screen; it is not a secret from someone who inspects the page's data." }] },
+  { id: "dj-docs", group: "gm",
+    title: { es: "Documentos, relojes y diario", en: "Handouts, clocks and journal" },
+    lead: { es: "Lo que la mesa lee y lo que la mesa teme.", en: "What the table reads and what it fears." },
+    list: { es: [
+      "[[Documentos|Handouts]]: crea uno y pulsa [[Mostrar|Show]] (a todos, o solo a jugadores concretos). [[Retirar|Take back]] lo quita.",
+      "[[Relojes|Clocks]]: [[+ Reloj|+ Clock]]; sube y baja segmentos. Elige cuáles ven los jugadores. Al llenarse sale una carta.",
+      "[[Diario|Journal]]: todos escriben; tú puedes fijar entradas y escribir un **Resumen**."
+    ], en: [
+      "[[Handouts]]: create one and press [[Show]] (to everyone, or only some players). [[Take back]] removes it.",
+      "[[Clocks]]: [[+ Clock]]; move segments up and down. Choose which ones players see. A full clock posts a card.",
+      "[[Journal]]: everyone writes; you can pin entries and write a **Recap**."
+    ] } },
+  { id: "dj-despues", group: "gm",
+    title: { es: "Al terminar la sesión", en: "After the session" },
+    lead: { es: "Cierra la sesión y guarda.", en: "Close the session and save." },
+    steps: { es: [
+      "[[Dar Marcas|Award Marks]]: elige el Riesgo del Contrato y a quién.",
+      "[[Tiempo libre para todos|Run downtime for all]] si toca el descanso.",
+      "[[Exportar|Export]]: guarda el archivo de la partida.",
+      "[[Copia|Backup]]: comprueba que hay una copia reciente."
+    ], en: [
+      "[[Award Marks]]: choose the Contract's Risk and who gets them.",
+      "[[Run downtime for all]] if it is downtime.",
+      "[[Export]]: save the game's file.",
+      "[[Backup]]: check that a recent copy exists."
+    ] } },
+
+  { id: "j-entrar", group: "pl",
+    title: { es: "Entrar a una sala", en: "Join a room" },
+    lead: { es: "Con el enlace del DJ, son dos pasos.", en: "With the GM's link it takes two steps." },
+    steps: { es: [
+      "Abre el **enlace** que te dio el DJ. Se abre la ventana de la sala.",
+      "Elige [[Soy jugador: unirme a una sala|I am a player: join a room]], escribe **tu nombre** (y la contraseña si la hay) y pulsa [[Adelante|Go]]."
+    ], en: [
+      "Open the **link** the GM gave you. The room window opens.",
+      "Choose [[I am a player: join a room]], type **your name** (and the password if any) and press [[Go]]."
+    ] },
+    notes: [{ type: "tip", es: "Sin enlace: abre la web, pulsa [[Sala|Room]] y escribe el **código**.", en: "No link: open the site, press [[Room]] and type the **code**." },
+            { type: "tip", es: "Elige a tu personaje **antes** de entrar para que el DJ lo vea ya.", en: "Pick your character **before** joining so the GM sees it at once." }] },
+  { id: "j-personaje", group: "pl",
+    title: { es: "Tu personaje", en: "Your character" },
+    lead: { es: "Tres formas de tener uno.", en: "Three ways to get one." },
+    list: { es: [
+      "**Rápido:** [[Añadir los 4 prefabricados|Add the 4 pregens]] y elige uno.",
+      "**Tuyo:** [[+ Personaje|+ Character]]: un asistente de 9 pasos que sigue el manual. Puedes [[Saltar la guía: ficha en blanco|Skip the guide: blank sheet]].",
+      "**De un archivo:** [[Importar|Import]] un personaje que guardaste con [[Exportar|Export]]."
+    ], en: [
+      "**Quick:** [[Add the 4 pregens]] and pick one.",
+      "**Your own:** [[+ Character]]: a 9-step guide that follows the manual. You can [[Skip the guide: blank sheet]].",
+      "**From a file:** [[Import]] a character you saved with [[Export]]."
+    ] },
+    notes: [{ type: "tip", es: "Lee antes la página «Antes de crear» del manual: te da de dónde venir.", en: "First read the manual's “Before You Build” page: it gives you somewhere to be from." }] },
+  { id: "j-tirar", group: "pl",
+    title: { es: "Tirar los dados", en: "Rolling dice" },
+    lead: { es: "Pulsa el nombre de una Habilidad en tu ficha.", en: "Press a Skill name on your sheet." },
+    steps: { es: [
+      "Pulsa una **Habilidad** (o un Atributo).",
+      "Pon la **Dificultad** que dijo el DJ. Si tiras contra alguien, elige el **Objetivo**.",
+      "Si quieres, añade **Dados de E.G.O.**, **Ayuda** o [[Gastar un Vínculo|Spend a Bond]].",
+      "Pulsa [[Tirar|Roll]]. Todos ven el resultado en [[Historial|Log]]."
+    ], en: [
+      "Press a **Skill** (or an Attribute).",
+      "Set the **Difficulty** the GM named. If rolling against someone, pick the **Target**.",
+      "If you like, add **E.G.O. dice**, **Help** or [[Spend a Bond]].",
+      "Press [[Roll]]. Everyone sees the result in [[Log]]."
+    ] },
+    notes: [{ type: "warn", es: "Cada dado de E.G.O. que salga 1 o 2 trae una **Complicación**.", en: "Each E.G.O. die that shows 1 or 2 brings a **Complication**." }] },
+  { id: "j-ego", group: "pl",
+    title: { es: "E.G.O., Estrés y Último Recurso", en: "E.G.O., Stress and Hail Mary" },
+    lead: { es: "Lo que la Ciudad te cuesta.", en: "What the City costs you." },
+    list: { es: [
+      "**E.G.O.** baja cuando lo gastas. Por debajo de la mitad estás **Inestable**; en 0, **Vacío**.",
+      "[[Invocar|Invoke]] tu **Vicio** (pestaña **El Yo**) devuelve 1 E.G.O., una vez por escena.",
+      "[[Último Recurso|Hail Mary]]: solo cuando tu **Límite** está en juego. El DJ dice el Veredicto; tú respondes con tu Aceptación.",
+      "[[Escena nueva|New scene]]: pulsa al acabar cada escena para reiniciar lo de la escena."
+    ], en: [
+      "**E.G.O.** goes down as you spend it. Below half you are **Unsteady**; at 0, **Empty**.",
+      "[[Invoke]] your **Vice** (**The Self** tab) returns 1 E.G.O., once per scene.",
+      "[[Hail Mary]]: only when your **Boundary** is at stake. The GM speaks the Verdict; you answer with your Acceptance.",
+      "[[New scene]]: press it when a scene ends to reset the scene's effects."
+    ] } },
+  { id: "j-mapa", group: "pl",
+    title: { es: "El mapa", en: "The map" },
+    lead: { es: "Solo ves lo que el DJ te enseña.", en: "You only see what the GM shows." },
+    list: { es: [
+      "**Mueve tu ficha** arrastrándola. No puedes mover las de otros.",
+      "[[Señalar|Ping]]: pulsa un punto y todos lo ven.",
+      "[[Medir|Measure]]: arrastra para medir en casillas.",
+      "Rueda del ratón o **+ / −** para el zoom; arrastra el fondo para moverte.",
+      "La niebla tapa lo que aún no has descubierto."
+    ], en: [
+      "**Move your token** by dragging it. You cannot move others'.",
+      "[[Ping]]: press a spot and everyone sees it.",
+      "[[Measure]]: drag to measure in squares.",
+      "Mouse wheel or **+ / −** to zoom; drag the background to pan.",
+      "Fog covers what you have not found yet."
+    ] } },
+  { id: "j-diario", group: "pl",
+    title: { es: "Diario y documentos", en: "Journal and handouts" },
+    lead: { es: "Lo que la mesa sabe, escrito.", en: "What the table knows, written down." },
+    list: { es: [
+      "[[Documentos|Handouts]]: lo que el DJ te enseña, en tu idioma si lo tiene.",
+      "[[Diario|Journal]] → **Diario del grupo**: pistas y nombres. Todos escriben; solo tú cambias lo tuyo.",
+      "[[Diario|Journal]] → **Mis notas**: privadas, solo en tu navegador."
+    ], en: [
+      "[[Handouts]]: what the GM shows you, in your language if it has one.",
+      "[[Journal]] → **Party journal**: clues and names. Everyone writes; only you edit your own.",
+      "[[Journal]] → **My notes**: private, only in your browser."
+    ] } },
+  { id: "j-crecer", group: "pl",
+    title: { es: "Marcas y Crecimiento", en: "Marks and Growth" },
+    lead: { es: "Tras cada Contrato mejoras.", en: "You improve after each Contract." },
+    steps: { es: [
+      "El DJ te da **Marcas**. Verás un aviso.",
+      "Abre la pestaña **Crecimiento** de tu ficha.",
+      "Pulsa [[Subir|Raise]] en una Habilidad o Atributo (verás el coste)."
+    ], en: [
+      "The GM gives you **Marks**. You will see a notice.",
+      "Open the **Growth** tab on your sheet.",
+      "Press [[Raise]] on a Skill or Attribute (you see the cost)."
+    ] },
+    notes: [{ type: "tip", es: "¿Te equivocaste? [[Deshacer|Undo]] o Ctrl+Z.", en: "Made a mistake? [[Undo]] or Ctrl+Z." }] },
+  { id: "j-movil", group: "pl",
+    title: { es: "Jugar desde el móvil", en: "Playing from a phone" },
+    lead: { es: "Misma app, vista por pestañas.", en: "Same app, tabbed view." },
+    list: { es: [
+      "Abajo: [[Personas|People]] (tus personajes), [[Ficha|Sheet]] (tu hoja), [[Mesa|Table]] (historial, mapa…).",
+      "Usa el móvil en **vertical** para la ficha y en **horizontal** para el mapa.",
+      "No bloquees la pantalla: si se duerme, te desconectas (vuelve solo)."
+    ], en: [
+      "Bottom: [[People]] (your characters), [[Sheet]] (your sheet), [[Table]] (log, map…).",
+      "Hold the phone **upright** for the sheet and **sideways** for the map.",
+      "Do not lock the screen: if it sleeps you disconnect (it comes back by itself)."
+    ] } },
+
+  { id: "f-conectar", group: "fix",
+    title: { es: "No consigo conectar", en: "I cannot connect" },
+    lead: { es: "Casi siempre es la red. Prueba en este orden.", en: "It is almost always the network. Try in this order." },
+    steps: { es: [
+      "Pulsa [[Probar mi conexión|Test my connection]] en la ventana de la sala y lee el resultado.",
+      "Comprueba que el **código** es el mismo (sin espacios) y la **contraseña**.",
+      "Confirma que **el DJ ya abrió** la sala y que su pestaña sigue abierta.",
+      "Prueba **otra red** (datos del móvil) y sin VPN.",
+      "Recarga la página e inténtalo de nuevo."
+    ], en: [
+      "Press [[Test my connection]] in the room window and read the result.",
+      "Check that the **code** is identical (no spaces) and the **password**.",
+      "Confirm the **GM already opened** the room and their tab is still open.",
+      "Try **another network** (phone data) and no VPN.",
+      "Reload the page and try again."
+    ] },
+    notes: [{ type: "tip", es: "Si nada funciona, hay una opción avanzada de **relé** (TURN) en la ventana de la sala.", en: "If nothing works, the room window has an advanced **relay** (TURN) option." }] },
+  { id: "f-corte", group: "fix",
+    title: { es: "Se cortó la conexión", en: "The connection dropped" },
+    lead: { es: "La app reintenta sola durante diez minutos.", en: "The app retries by itself for ten minutes." },
+    list: { es: [
+      "Verás «Reconectando…» en la cabecera. **No hagas nada.**",
+      "Si recargas la página, vuelves a la sala sin escribir el código.",
+      "Si el DJ recargó, vuelve a entrar solo en un minuto.",
+      "Tus fichas **no se pierden**: están en tu navegador."
+    ], en: [
+      "You will see “Reconnecting…” in the header. **Do nothing.**",
+      "If you reload the page, you return to the room without typing the code.",
+      "If the GM reloaded, you rejoin by yourself within a minute.",
+      "Your sheets are **not lost**: they are in your browser."
+    ] } },
+  { id: "f-guardar", group: "fix",
+    title: { es: "Guardado y copias", en: "Saving and backups" },
+    lead: { es: "Todo se guarda en tu navegador. Haz copias.", en: "Everything is saved in your browser. Make copies." },
+    list: { es: [
+      "[[Exportar|Export]]: guarda un archivo con todo. **Hazlo tras cada sesión.**",
+      "[[Importar|Import]]: carga ese archivo en otro aparato o navegador.",
+      "[[Copia|Backup]]: la app guarda copias automáticas y puede escribir un archivo de respaldo.",
+      "Cada personaje se puede exportar por separado desde su ficha."
+    ], en: [
+      "[[Export]]: saves a file with everything. **Do it after every session.**",
+      "[[Import]]: loads that file on another device or browser.",
+      "[[Backup]]: the app keeps automatic copies and can write a backup file.",
+      "Each character can be exported on its own from its sheet."
+    ] },
+    notes: [{ type: "warn", es: "Si borras los datos del sitio o cambias de navegador, **pierdes lo no exportado**.", en: "If you clear the site's data or change browser, you **lose what you did not export**." }] },
+  { id: "f-imprimir", group: "fix",
+    title: { es: "Imprimir y PDF", en: "Printing and PDF" },
+    lead: { es: "Fichas, documentos y reglas en papel.", en: "Sheets, handouts and rules on paper." },
+    steps: { es: [
+      "Pulsa [[Imprimir|Print]] en la cabecera.",
+      "Elige qué: tu ficha, una **ficha en blanco**, documentos, diario, notas, la pantalla de reglas o los relojes.",
+      "En la ventana del navegador elige **Guardar como PDF** (o tu impresora)."
+    ], en: [
+      "Press [[Print]] in the header.",
+      "Choose what: your sheet, a **blank sheet**, handouts, journal, notes, the rules screen or the clocks.",
+      "In the browser window choose **Save as PDF** (or your printer)."
+    ] } },
+
+  { id: "r-botones", group: "ref",
+    title: { es: "Qué hace cada botón", en: "What each button does" },
+    lead: { es: "Los de la cabecera.", en: "The header ones." },
+    table: { head: { es: ["Botón", "Para qué"], en: ["Button", "What for"] }, rows: { es: [
+      ["[[Sonido activado|Sound on]]", "Sonidos de dados y avisos; el deslizador sube y baja el volumen."],
+      ["[[Copia|Backup]]", "Copias automáticas y archivo de respaldo."],
+      ["[[Exportar|Export]] / [[Importar|Import]]", "Guardar y cargar todo en un archivo."],
+      ["[[Sala|Room]]", "Abrir una sala (DJ), entrar (jugador) o ver quién está."],
+      ["[[Deshacer|Undo]]", "Vuelve atrás el último cambio."],
+      ["[[Imprimir|Print]]", "Fichas, documentos y reglas a papel o PDF."],
+      ["[[Kits|Kits]]", "Importa una sesión preparada (DJ)."],
+      ["[[Ayuda|Help]]", "Resumen rápido dentro de la app."],
+      ["ES / EN", "Cambia el idioma de la app."]
+    ], en: [
+      ["[[Sound on]]", "Dice and alert sounds; the slider sets the volume."],
+      ["[[Backup]]", "Automatic copies and a backup file."],
+      ["[[Export]] / [[Import]]", "Save and load everything in a file."],
+      ["[[Room]]", "Open a room (GM), join (player) or see who is in."],
+      ["[[Undo]]", "Takes back the last change."],
+      ["[[Print]]", "Sheets, handouts and rules to paper or PDF."],
+      ["[[Kits]]", "Imports a prepared session (GM)."],
+      ["[[Help]]", "Quick summary inside the app."],
+      ["ES / EN", "Switches the app's language."]
+    ] } } },
+  { id: "r-trucos", group: "ref",
+    title: { es: "Trucos útiles", en: "Handy tricks" },
+    lead: { es: "Pequeñas cosas que ahorran tiempo.", en: "Small things that save time." },
+    list: { es: [
+      "**Ctrl+Z** deshace sin pulsar nada.",
+      "Haz **doble clic** en una ficha del mapa para abrir su hoja.",
+      "Arrastra una ficha para ver los **cuadros que recorre**.",
+      "Las cartas del historial se leen en **el idioma de cada jugador**.",
+      "El DJ puede **copiar una escena** y variarla (por ejemplo, con la puerta abierta).",
+      "Cualquiera puede abrir la guía otra vez desde [[Ayuda|Help]]."
+    ], en: [
+      "**Ctrl+Z** undoes without pressing anything.",
+      "**Double-click** a map token to open its sheet.",
+      "Drag a token to see the **squares it covers**.",
+      "Log cards read in **each player's language**.",
+      "The GM can **copy a scene** and vary it (for example, with the door open).",
+      "Anyone can reopen this guide from [[Help]]."
+    ] } }
+];
+
+/* --------------------------------------------------------------------------------------------------------------- */
+const $ = s => document.querySelector(s);
+let lang = (new URLSearchParams(location.search).get("lang") || localStorage.getItem("guide-lang") || (navigator.language || "es")).slice(0, 2) === "en" ? "en" : "es";
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+/** A button name: [[es|en]] shows the one for the reader's language; [[X]] is the same in both. */
+const md = s => esc(s)
+  .replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (m, a, b) => `<span class="chip">${b ? (lang === "en" ? b : a) : a}</span>`)
+  .replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>");
+const tx = o => (o && typeof o === "object" && !Array.isArray(o) ? (o[lang] ?? o.es) : o);
+const byId = id => PAGES.find(p => p.id === id);
+
+function diagram() {
+  const L = lang === "en"
+    ? { hdr: "Header", left: "Characters", mid: "Sheet", tabs: "Tabs", pane: "Log, Map, Handouts…", btn: "Room · Export…" }
+    : { hdr: "Cabecera", left: "Personajes", mid: "Ficha", tabs: "Pestañas", pane: "Historial, Mapa, Documentos…", btn: "Sala · Exportar…" };
+  return `<svg class="diagram" viewBox="0 0 640 330" role="img" aria-label="${esc(tx({ es: "Esquema de la pantalla", en: "Screen layout" }))}">
+    <rect x="8" y="8" width="624" height="42" rx="6" fill="#1b1d26"/>
+    <text x="22" y="34" style="fill:#e6e9f0">Project Moon: The City</text>
+    <text x="330" y="34" style="fill:#e6e9f0">${esc(L.btn)}</text><text x="590" y="34" style="fill:#c9a227">ES|EN</text>
+    <rect x="8" y="58" width="130" height="264" rx="6" fill="#272a36"/><text x="22" y="86" style="fill:#e6e9f0">${esc(L.left)}</text>
+    <rect x="22" y="100" width="102" height="26" rx="4" fill="#3a3e50"/><rect x="22" y="132" width="102" height="26" rx="4" fill="#3a3e50"/><rect x="22" y="164" width="102" height="26" rx="4" fill="#3a3e50"/>
+    <rect x="146" y="58" width="270" height="264" rx="6" fill="#f4f0e6" stroke="#c9a227" stroke-width="2"/>
+    <text x="164" y="92" style="font-size:20px">${esc(L.mid)}</text>
+    <rect x="164" y="108" width="234" height="14" rx="3" fill="#d8d1bf"/><rect x="164" y="132" width="234" height="14" rx="3" fill="#d8d1bf"/><rect x="164" y="156" width="150" height="14" rx="3" fill="#d8d1bf"/>
+    <rect x="424" y="58" width="208" height="264" rx="6" fill="#20222a"/>
+    <rect x="424" y="58" width="208" height="30" rx="6" fill="#33364a"/><text x="436" y="78" style="fill:#e6e9f0">${esc(L.tabs)}</text>
+    <text x="436" y="116" style="fill:#e6e9f0">${esc(L.pane)}</text>
+    <rect x="436" y="132" width="184" height="42" rx="4" fill="#33364a"/><rect x="436" y="182" width="184" height="42" rx="4" fill="#33364a"/><rect x="436" y="232" width="184" height="42" rx="4" fill="#33364a"/>
+  </svg>`;
+}
+
+function pageHtml(p, i) {
+  const out = [`<p class="crumb">${esc(tx(GROUPS[p.group]))}</p><h2 class="title">${esc(tx(p.title))}</h2>`];
+  if (p.lead) out.push(`<p class="lead">${md(tx(p.lead))}</p>`);
+  if (p.url) out.push(`<a class="url" href="${APP}" target="_blank" rel="noopener">${APP}</a>`);
+  if (p.diagram) out.push(diagram());
+  if (p.cards) out.push(`<div class="cards">${p.cards.map(c => `<a class="card" href="#/${c.to}"><b>${esc(tx(c.t))}</b><span>${esc(tx(c.d))}</span></a>`).join("")}</div>`);
+  if (p.steps) out.push(`<ol class="steps">${tx(p.steps).map(s => `<li>${md(s)}</li>`).join("")}</ol>`);
+  if (p.list) out.push(`<ul class="list">${tx(p.list).map(s => `<li>${md(s)}</li>`).join("")}</ul>`);
+  if (p.table) out.push(`<table><thead><tr>${tx(p.table.head).map(h => `<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>${tx(p.table.rows).map(r => `<tr>${r.map(c => `<td>${md(c)}</td>`).join("")}</tr>`).join("")}</tbody></table>`);
+  for (const n of p.notes ?? []) out.push(`<div class="note ${n.type === "warn" ? "warn" : ""}"><b class="tag">${esc(UI[lang][n.type === "warn" ? "warn" : "tip"])}</b>${md(tx(n))}</div>`);
+  const prev = PAGES[i - 1], next = PAGES[i + 1];
+  out.push(`<div class="pager">${prev ? `<a class="prev" href="#/${prev.id}"><small>${esc(UI[lang].prev)}</small>${esc(tx(prev.title))}</a>` : "<span></span>"}${next ? `<a class="next" href="#/${next.id}"><small>${esc(UI[lang].next)}</small>${esc(tx(next.title))}</a>` : ""}</div>`);
+  return out.join("");
+}
+
+function navHtml(current) {
+  let last = "", html = "";
+  for (const p of PAGES) {
+    if (p.group !== last) { html += `<h2>${esc(tx(GROUPS[p.group]))}</h2>`; last = p.group; }
+    html += `<a href="#/${p.id}" ${p.id === current ? 'aria-current="page"' : ""}>${esc(tx(p.title))}</a>`;
+  }
+  return html;
+}
+
+function render() {
+  const id = (location.hash.match(/^#\/([\w-]+)/) || [])[1] || "inicio";
+  const i = Math.max(0, PAGES.findIndex(p => p.id === id)), p = PAGES[i];
+  document.documentElement.lang = lang;
+  document.title = `${tx(p.title)} · ${UI[lang].brand}`;
+  $("#brand").textContent = UI[lang].brand;
+  $("#lang").textContent = UI[lang].lang;
+  $("#menu").textContent = UI[lang].menu;
+  $("#nav").innerHTML = navHtml(p.id);
+  $("#main").innerHTML = pageHtml(p, i);
+  $("#nav").classList.remove("open"); $("#menu").setAttribute("aria-expanded", "false");
+  window.scrollTo(0, 0); $("#main").focus({ preventScroll: true });
+}
+window.addEventListener("hashchange", render);
+$("#lang").addEventListener("click", () => { lang = lang === "es" ? "en" : "es"; try { localStorage.setItem("guide-lang", lang); } catch { /* private window */ } render(); });
+$("#menu").addEventListener("click", () => { const open = $("#nav").classList.toggle("open"); $("#menu").setAttribute("aria-expanded", String(open)); });
+render();
+</script>
+</body>
+</html>
