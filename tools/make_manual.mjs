@@ -32,7 +32,7 @@ files.set("manual/index.json", JSON.stringify(index, null, 1) + "\n");
 let stale = 0;
 for (const [rel, text] of files) {
   const full = path.join(web, rel);
-  const same = fs.existsSync(full) && fs.readFileSync(full, "utf8") === text;
+  const same = fs.existsSync(full) && fs.readFileSync(full, "utf8").replace(/\r\n/g, "\n") === text;
   if (same) continue;
   stale++;
   if (!check) { fs.mkdirSync(path.dirname(full), { recursive: true }); fs.writeFileSync(full, text); }
