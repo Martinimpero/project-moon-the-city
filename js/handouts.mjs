@@ -13,14 +13,22 @@ const clip = (v, n) => String(v ?? "").slice(0, n);
  * Players read the one in their own language when there is one, and can flip to the other.
  */
 export function newHandout({ title = "", text = "", img = "", lang = "en", alt = null } = {}) {
-  return { id: uid(), title: clip(title, 80), text: clip(text, MAX_TEXT), img, lang: LANGS.includes(lang) ? lang : "en", alt: { title: clip(alt?.title, 80), text: clip(alt?.text, MAX_TEXT) }, shown: false };
+  return { id: uid(), title: clip(title, 80), text: clip(text, MAX_TEXT), img, lang: LANGS.includes(lang) ? lang : "en", alt: { title: clip(alt?.title, 80), text: clip(alt?.text, MAX_TEXT) }, shown: false, to: [] };
 }
 /** Fill in anything an older save lacks. */
 export function normalizeHandout(h) {
   h.lang = LANGS.includes(h.lang) ? h.lang : "en";
   h.alt = { title: clip(h.alt?.title, 80), text: clip(h.alt?.text, MAX_TEXT) };
+  h.to = Array.isArray(h.to) ? [...new Set(h.to.map(n => String(n).trim().toLowerCase()).filter(Boolean))].slice(0, 20) : [];
   return h;
 }
+/**
+ * Who a shown handout is for. `to` is a list of player names (lower case): empty means the whole table, otherwise only those players.
+ * Names, not connections, so a player who reloads or reconnects still gets (and keeps) what was shown to them.
+ */
+export const isPrivate = h => Array.isArray(h.to) && h.to.length > 0;
+export const visibleTo = (h, name) => !!h.shown && (!isPrivate(h) || h.to.includes(String(name ?? "").trim().toLowerCase()));
+export const sharedWith = (h, names) => (isPrivate(h) ? names.filter(n => h.to.includes(n.toLowerCase())) : [...names]);
 export const hasAlt = h => !!(h.alt && (h.alt.title.trim() || h.alt.text.trim()));
 /** The other language than `lang`. */
 export const otherLang = lang => (lang === "es" ? "en" : "es");
@@ -39,6 +47,8 @@ export function versionIn(h, lang) {
 /** What goes to players: no `shown` flag, nothing else of the GM's. */
 export const forPlayers = h => ({ id: h.id, title: h.title, text: h.text, img: h.img, lang: h.lang, alt: h.alt });
 export const shownList = list => list.filter(h => h.shown).map(forPlayers);
+/** What a particular player has been shown (a handout meant for someone else is not in it). */
+export const shownListFor = (list, name) => list.filter(h => visibleTo(h, name)).map(forPlayers);
 
 /**
  * A starter the GM can fill in: the paperwork of a Contract (Part V: Client, Risk, payment, Report), with the field names

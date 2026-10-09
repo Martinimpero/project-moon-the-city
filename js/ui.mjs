@@ -125,12 +125,28 @@ const board = () => (isGM()
 const sfx = createSfx();
 const clock = new TimerClock();
 const received = [];            // handouts the GM has shown this player (memory only)
+const handoutUI_names = h => { const names = room?.role === "host" ? [...room.peers.values()].map(p => p.name) : []; return h.to.map(n => names.find(x => x.toLowerCase() === n) ?? n).join(", "); };
 const handoutUI = createHandoutUI({
   state, lang: () => state.lang, $: sel => document.querySelector(sel), room: () => room, isGM, received: () => received,
-  changed: (h, gone) => {
+  players: () => (room?.role === "host" ? [...room.peers.values()].map(p => p.name) : []),
+  nameList: h => { const names = room?.role === "host" ? [...room.peers.values()].map(p => p.name) : []; const known = h.to.map(n => names.find(x => x.toLowerCase() === n) ?? n); return known.join(", "); },
+  /** The players who have this handout right now. */
+  audience: h => (room?.role === "host" && h.shown ? H.sharedWith(h, [...room.peers.values()].map(p => p.name)) : []),
+  changed: (h, gone, { before = [], announce = false } = {}) => {
     persist(); renderBoard();
-    if (room?.role === "host") { if (gone || !h.shown) room.sendUnhandout(h.id); else room.sendHandout(H.forPlayers(h)); }
-    if (h.shown && !gone) post(H.announceHtml(h, tIn, esc));
+    if (room?.role === "host") {
+      const now = gone || !h.shown ? [] : H.sharedWith(h, [...room.peers.values()].map(p => p.name));
+      const removed = before.filter(n => !now.some(m => m.toLowerCase() === n.toLowerCase()));
+      if (gone || !h.shown) room.sendUnhandout(h.id);                                   // taken back: everyone forgets it
+      else {
+        if (removed.length) room.sendUnhandout(h.id, removed);                          // no longer meant for them
+        if (!H.isPrivate(h)) room.sendHandout(H.forPlayers(h)); else if (now.length) room.sendHandout(H.forPlayers(h), now);
+      }
+    }
+    if (announce && h.shown && !gone) {
+      if (!H.isPrivate(h)) post(H.announceHtml(h, tIn, esc));
+      else post(bi(() => `<div class="pm-card pm-handout"><div class="pm-card-head">${esc(t("Shown privately"))}</div><div class="pm-notes"><p><b>${esc(h.title)}</b> &rarr; ${esc(handoutUI_names(h))}</p></div></div>`), { priv: true });   // only the GM sees this line
+    }
   },
   ask: o => ask(o), toast: m => toast(m)
 });
@@ -230,7 +246,7 @@ const handlers = {
     const allowed = types.filter(k => k === "sinking" || (k === "poise" && own));
     if (allowed.length && C.clearForActor(state.tracker, actorId, allowed)) { persist(); renderBoard(); room.sendBoard(); }
   },
-  hostHandouts: () => H.shownList(state.handouts),
+  hostHandouts: name => H.shownListFor(state.handouts, name),
   onHandout: h => {
     H.normalizeHandout(h);
     const i = received.findIndex(x => x.id === h.id);

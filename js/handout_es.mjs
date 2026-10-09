@@ -26,5 +26,13 @@ export const HANDOUT_ES = {
   "This version is in": "Esta versión está en",
   "Optional. Players who read the other language see this version.": "Opcional. Los jugadores que leen el otro idioma ven esta versión.",
   "Version in {lang} (optional)": "Versión en {lang} (opcional)",
-  "Swap the two versions": "Intercambiar las dos versiones"
+  "Swap the two versions": "Intercambiar las dos versiones",
+  "Shown only to {names}": "Mostrado solo a {names}",
+  "Show it to some players only": "Mostrarlo solo a algunos jugadores",
+  "Show to...": "Mostrar a...",
+  "Nobody else is in the room yet.": "Todavía no hay nadie más en la sala.",
+  "Who sees {title}?": "¿Quién ve {title}?",
+  "Only the players you tick receive it and see it. Nobody else is told it exists.": "Solo los jugadores que marques lo reciben y lo ven. A nadie más se le avisa de que existe.",
+  "Tick at least one player, or use Show for everyone.": "Marca al menos a un jugador, o usa Mostrar para todos.",
+  "Shown privately": "Mostrado en privado"
 };

@@ -218,7 +218,7 @@ export class Room {
       conn.send({ k: "history", entries: this.history.slice(-40) });
       this.broadcastTable(); this.h.onStatus?.();
       this.sendBoard(pid);
-      for (const h of this.h.hostHandouts?.() ?? []) { try { conn.send({ k: "handout", h }); } catch { /* closed */ } }
+      for (const h of this.h.hostHandouts?.(name) ?? []) { try { conn.send({ k: "handout", h }); } catch { /* closed */ } }
     } else if (!this.peers.has(pid)) {
       return;                       // ignore anything before hello
     } else if (msg.k === "sheets") {
@@ -348,8 +348,15 @@ export class Room {
     return false;
   }
   /** Host: show a handout to the table, or take it back. */
-  sendHandout(h) { if (this.role === "host" && this.online) this._sendAll({ k: "handout", h }); }
-  sendUnhandout(id) { if (this.role === "host" && this.online) this._sendAll({ k: "unhandout", id }); }
+  sendHandout(h, names = []) { this._sendTo({ k: "handout", h }, names); }
+  sendUnhandout(id, names = []) { this._sendTo({ k: "unhandout", id }, names); }
+  /** Send to everyone, or (with names) only to the players with those names. */
+  _sendTo(msg, names) {
+    if (this.role !== "host" || !this.online) return;
+    if (!names.length) return this._sendAll(msg);
+    const want = new Set(names.map(n => n.toLowerCase()));
+    for (const [, p] of this.peers) if (want.has(p.name.toLowerCase())) { try { p.conn.send(msg); } catch { /* closed */ } }
+  }
   /** Player: tell the host a roll used up these conditions (Sinking, Poise) on an actor. */
   sendCond(actorId, types) { if (this.online && this.role === "player") this.hostConn?.send({ k: "cond", actorId, types }); }
   /** Player: ask the host to move a token. */

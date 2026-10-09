@@ -119,3 +119,47 @@ test("the 'GM shows a handout' card carries both languages so each reader sees t
   assert.match(solo, /<b>Note &lt;b&gt;<\/b>/);                                                // one language: just the title, escaped
   assert.equal(soundForHtml(html).kind, "handout");
 });
+
+/* ---- private handouts ---- */
+test("a handout shown to named players is visible to them only, by name and not by connection", () => {
+  const h = Object.assign(H.newHandout({ title: "Secret" }), { shown: true, to: ["Ana", " ben ", "ANA"] });
+  H.normalizeHandout(h);
+  assert.deepEqual(h.to, ["ana", "ben"]);                                   // trimmed, lower case, no repeats
+  assert.equal(H.isPrivate(h), true);
+  assert.equal(H.visibleTo(h, "Ana"), true); assert.equal(H.visibleTo(h, "BEN"), true); assert.equal(H.visibleTo(h, "Cy"), false);
+  assert.equal(H.visibleTo({ ...h, shown: false }, "Ana"), false);
+  assert.deepEqual(H.sharedWith(h, ["Ana", "Cy", "Ben"]), ["Ana", "Ben"]);
+  const open = Object.assign(H.newHandout({ title: "Open" }), { shown: true });
+  assert.equal(H.isPrivate(open), false); assert.equal(H.visibleTo(open, "Anyone"), true);
+  assert.deepEqual(H.sharedWith(open, ["Ana", "Cy"]), ["Ana", "Cy"]);
+  assert.deepEqual(H.shownListFor([h, open], "Cy").map(x => x.title), ["Open"]);
+  assert.deepEqual(H.shownListFor([h, open], "Ana").map(x => x.title), ["Secret", "Open"]);
+  assert.equal("to" in H.forPlayers(h), false);                              // players never learn who else was shown it
+});
+
+test("older saves have no audience (everyone), and a private handout survives saving", () => {
+  S.state.actors = []; S.state.handouts = [{ id: "z", title: "Old", text: "", img: "", shown: true }];
+  const text = JSON.stringify(S.exportData()); S.state.handouts = []; S.importData(text);
+  assert.deepEqual(S.state.handouts[0].to, []);
+  S.state.handouts = [Object.assign(H.newHandout({ title: "P" }), { shown: true, to: ["ana"] })];
+  const t2 = JSON.stringify(S.exportData()); S.state.handouts = []; S.importData(t2);
+  assert.deepEqual(S.state.handouts[0].to, ["ana"]);
+});
+
+test("room: a private handout goes to the named players only, on the spot and when they reconnect", async () => {
+  const Peer = hub();
+  const handouts = [Object.assign(H.newHandout({ title: "For Ana" }), { id: "p1", shown: true, to: ["ana"] }), Object.assign(H.newHandout({ title: "For all" }), { id: "p2", shown: true })];
+  const gm = new Room({ Peer, handlers: { onLog() {}, hostHandouts: name => H.shownListFor(handouts, name) } });
+  const got = { ana: [], ben: [] };
+  const mk = who => new Room({ Peer, handlers: { onLog() {}, onHandout: h => got[who].push(h.id), onUnhandout: id => got[who].push("-" + id) } });
+  const ana = mk("ana"), ben = mk("ben");
+  await gm.host("PRV01", "GM"); await ana.join("PRV01", "Ana"); await ben.join("PRV01", "Ben");
+  await tick();
+  assert.deepEqual(got.ana.sort(), ["p1", "p2"]); assert.deepEqual(got.ben, ["p2"]);     // on joining, each gets only theirs
+  gm.sendHandout({ id: "p3", title: "Just Ben" }, ["Ben"]); await tick();
+  assert.deepEqual(got.ben.at(-1), "p3"); assert.equal(got.ana.includes("p3"), false);
+  gm.sendUnhandout("p1", ["Ana"]); await tick();
+  assert.equal(got.ana.at(-1), "-p1"); assert.equal(got.ben.includes("-p1"), false);       // taking it back from one player does not tell the others
+  gm.sendHandout({ id: "p4", title: "Nobody home" }, ["Zed"]); await tick();
+  assert.equal(got.ana.includes("p4") || got.ben.includes("p4"), false);                   // a name nobody has: nobody gets it
+});

@@ -13,9 +13,9 @@ export function createHandoutUI(ctx) {
     if (ctx.isGM()) {
       const rows = ctx.state.handouts.map(h => `<li class="ho ${h.shown ? "shown" : ""}">
         ${h.img ? `<img src="${esc(h.img)}" alt="">` : `<span class="ph">&#9783;</span>`}
-        <span class="who"><b>${esc(H.pick(h, ctx.lang()).title || t("Untitled"))}</b><small>${esc(H.hasAlt(h) ? "EN \u00B7 ES  " : H.LANG_NAME[h.lang].slice(0, 2).toUpperCase() + "  ")}${esc(h.shown ? (ctx.room()?.online ? t("Shown to the table") : t("Marked as shown")) : t("Hidden"))}</small></span>
+        <span class="who"><b>${esc(H.pick(h, ctx.lang()).title || t("Untitled"))}</b><small>${esc(H.hasAlt(h) ? "EN \u00B7 ES  " : H.LANG_NAME[h.lang].slice(0, 2).toUpperCase() + "  ")}${esc(h.shown ? (H.isPrivate(h) ? t("Shown only to {names}", { names: ctx.nameList(h) }) : (ctx.room()?.online ? t("Shown to the table") : t("Marked as shown"))) : t("Hidden"))}</small></span>
         <span class="btns"><button type="button" data-action="hoView" data-id="${h.id}">${esc(t("View"))}</button>
-        <button type="button" data-action="hoShow" data-id="${h.id}" class="${h.shown ? "on" : ""}">${esc(h.shown ? t("Take back") : t("Show"))}</button>
+        <button type="button" data-action="hoShow" data-id="${h.id}" class="${h.shown ? "on" : ""}">${esc(h.shown ? t("Take back") : t("Show"))}</button>${ctx.room()?.role === "host" ? `<button type="button" data-action="hoShowTo" data-id="${h.id}" title="${esc(t("Show it to some players only"))}">${esc(t("Show to..."))}</button>` : ""}
         <button type="button" data-action="hoEdit" data-id="${h.id}">${esc(t("Edit"))}</button><button type="button" data-action="hoDelete" data-id="${h.id}">&times;</button></span></li>`).join("");
       return `<div class="m-bar"><button type="button" data-action="hoNew">+ ${esc(t("Handout"))}</button><button type="button" data-action="hoContract">+ ${esc(t("Contract"))}</button></div>
         ${rows ? `<ul class="ho-list">${rows}</ul>` : `<p class="hint pad">${esc(t("No handouts yet. Add a note, a contract or a picture, then Show it to the table."))}</p>`}`;
@@ -104,9 +104,26 @@ export function createHandoutUI(ctx) {
     },
     hoShow: el => {
       const h = ctx.state.handouts.find(x => x.id === el.dataset.id); if (!h) return;
-      h.shown = !h.shown;
-      ctx.changed(h, !h.shown);
+      const before = ctx.audience(h);
+      h.shown = !h.shown; if (h.shown) h.to = [];                 // "Show" is for everyone; "Show to..." is for some
+      ctx.changed(h, !h.shown, { before, announce: h.shown });
       if (h.shown && !ctx.room()?.online) view(h);              // alone, showing it just opens it
+    },
+    /** Choose which players see it. Players already shown it who are not chosen have it taken back. */
+    hoShowTo: async el => {
+      const h = ctx.state.handouts.find(x => x.id === el.dataset.id); if (!h) return;
+      const names = ctx.players();
+      if (!names.length) return ctx.toast(t("Nobody else is in the room yet."));
+      const before = ctx.audience(h);
+      const chosen = await ctx.ask({
+        title: t("Who sees {title}?", { title: h.title || t("Untitled") }), ok: t("Show"), wide: true,
+        body: `<div class="checks">${names.map(n => `<label class="chk"><input type="checkbox" name="p_${esc(n)}" ${h.shown && H.visibleTo(h, n) && H.isPrivate(h) ? "checked" : ""}> ${esc(n)}</label>`).join("")}</div><p class="pm-note">${esc(t("Only the players you tick receive it and see it. Nobody else is told it exists."))}</p>`,
+        read: f => names.filter(n => f.elements[`p_${n}`]?.checked)
+      });
+      if (!chosen) return;
+      if (!chosen.length) return ctx.toast(t("Tick at least one player, or use Show for everyone."));
+      h.shown = true; h.to = chosen.map(n => n.toLowerCase());
+      ctx.changed(h, false, { before, announce: true });
     },
     hoView: el => view(find(el.dataset.id))
   };
