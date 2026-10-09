@@ -132,13 +132,17 @@ With **Fog of war** on, the GM can tick **Automatic vision**: every player token
 
 Limits to know: a square counts as seen when a straight line from the token to its middle crosses no wall (so a view that grazes the end of a wall is blocked, and a square can occasionally be revealed or hidden "wrongly" at a corner); there is no darkness or light sources. Like the rest of the fog, this hides things on screen; it is not a secret from a player who looks at the page's data.
 
+## Area templates (GM)
+
+**Area** (on the map's drawing toolbar) lays a **circle**, **cone** or **line** on the map: pick the shape, press where it starts (it snaps to the middle of a square) and drag; a dashed preview shows its size in squares. When you let go the area stays on the map and a message says **who is inside** (every token whose middle is in the shape, hidden ones too). A circle's size is its radius; a cone is as wide at its end as it is long and points where you dragged; a line has a length and a width (set Width, in squares). Areas use the same colour and "Players see drawings and areas" box as drawings, are erased with **Erase** or **Clear drawings**, are saved with the map and can be undone. The manual has no area rules (combat is abstract), so this is only a table aid for measuring who is in the way.
+
 ## Not built yet
 Accounts, cloud save, per-player vision, dynamic lighting.
 
 ## Files
 - `index.html`, `css/style.css`: the page and look (same design as the rulebook).
 - `js/rules.mjs`: the pure rules (bands, E.G.O., Sins, Fit, Drift, Hail Mary, upkeep). `js/engine.mjs`: rolls, techniques, downtime. `js/model.mjs`, `js/store.mjs`: data and saving. `js/ui.mjs`: the interface. `js/room.mjs`: the shared-room protocol. `js/board.mjs`, `js/boardui.mjs`, `js/maplist.mjs`: the Exchange tracker and map. `js/handouts.mjs`, `js/handoutui.mjs`: handouts. `js/timer.mjs`: the turn timer. `js/net.mjs`, `js/backup.mjs`, `js/safety.mjs`: connection checks and data safety. `js/creation.mjs`, `js/wizard.mjs`: the character builder. `js/scenes.mjs`: scenes. `js/journal.mjs`, `js/journalui.mjs`: the journal. `js/conditions.mjs`: conditions. `js/sfx.mjs`: sounds. `js/es.mjs`, `js/ui_es.mjs`, `js/room_es.mjs`: Spanish.
-- `tests/`: `node --test tests/*.test.mjs` (needs Node 20+; 241 tests).
+- `tests/`: `node --test tests/*.test.mjs` (needs Node 20+; 247 tests).
 
 ## If you change the rules
 Edit `js/rules.mjs` (and the tests), then the text in `js/config.mjs`, `js/engine.mjs` and Spanish in `js/es.mjs`. Any new English text passed to `t("...")` must get a Spanish entry, or `tests/i18n.test.mjs` fails.

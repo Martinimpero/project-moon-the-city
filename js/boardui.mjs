@@ -15,7 +15,8 @@ export function createBoardUI(ctx) {
   let view = null;               // {x, y, w, h}: the visible part of the map, in image pixels (local to this browser)
   let viewKey = "";
   let sel = "";                  // selected token id
-  let tool = "";                 // "" (pan), "measure", "ping", "reveal", "cover", "draw", "pin", "erase", "wall" or "door"
+  let tool = "";                 // "" (pan), "measure", "ping", "reveal", "cover", "draw", "pin", "erase", "wall", "door" or "area"
+  let areaShape = "circle", areaWidth = 1;               // the area template being laid: its shape, and a line's width in squares
   let markColor = B.MARK_COLORS[0], markShown = true;   // the colour of the next drawing, and whether players see it
   let look = false;              // a ping also centres everyone's view
   let lastSent = 0;
@@ -222,9 +223,11 @@ export function createBoardUI(ctx) {
     const pingOnly = `<button type="button" data-action="toolSet" data-tool="ping" class="${tool === "ping" ? "on" : ""}" title="${esc(t("Click the map to point everyone to a spot"))}">${esc(t("Ping"))}</button>`;
     const markBar = gm && map ? `<div class="m-bar markbar"><button type="button" data-action="toolSet" data-tool="draw" class="${tool === "draw" ? "on" : ""}" title="${esc(t("Drag on the map to draw"))}">${esc(t("Draw"))}</button>
       <button type="button" data-action="toolSet" data-tool="pin" class="${tool === "pin" ? "on" : ""}" title="${esc(t("Click the map to leave a note"))}">${esc(t("Note"))}</button>
+      <button type="button" data-action="toolSet" data-tool="area" class="${tool === "area" ? "on" : ""}" title="${esc(t("Drag from a point to lay a circle, cone or line, and see who is inside"))}">${esc(t("Area"))}</button>
+      ${tool === "area" ? `<select id="m-ashape" title="${esc(t("Shape"))}">${B.AREA_SHAPES.map(s => `<option value="${s}" ${s === areaShape ? "selected" : ""}>${esc(({ circle: t("Circle"), cone: t("Cone"), line: t("Line") })[s])}</option>`).join("")}</select>${areaShape === "line" ? `<label class="chk">${esc(t("Width"))} <input type="number" id="m-awidth" value="${areaWidth}" min="1" max="10"></label>` : ""}` : ""}
       <button type="button" data-action="toolSet" data-tool="erase" class="${tool === "erase" ? "on" : ""}" title="${esc(t("Click a drawing or a note to remove it"))}">${esc(t("Erase"))}</button>
       <span class="swatches">${B.MARK_COLORS.map(c => `<button type="button" class="sw ${c === markColor ? "on" : ""}" data-action="markColor" data-c="${c}" style="background:${c}" aria-label="${c}"></button>`).join("")}</span>
-      <label class="chk" title="${esc(t("Drawings are seen by the players when this is ticked"))}"><input type="checkbox" id="m-mshown" ${markShown ? "checked" : ""}> ${esc(t("Players see drawings"))}</label>
+      <label class="chk" title="${esc(t("Drawings are seen by the players when this is ticked"))}"><input type="checkbox" id="m-mshown" ${markShown ? "checked" : ""}> ${esc(t("Players see drawings and areas"))}</label>
       <button type="button" data-action="marksClear">${esc(t("Clear drawings"))}</button></div>` : "";
     const bars = gm ? sceneBar() + bar + markBar + fogBar : (map ? `<div class="m-bar">${measureBtn}${pingOnly}</div>` : "");
     if (!map) return `${gm ? sceneBar() + bar : ""}<p class="hint pad">${esc(gm ? t("Pick a map for this scene.") : t("The GM has not shown a map."))}</p>`;
@@ -262,6 +265,11 @@ export function createBoardUI(ctx) {
   function marksSvg(map, gm, r) {
     return (gm ? B.marksOf(map) : (map.marks ?? [])).map(m => {
       const fade = gm && !m.shown ? ' opacity=".5" stroke-dasharray="14 10"' : "";
+      if (m.kind === "area") {
+        const c = map.cell > 0 ? map.cell : 70, col = esc(m.color), attrs = `class="mk ar" data-id="${esc(m.id)}" fill="${col}" fill-opacity=".28" stroke="${col}" stroke-width="5"${fade}`;
+        if (m.shape === "circle") return `<circle ${attrs} cx="${m.x}" cy="${m.y}" r="${m.size * c}"/>`;
+        return `<polygon ${attrs} points="${B.areaPolygon(m, c).map(p => p.map(v => Math.round(v * 10) / 10).join(",")).join(" ")}"/>`;
+      }
       if (m.kind === "stroke") return `<polyline class="mk st" data-id="${esc(m.id)}" points="${m.pts.map(p => p.join(",")).join(" ")}" fill="none" stroke="${esc(m.color)}" stroke-width="${m.width}" stroke-linecap="round" stroke-linejoin="round"${fade}/>`;
       const label = m.label ? `<text class="lbl" y="${r * 0.95 + 20}" font-size="24" text-anchor="middle">${esc(m.label)}</text>` : "";
       return `<g class="mk pn" data-id="${esc(m.id)}" transform="translate(${m.x} ${m.y})"><title>${esc(m.label)}</title><path d="M0 ${-r * 0.1} L${r * 0.55} ${-r * 0.9} A${r * 0.55} ${r * 0.55} 0 1 0 ${-r * 0.55} ${-r * 0.9} Z" fill="${esc(m.color)}" stroke="#000" stroke-width="3"${gm && !m.shown ? ' opacity=".6"' : ""}/><circle cy="${-r * 0.9}" r="${r * 0.2}" fill="#fff" stroke="#000" stroke-width="2"/>${gm && m.note ? `<text y="${-r * 0.9 + 9}" font-size="26" text-anchor="middle">&#9998;</text>` : ""}${label}</g>`;
@@ -354,6 +362,13 @@ export function createBoardUI(ctx) {
         return;
       }
       if (ctx.isGM() && tool === "pin") { const p = svgPoint(svg, e); e.preventDefault(); newPin(map, p); return; }
+      if (ctx.isGM() && tool === "area") {
+        const p = svgPoint(svg, e), c = map.cell > 0 ? map.cell : 70, o = map.snap ? { x: (Math.floor(p.x / c) + 0.5) * c, y: (Math.floor(p.y / c) + 0.5) * c } : { x: p.x, y: p.y };
+        const g = document.createElementNS("http://www.w3.org/2000/svg", "g"); g.setAttribute("pointer-events", "none"); svg.appendChild(g);
+        drag = { kind: "area", o, g, last: null };
+        updateAreaPreview(map, drag, p);
+        svg.setPointerCapture(e.pointerId); svg.dataset.drag = "1"; e.preventDefault(); return;
+      }
       if (ctx.isGM() && tool === "draw") {
         const p = svgPoint(svg, e);
         const el = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
@@ -394,6 +409,7 @@ export function createBoardUI(ctx) {
         svg.setAttribute("viewBox", `${view.x} ${view.y} ${view.w} ${view.h}`);
         return;
       }
+      if (drag.kind === "area") { updateAreaPreview(map, drag, svgPoint(svg, e)); return; }
       if (drag.kind === "wall") { const p = svgPoint(svg, e); drag.el.setAttribute("x2", drag.s(p.x)); drag.el.setAttribute("y2", drag.s(p.y)); return; }
       if (drag.kind === "stroke") { const p = svgPoint(svg, e), l = drag.pts[drag.pts.length - 1]; if (Math.hypot(p.x - l[0], p.y - l[1]) > 4) { drag.pts.push([p.x, p.y]); drag.el.setAttribute("points", drag.pts.map(q => q.join(",")).join(" ")); } return; }
       if (drag.kind === "measure") { const p = svgPoint(svg, e); showRuler(svg, drag, p); return; }
@@ -415,7 +431,16 @@ export function createBoardUI(ctx) {
     const end = e => {
       if (!drag) return;
       const d = drag; drag = null; delete svg.dataset.drag;
-      if (d.kind === "wall") {
+      if (d.kind === "area") {
+        d.g.remove();
+        if (!d.last) { ctx.redrawMap(); return; }
+        ctx.mark?.("Area");
+        const a = B.addArea(map, { shape: areaShape, x: d.o.x, y: d.o.y, angle: d.last.angle, size: d.last.size, width: areaWidth, color: markColor, shown: markShown });
+        if (!a) { ctx.toast(t("That is the most marks this map holds.")); ctx.redrawMap(); return; }
+        const inside = B.tokensInArea(map, a).map(x => x.name);
+        ctx.changed();
+        ctx.toast(inside.length ? t("Inside: {names}", { names: inside.join(", ") }) : t("Nobody is inside."));
+      } else if (d.kind === "wall") {
         const x2 = Number(d.el.getAttribute("x2")), y2 = Number(d.el.getAttribute("y2")); d.el.remove();
         if (Math.hypot(x2 - d.from.x, y2 - d.from.y) < 8) { ctx.redrawMap(); return; }
         ctx.mark?.("Wall added");
@@ -465,6 +490,16 @@ export function createBoardUI(ctx) {
     if (old && fresh) old.replaceWith(fresh); else if (old) old.remove(); else if (fresh) svg.querySelector(".tk")?.before(fresh) ?? svg.appendChild(fresh);
   }
 
+  /** While dragging with the Area tool: draw the shape as it would be laid, with its size in squares. */
+  function updateAreaPreview(map, d, p) {
+    const c = map.cell > 0 ? map.cell : 70, dr = B.areaFromDrag(map, d.o.x, d.o.y, p.x, p.y);
+    if (Math.hypot(p.x - d.o.x, p.y - d.o.y) < c * 0.4) { d.last = null; d.g.innerHTML = ""; return; }
+    d.last = dr;
+    const a = { shape: areaShape, x: d.o.x, y: d.o.y, angle: dr.angle, size: dr.size, width: areaWidth };
+    const attrs = `fill="${esc(markColor)}" fill-opacity=".28" stroke="${esc(markColor)}" stroke-width="5" stroke-dasharray="12 8"`;
+    const shape = areaShape === "circle" ? `<circle cx="${a.x}" cy="${a.y}" r="${a.size * c}" ${attrs}/>` : `<polygon points="${B.areaPolygon(a, c).map(q => q.join(",")).join(" ")}" ${attrs}/>`;
+    d.g.innerHTML = `${shape}<text x="${p.x}" y="${p.y - 18}" font-size="28" font-weight="800" text-anchor="middle" fill="#fff" stroke="#000" stroke-width="6" paint-order="stroke">${a.size} ${esc(a.size === 1 ? t("square") : t("squares"))}</text>`;
+  }
   const pinForm = p => `<div class="pm-row"><label>${esc(t("Label"))}</label><input type="text" name="label" maxlength="${B.MAX_LABEL}" value="${esc(p?.label ?? "")}" placeholder="${esc(t("the fire barrel"))}"></div>
     <div class="pm-row"><label class="full">${esc(t("Private note (only you see it)"))}</label><textarea name="note" rows="4" maxlength="${B.MAX_NOTE}">${esc(p?.note ?? "")}</textarea></div>
     <div class="pm-row"><label>${esc(t("Colour"))}</label><select name="color">${B.MARK_COLORS.map(c => `<option value="${c}" ${c === (p?.color ?? markColor) ? "selected" : ""} style="background:${c}">${c}</option>`).join("")}</select>
@@ -605,6 +640,8 @@ export function createBoardUI(ctx) {
       sel = ""; view = null; ctx.changed();
     } else if (el.id === "m-grid") { ctx.board().map.grid = el.checked; ctx.changed(); }
     else if (el.id === "m-mshown") { markShown = el.checked; return; }
+    else if (el.id === "m-ashape") { areaShape = el.value; ctx.redrawMap(); return; }
+    else if (el.id === "m-awidth") { areaWidth = Math.max(1, Math.min(10, Math.round(Number(el.value)) || 1)); return; }
     else if (el.id === "m-fog") { const m = ctx.board().map; if (!m.fog) m.fog = B.newFog(m); m.fog.on = el.checked; if (!el.checked && (tool === "reveal" || tool === "cover" || tool === "wall" || tool === "door")) tool = ""; B.updateVision(m); ctx.changed(); }
     else if (el.id === "m-dyn") { const m = ctx.board().map, d = B.dynOf(m); ctx.mark?.("Vision setting"); d.on = el.checked; B.updateVision(m); ctx.changed(); }
     else if (el.id === "m-vrad") { const m = ctx.board().map, d = B.dynOf(m); d.radius = Math.max(1, Math.min(B.MAX_VISION, Number(el.value) || 8)); B.updateVision(m); ctx.changed(); }

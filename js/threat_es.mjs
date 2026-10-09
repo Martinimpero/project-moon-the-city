@@ -186,5 +186,15 @@ export const THREAT_ES = {
   "Wall added": "Muro añadido",
   "Wall removed": "Muro quitado",
   "Walls cleared": "Muros borrados",
-  "Vision setting": "Ajuste de visión"
+  "Vision setting": "Ajuste de visión",
+  "Drag from a point to lay a circle, cone or line, and see who is inside": "Arrastra desde un punto para colocar un círculo, un cono o una línea, y ver quién queda dentro",
+  "Area": "Área",
+  "Shape": "Forma",
+  "Circle": "Círculo",
+  "Cone": "Cono",
+  "Line": "Línea",
+  "Width": "Anchura",
+  "Players see drawings and areas": "Los jugadores ven los dibujos y las áreas",
+  "Inside: {names}": "Dentro: {names}",
+  "Nobody is inside.": "No hay nadie dentro."
 };

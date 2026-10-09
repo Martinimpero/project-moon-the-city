@@ -169,6 +169,8 @@ export function centreView(view, map, x, y) {
 
 /* ---- map marks: pins with a private note, and freehand drawings ---- */
 export const MAX_MARKS = 150, MAX_STROKE_POINTS = 300, MAX_LABEL = 40, MAX_NOTE = 400;
+export const AREA_SHAPES = ["circle", "cone", "line"], MAX_AREA = 40;
+const normAngle = a => ((a % 360) + 360) % 360;
 export const MARK_COLORS = ["#ff5c5c", "#ffb347", "#ffe066", "#6bd98f", "#5cc8ff", "#9b8cff", "#ffffff", "#111111"];
 const clipStr = (v, n) => String(v ?? "").slice(0, n);
 const num = v => (Number.isFinite(Number(v)) ? Number(v) : 0);
@@ -179,6 +181,7 @@ export function cleanMarks(list) {
   for (const m of Array.isArray(list) ? list : []) {
     if (!m || typeof m !== "object" || !m.id) continue;
     if (m.kind === "pin") out.push({ id: String(m.id), kind: "pin", x: num(m.x), y: num(m.y), label: clipStr(m.label, MAX_LABEL), note: clipStr(m.note, MAX_NOTE), color: colour(m.color), shown: !!m.shown });
+    else if (m.kind === "area" && AREA_SHAPES.includes(m.shape)) out.push({ id: String(m.id), kind: "area", shape: m.shape, x: num(m.x), y: num(m.y), angle: normAngle(num(m.angle)), size: Math.max(1, Math.min(MAX_AREA, Math.round(num(m.size)) || 1)), width: Math.max(1, Math.min(10, Math.round(num(m.width)) || 1)), color: colour(m.color), shown: !!m.shown });
     else if (m.kind === "stroke" && Array.isArray(m.pts) && m.pts.length >= 2) {
       const pts = m.pts.slice(0, MAX_STROKE_POINTS).map(p => [num(p?.[0]), num(p?.[1])]);
       out.push({ id: String(m.id), kind: "stroke", pts, color: colour(m.color), width: Math.max(2, Math.min(40, num(m.width) || 6)), shown: !!m.shown });
@@ -228,7 +231,7 @@ export function removeMark(map, id) { const marks = marksOf(map), i = marks.find
 export function clearMarks(map, { pins = false } = {}) { const marks = marksOf(map), keep = pins ? [] : marks.filter(m => m.kind === "pin"); const n = marks.length - keep.length; map.marks = keep; cleanLists.add(keep); return n; }
 /** What a player may see: drawings and pins the GM has shown; a pin loses its private note, and under fog only a pin in a revealed square is sent. */
 export function marksForPlayers(map) {
-  return marksOf(map).filter(m => m.shown && (m.kind === "stroke" || !map.fog?.on || isRevealed(map, m.x, m.y)))
+  return marksOf(map).filter(m => m.shown && (m.kind !== "pin" || !map.fog?.on || isRevealed(map, m.x, m.y)))
     .map(m => (m.kind === "pin" ? { ...m, note: "" } : m));
 }
 
@@ -328,3 +331,49 @@ export function updateVision(map) {
   return f.bits !== before;
 }
 function autoVision(map) { if (map.fog?.on && map.fog.dyn?.on) updateVision(map); }
+
+/* ---- area templates: a circle, a cone or a line laid on the map, to see who is in the way ---- */
+const CONE_HALF = Math.atan(0.5);                      // a cone is as wide at its end as it is long
+/**
+ * Lay an area on the map. `size` is the radius (circle) or the length (cone, line) in squares; `width` is a line's width in squares;
+ * `angle` is the direction in degrees (0 = east, turning clockwise on screen).
+ */
+export function addArea(map, { shape = "circle", x, y, angle = 0, size = 1, width = 1, color, shown = true }) {
+  if (!AREA_SHAPES.includes(shape)) return null;
+  const marks = marksOf(map); if (marks.length >= MAX_MARKS) return null;
+  const a = { id: uid(), kind: "area", shape, x: Math.max(0, Math.min(map.w, num(x))), y: Math.max(0, Math.min(map.h, num(y))), angle: normAngle(num(angle)), size: Math.max(1, Math.min(MAX_AREA, Math.round(num(size)) || 1)), width: Math.max(1, Math.min(10, Math.round(num(width)) || 1)), color: colour(color), shown: !!shown };
+  marks.push(a); return a;
+}
+/** The outline of a cone or a line as points in image pixels (a circle has none: it is drawn from its centre and radius). */
+export function areaPolygon(a, cell) {
+  const rad = a.angle * Math.PI / 180, L = a.size * cell;
+  if (a.shape === "cone") {
+    const pts = [[a.x, a.y]];
+    for (let i = 0; i <= 10; i++) { const t = rad - CONE_HALF + (2 * CONE_HALF * i) / 10; pts.push([a.x + Math.cos(t) * L, a.y + Math.sin(t) * L]); }
+    return pts;
+  }
+  if (a.shape === "line") {
+    const hw = (a.width * cell) / 2, nx = -Math.sin(rad) * hw, ny = Math.cos(rad) * hw, ex = a.x + Math.cos(rad) * L, ey = a.y + Math.sin(rad) * L;
+    return [[a.x + nx, a.y + ny], [ex + nx, ey + ny], [ex - nx, ey - ny], [a.x - nx, a.y - ny]];
+  }
+  return null;
+}
+/** Is a point inside the area? */
+export function inArea(a, cell, px, py) {
+  const dx = px - a.x, dy = py - a.y, L = a.size * cell;
+  if (a.shape === "circle") return Math.hypot(dx, dy) <= L;
+  const rad = a.angle * Math.PI / 180, along = dx * Math.cos(rad) + dy * Math.sin(rad), across = -dx * Math.sin(rad) + dy * Math.cos(rad);
+  if (along < 0 || along > L) return false;
+  if (a.shape === "line") return Math.abs(across) <= (a.width * cell) / 2;
+  return Math.abs(Math.atan2(across, along)) <= CONE_HALF + 1e-9;              // cone
+}
+/** The tokens whose centre is inside the area (hidden ones too: this is for the GM). */
+export function tokensInArea(map, a) {
+  const c = map.cell > 0 ? map.cell : 70;
+  return map.tokens.filter(t => inArea(a, c, t.x, t.y));
+}
+/** Direction (degrees) and length in squares from a start point to an end point, for drawing an area by dragging. */
+export function areaFromDrag(map, x1, y1, x2, y2) {
+  const c = map.cell > 0 ? map.cell : 70, dx = x2 - x1, dy = y2 - y1;
+  return { angle: normAngle(Math.atan2(dy, dx) * 180 / Math.PI), size: Math.max(1, Math.min(MAX_AREA, Math.round(Math.hypot(dx, dy) / c))) };
+}
