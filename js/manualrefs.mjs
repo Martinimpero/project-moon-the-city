@@ -28,7 +28,8 @@ export const REFS = {
   bonds: "p5#1", crew: "p5#7", heat: "p5#5", clocks: "p2#4",
   sins: "p10#1", resonance: "p10#2", wheel: "p10#3", fit: "p10#4", drift: "p10#6",
   grade: "p9#1", unlocks: "p9#2", threat: "p9#4", growth: "p9#7",
-  glossary: "apx#11", conditions: "p10#7", contracts: "p5#4", offices: "p7#5", occupation: "p3#5", riding: "p10#4"
+  glossary: "apx#11", conditions: "p10#7", contracts: "p5#4", offices: "p7#5", occupation: "p3#5", riding: "p10#4",
+  scRoll: "apx#2", scEgo: "apx#3", scClocks: "apx#4", scThreat: "apx#5", scTemplates: "apx#6", scSins: "apx#7", scGear: "apx#8"
 };
 
 /** Which "?" a card in the log gets, from its classes: a roll card reads as "Reading the Result", the Hail Mary and the Voice have their own sections. null: no link. */

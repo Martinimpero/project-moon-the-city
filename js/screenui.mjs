@@ -2,6 +2,10 @@
 import { SECTIONS, search, cellParts } from "./screen.mjs";
 import { t } from "./i18n.mjs";
 import { esc } from "./engine.mjs";
+import { refButton, REFS } from "./manualrefs.mjs";
+
+/** Each section of the Screen is one of the manual's quick-reference appendices. */
+const REF_OF = { roll: "scRoll", ego: "scEgo", clocks: "scClocks", threat: "scThreat", templates: "scTemplates", sins: "scSins", gear: "scGear" };
 
 /** ctx: { $ } */
 export function createScreenUI(ctx) {
@@ -18,7 +22,7 @@ export function createScreenUI(ctx) {
     if (!found.length) return `<p class="hint pad">${esc(t("Nothing matches."))}</p>`;
     return found.map(s => {
       const open = q.trim() || !closed.has(s.id);
-      return `<section class="sc ${open ? "open" : ""}"><button type="button" class="sc-head" data-action="scToggle" data-id="${s.id}" aria-expanded="${open}"><h3>${esc(t(s.title))}</h3></button>${open ? `<div class="sc-body">${s.shown.map(b => (b.p ? `<p>${para(b.p)}</p>` : table(b))).join("")}</div>` : ""}</section>`;
+      return `<section class="sc ${open ? "open" : ""}"><button type="button" class="sc-head" data-action="scToggle" data-id="${s.id}" aria-expanded="${open}"><h3>${esc(t(s.title))}</h3></button>${REF_OF[s.id] && REFS[REF_OF[s.id]] ? refButton(REF_OF[s.id], t("Open this in the manual")) : ""}${open ? `<div class="sc-body">${s.shown.map(b => (b.p ? `<p>${para(b.p)}</p>` : table(b))).join("")}</div>` : ""}</section>`;
     }).join("");
   }
   function render() {

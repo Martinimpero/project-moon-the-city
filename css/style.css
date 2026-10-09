@@ -731,3 +731,6 @@ dialog.wizard { width: min(720px, 98vw); }
 @media print { #manual { display: none !important; } }
 #log .man-ref, #pane-xchg .man-ref { width: 17px; height: 17px; padding: 0; margin-left: 6px; font: 800 11px var(--pm-ui); letter-spacing: 0; border-radius: 50%; border: 1px solid #8d94a8; background: transparent; color: #8d94a8; }
 #log .man-ref:hover, #pane-xchg .man-ref:hover { border-color: var(--pm-gold); color: #fff; background: transparent; }
+.sc { position: relative; }
+.sc-head { padding-right: 36px; }
+.sc > .man-ref { position: absolute; top: 6px; right: 8px; margin: 0; }

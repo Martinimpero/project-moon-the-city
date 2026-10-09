@@ -80,3 +80,14 @@ test("the extra '?' (conditions, contracts, offices...) point at the right secti
   assert.match(title(R.REFS.occupation), /Occupation/); assert.match(title(R.REFS.riding), /Riding/); assert.match(title(R.REFS.clocks), /Clocks/);
   const b = R.refButton("conditions", 'a "b" <c>'); assert.match(b, /data-ref="p10#7"/); assert.doesNotMatch(b, /<c>/); assert.match(b, /&quot;b&quot;/);
 });
+
+test("each section of the Screen links to the appendix it summarises", async () => {
+  const { SECTIONS } = await import("../js/screen.mjs");
+  const want = { roll: /Core Roll/, ego: /E\.G\.O\./, clocks: /Clocks/, threat: /Threat/, templates: /Templates/, sins: /Sins/, gear: /Resources/ };
+  const key = { roll: "scRoll", ego: "scEgo", clocks: "scClocks", threat: "scThreat", templates: "scTemplates", sins: "scSins", gear: "scGear" };
+  assert.deepEqual(SECTIONS.map(s => s.id).sort(), Object.keys(want).sort());
+  for (const s of SECTIONS) {
+    const r = R.parseRef(R.REFS[key[s.id]], index), title = index.parts.find(p => p.id === r.part).en.sections[r.sec - 1];
+    assert.equal(r.part, "apx"); assert.match(title, want[s.id], s.id);
+  }
+});
