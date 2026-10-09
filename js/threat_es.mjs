@@ -38,5 +38,11 @@ export const THREAT_ES = {
   "Create": "Crear",
   "{n} Threat sheets created.": "{n} fichas de Amenaza creadas.",
   "That is the most templates this app keeps.": "Es el máximo de plantillas que guarda la app.",
-  "{name} saved to your library.": "{name} guardada en tu biblioteca."
+  "{name} saved to your library.": "{name} guardada en tu biblioteca.",
+  "Tables": "Tablas",
+  "Roll this part again": "Repetir esta parte",
+  "Roll": "Tirar",
+  "Roll again": "Tirar de nuevo",
+  "Keep as a note": "Guardar como nota",
+  "Saved to your notes.": "Guardado en tus notas."
 };

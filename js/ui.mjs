@@ -23,6 +23,7 @@ import { createHandoutUI } from "./handoutui.mjs";
 import * as J from "./journal.mjs";
 import { createJournalUI } from "./journalui.mjs";
 import { createThreatUI } from "./threatui.mjs";
+import { createTablesUI } from "./tablesui.mjs";
 import { TOKENS } from "./maplist.mjs";
 import { createSfx } from "./sfx.mjs";
 import { TimerClock, timerOf, fmt as fmtTime } from "./timer.mjs";
@@ -205,6 +206,12 @@ const boardUI = createBoardUI({
   addToExchange: id => addToExchange(id),
   post: html => post(html), ask: o => ask(o), toast: m => toast(m)
 });
+const tablesUI = createTablesUI({
+  $: sel => document.querySelector(sel), lang: () => state.lang,
+  post: build => post(bi(build)),
+  addNote: (title, text) => { J.addNote(state.notes, { title, text }); persist(); },
+  toast: m => toast(m)
+});
 const threatUI = createThreatUI({
   state, $: sel => document.querySelector(sel), lang: () => state.lang, hasMap: () => !!board().map,
   changed: () => { persist(); renderBoard(); },
@@ -367,16 +374,17 @@ export function render() {
 }
 
 function renderBoard() {
-  if (rtab === "thr" && !isGM()) rtab = "log";
-  const tabs = [["log", t("Log")], ["xchg", t("Exchange")], ["map", t("Map")], ["ho", t("Handouts")], ["jr", t("Journal")], ...(isGM() ? [["thr", t("Threats")]] : [])];
+  if ((rtab === "thr" || rtab === "tb") && !isGM()) rtab = "log";
+  const tabs = [["log", t("Log")], ["xchg", t("Exchange")], ["map", t("Map")], ["ho", t("Handouts")], ["jr", t("Journal")], ...(isGM() ? [["thr", t("Threats")], ["tb", t("Tables")]] : [])];
   $("#rtabs").innerHTML = tabs.map(([k, l]) => `<button type="button" data-action="rtab" data-tab="${k}" class="${rtab === k ? "active" : ""}">${esc(l)}</button>`).join("");
-  for (const [k, id] of [["log", "pane-log"], ["xchg", "pane-xchg"], ["map", "pane-map"], ["ho", "pane-ho"], ["jr", "pane-jr"], ["thr", "pane-thr"]]) $("#" + id).hidden = rtab !== k;
+  for (const [k, id] of [["log", "pane-log"], ["xchg", "pane-xchg"], ["map", "pane-map"], ["ho", "pane-ho"], ["jr", "pane-jr"], ["thr", "pane-thr"], ["tb", "pane-tb"]]) $("#" + id).hidden = rtab !== k;
   $("#b-clearlog").hidden = rtab !== "log";
   if (rtab === "xchg") boardUI.renderTracker();
   if (rtab === "map") boardUI.renderMap();
   if (rtab === "ho") handoutUI.render();
   if (rtab === "jr") journalUI.render();
   if (rtab === "thr") threatUI.render();
+  if (rtab === "tb") tablesUI.render();
 }
 
 function renderChrome() {
@@ -832,9 +840,9 @@ async function doDowntime(actors, crew) {
 
 /* ------------------------------------------------------------------ click actions */
 
-const READONLY_OK = new Set(["backups", "export", "exportCharacter", "allowBackupFile", "stopRetry", "applyHurt", "rtab", "sound", "timerGo", ...Object.keys(boardUI.actions), ...Object.keys(handoutUI.actions), ...Object.keys(journalUI.actions), ...Object.keys(threatUI.actions), "view", "select", "selectRemote", "tab", "newCharacter", "newNpc", "newCrew", "pregens", "lang", "export", "import", "help", "room", "clearLog", "downtimeAll", "newSceneAll"]);
+const READONLY_OK = new Set(["backups", "export", "exportCharacter", "allowBackupFile", "stopRetry", "applyHurt", "rtab", "sound", "timerGo", ...Object.keys(boardUI.actions), ...Object.keys(handoutUI.actions), ...Object.keys(journalUI.actions), ...Object.keys(threatUI.actions), ...Object.keys(tablesUI.actions), "view", "select", "selectRemote", "tab", "newCharacter", "newNpc", "newCrew", "pregens", "lang", "export", "import", "help", "room", "clearLog", "downtimeAll", "newSceneAll"]);
 const actions = {
-  ...threatUI.actions,
+  ...threatUI.actions, ...tablesUI.actions,
   stopRetry: () => { room?.leave(); room = null; saveSession(); render(); },
   applyHurt: async el => {
     if (!isGM()) return;

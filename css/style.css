@@ -517,3 +517,17 @@ dialog.wizard { width: min(720px, 98vw); }
 .thr-more { padding: 4px 6px 8px; font-size: 13px; }
 .thr-more p, .thr-more ul { margin: 4px 0; }
 .thr-more ul { padding-left: 18px; }
+
+/* ---- Random tables ---- */
+#pane-tb { color: #e6e9f0; overflow-y: auto; padding: 8px; display: flex; flex-direction: column; gap: 8px; }
+.tb { background: #1c1e26; border: 1px solid #343744; border-radius: 3px; padding: 6px 10px; }
+.tb-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.tb h3 { margin: 4px 0; font: 700 12px var(--pm-head); letter-spacing: .14em; text-transform: uppercase; }
+.tb button { cursor: pointer; border: 1px solid #3a3d4a; background: #22242e; color: #cfd6e6; border-radius: 2px; padding: 4px 10px; }
+.tb button.primary { background: #4664dc; border-color: #4664dc; color: #fff; font-weight: 700; }
+.tb-res { list-style: none; margin: 6px 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.tb-res li { display: flex; gap: 8px; align-items: baseline; }
+.tb-k { flex: 0 0 8.5em; color: #9aa; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+.tb-v { flex: 1; }
+.tb-res button { padding: 1px 6px; }
+.tb-acts { display: flex; gap: 8px; }
