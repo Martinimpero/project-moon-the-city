@@ -741,3 +741,97 @@ dialog.wizard { width: min(720px, 98vw); }
 .wizard .man-ref { vertical-align: middle; }
 .side-foot .man-ref, #stage .man-ref { width: 17px; height: 17px; padding: 0; border-radius: 50%; font: 800 11px var(--pm-ui); letter-spacing: 0; background: transparent; }
 #stage .man-ref { border: 1px solid #8d94a8; color: #8d94a8; margin-left: 6px; }
+
+/* ================= the City panel ================= */
+#manual, #city { position: fixed; top: 61px; right: 0; bottom: 0; width: min(560px, 100vw); z-index: 40; display: flex; flex-direction: column; background: var(--pm-paper); color: var(--pm-ink); border-left: 4px solid var(--pm-gold); box-shadow: -8px 0 28px rgba(0,0,0,.5); font-family: var(--pm-ui); }
+#city[hidden] { display: none; }
+@media (max-width: 820px) { #city { top: 0; width: 100vw; border-left: none; } }
+@media print { #city { display: none !important; } }
+.man-head span.man-home { font: 800 12px var(--pm-head); letter-spacing: .16em; text-transform: uppercase; color: var(--pm-gold); padding: 6px 10px; border: 1px solid var(--pm-gold); }
+.city-card { border: 1px solid var(--pm-rule); border-left: 4px solid var(--pm-gold); background: var(--pm-paper2); padding: 8px 12px; margin-bottom: 12px; }
+.city-card h2 { margin: 0 0 2px; font: 800 18px var(--pm-head); letter-spacing: .06em; text-transform: uppercase; }
+.city-card h2 small { font: 600 12px var(--pm-ui); letter-spacing: 0; color: var(--pm-mute); text-transform: none; margin-left: 6px; }
+.city-card p { margin: 6px 0; }
+.city-card .city-meta { color: var(--pm-mute); font-size: 13px; }
+.city-card button { font: 12.5px var(--pm-ui); padding: 4px 9px; border: 1px solid var(--pm-rule); background: var(--pm-paper); color: var(--pm-ink); cursor: pointer; }
+.city-card button:hover { border-color: var(--pm-gold); }
+.city-map { display: grid; grid-template-columns: 1fr 1.2fr 1fr; grid-template-areas: ". n ." "w c e" ". s ." "x x x"; gap: 8px; }
+.city-n { grid-area: n; } .city-w { grid-area: w; } .city-c { grid-area: c; } .city-e { grid-area: e; } .city-s { grid-area: s; } .city-x { grid-area: x; }
+.city-zone { border: 1px solid var(--pm-rule); background: var(--pm-paper); padding: 4px 6px 8px; height: 100%; box-sizing: border-box; }
+.city-c .city-zone { border-color: var(--pm-gold); background: var(--pm-paper2); }
+.city-zone h3 { margin: 2px 0 6px; font: 700 11px var(--pm-head); letter-spacing: .16em; text-transform: uppercase; color: var(--pm-mute); }
+.city-tiles { display: flex; flex-wrap: wrap; gap: 4px; }
+.city-tile { width: 42px; height: 46px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid var(--pm-rule); background: var(--pm-paper2); color: var(--pm-ink); cursor: pointer; padding: 0; }
+.city-tile b { font: 800 19px var(--pm-head); line-height: 1; }
+.city-tile small { font: 10px var(--pm-ui); color: var(--pm-mute); }
+.city-tile:hover { border-color: var(--pm-gold); }
+.city-tile.on { background: var(--pm-dark); border-color: var(--pm-gold); color: var(--pm-gold); }
+.city-tile.on small { color: #cfd6e6; }
+.city-tile.fallen { border-style: dashed; border-color: var(--pm-red); }
+.city-tile.unknown { border-style: dotted; }
+.city-tile.dim { opacity: .25; }
+@media (max-width: 480px) { .city-map { grid-template-columns: 1fr 1fr; grid-template-areas: "c c" "n n" "w e" "s s" "x x"; } }
+
+/* ================= the Moon look (default; the header's Look button switches back to the classic paper one) =================
+   Dark panels, sodium-lamp gold, red for danger, cut corners and wide capitals: nearer the games' own interface than the rulebook's paper. */
+html:not([data-skin="classic"]) {
+  --pm-ink: #ece7d8; --pm-paper: #14151a; --pm-paper2: #1c1e25; --pm-rule: #363a4d; --pm-mute: #a09a8a;
+  --pm-red: #e0495a; --pm-gold: #f2b632; --pm-gold-d: #b9830f; --pm-blue: #7a98e0; --pm-dark: #07080b; --pm-ok: #4fbf7f; --pm-warn: #e39a45;
+  color-scheme: dark;
+}
+html:not([data-skin="classic"]) body { background: #0b0c10 repeating-linear-gradient(0deg, rgba(255,255,255,.018) 0 1px, transparent 1px 3px); }
+html:not([data-skin="classic"]) #top { background: #060709; border-bottom: 2px solid var(--pm-gold); box-shadow: 0 2px 18px rgba(242,182,50,.25); }
+html:not([data-skin="classic"]) #top h1 { letter-spacing: .22em; color: #f4efe0; }
+html:not([data-skin="classic"]) #top h1::before { content: ""; display: inline-block; width: .5em; height: .5em; margin-right: .5em; background: var(--pm-gold); transform: rotate(45deg); }
+html:not([data-skin="classic"]) #top p { color: #8d8a7e; }
+html:not([data-skin="classic"]) #side, html:not([data-skin="classic"]) #log { background: #0f1015; }
+html:not([data-skin="classic"]) #side { border-right: 1px solid #262936; }
+html:not([data-skin="classic"]) #log { border-left: 1px solid #262936; }
+html:not([data-skin="classic"]) .log-head { background: #08090c; border-bottom: 1px solid #262936; }
+html:not([data-skin="classic"]) #stage { background: #0b0c10; }
+/* cut corners on the controls */
+html:not([data-skin="classic"]) .top-actions button, html:not([data-skin="classic"]) .side-actions button, html:not([data-skin="classic"]) .side-foot button, html:not([data-skin="classic"]) .log-head button,
+html:not([data-skin="classic"]) #main button:not(.man-ref):not(.pm-portrait), html:not([data-skin="classic"]) .pm-modal button {
+  clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px); border-radius: 0;
+}
+html:not([data-skin="classic"]) .top-actions button, html:not([data-skin="classic"]) .side-actions button, html:not([data-skin="classic"]) .side-foot button, html:not([data-skin="classic"]) .log-head button { background: #14161d; border-color: #2e3242; color: #d8d3c4; }
+html:not([data-skin="classic"]) .top-actions button:hover, html:not([data-skin="classic"]) .side-actions button:hover, html:not([data-skin="classic"]) .side-foot button:hover, html:not([data-skin="classic"]) .log-head button:hover { background: #20232e; border-color: var(--pm-gold); color: var(--pm-gold); }
+html:not([data-skin="classic"]) #rtabs button.active { color: var(--pm-gold); border-bottom-color: var(--pm-gold); }
+/* the sheet window */
+html:not([data-skin="classic"]) #main.win { border-color: var(--pm-gold); box-shadow: 0 10px 40px rgba(0,0,0,.7), 0 0 0 1px #000; }
+html:not([data-skin="classic"]) #main .pm-head { background: #0b0c10; }
+html:not([data-skin="classic"]) #main .pm-name { color: #f4efe0; }
+html:not([data-skin="classic"]) #main button { background: #1c1e25; color: var(--pm-ink); border-color: var(--pm-rule); }
+html:not([data-skin="classic"]) #main button:hover { border-color: var(--pm-gold); color: var(--pm-gold); background: #232632; }
+html:not([data-skin="classic"]) #main .pm-tabs button.active { color: var(--pm-gold); border-bottom-color: var(--pm-gold); background: transparent; }
+html:not([data-skin="classic"]) #main h3 { color: var(--pm-gold); }
+html:not([data-skin="classic"]) #main input, html:not([data-skin="classic"]) #main select, html:not([data-skin="classic"]) #main textarea,
+html:not([data-skin="classic"]) .pm-modal input[type=text], html:not([data-skin="classic"]) .pm-modal input[type=number], html:not([data-skin="classic"]) .pm-modal select, html:not([data-skin="classic"]) .pm-modal textarea,
+html:not([data-skin="classic"]) .wz-field input, html:not([data-skin="classic"]) .wz-field textarea, html:not([data-skin="classic"]) .wz-field select, html:not([data-skin="classic"]) .man-head .man-q {
+  background: #0d0e13; color: var(--pm-ink); border-color: var(--pm-rule); color-scheme: dark;
+}
+html:not([data-skin="classic"]) #main .pm-grid2 textarea, html:not([data-skin="classic"]) #main .pm-notes-area, html:not([data-skin="classic"]) #main .pm-attr, html:not([data-skin="classic"]) #main .pm-clockcard,
+html:not([data-skin="classic"]) details.altlang, html:not([data-skin="classic"]) .wz-skills label { background: rgba(255,255,255,.04); }
+html:not([data-skin="classic"]) #main .pm-attr { border-color: var(--pm-rule); }
+html:not([data-skin="classic"]) .pm-die { background: #1c1e25; }
+html:not([data-skin="classic"]) .pm-die.one { background: #3a1519; }
+html:not([data-skin="classic"]) .pm-verdict, html:not([data-skin="classic"]) .pm-voicecard.loud { background: #2a1519; }
+html:not([data-skin="classic"]) dialog.pm-modal { border-color: var(--pm-gold); }
+html:not([data-skin="classic"]) .man-text blockquote, html:not([data-skin="classic"]) .city-card { background: #1c1e25; }
+html:not([data-skin="classic"]) .city-tile.on small { color: #14151a; }
+html:not([data-skin="classic"]) .city-tile.on { background: var(--pm-gold); color: #14151a; }
+html:not([data-skin="classic"]) .man-ref { border-color: var(--pm-mute); }
+html:not([data-skin="classic"]) ::selection { background: var(--pm-gold); color: #000; }
+html:not([data-skin="classic"]) * { scrollbar-color: #3a3d4f #0f1015; }
+@media print { html:not([data-skin="classic"]) body { background: #fff; } }
+
+.city-svg { width: 100%; height: auto; display: block; background: #07080b; border: 1px solid var(--pm-rule); }
+.city-cell path { fill: rgba(120, 22, 32, .55); stroke: #c2394a; stroke-width: 2; cursor: pointer; transition: fill .15s; }
+.city-cell:hover path, .city-cell:focus path { fill: rgba(170, 36, 50, .75); outline: none; }
+.city-cell text { text-anchor: middle; fill: #f1b8bd; pointer-events: none; font-family: var(--pm-head); }
+.city-cell .l { font-size: 48px; font-weight: 700; } .city-cell .n { font-size: 17px; letter-spacing: .04em; text-transform: uppercase; fill: #d98a92; }
+.city-cell.fallen path { stroke-dasharray: 8 6; }
+.city-cell.on path { fill: rgba(242, 182, 50, .85); stroke: #fff2c4; stroke-width: 3; }
+.city-cell.on text { fill: #14151a; }
+.city-cell.dim { opacity: .3; }
+.city-z { margin: 10px 0 4px; color: var(--pm-mute); font-size: 13px; display: flex; align-items: center; gap: 8px; }

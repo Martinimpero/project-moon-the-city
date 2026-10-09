@@ -160,6 +160,14 @@ The text is the manual's own Markdown, copied into `manual/en/` and `manual/es/`
 
 The right-hand tabs (Log, Exchange, Handouts, Journal, Clocks, Screen, Threats, Tables) now wrap onto more rows when the panel is narrow, instead of running off the edge.
 
+## The City map (always one button away)
+
+**City** in the header opens a map of the City, A to Z: the 25 mapped Districts in their spiral out from A (District 1), plus Z (District 26, which no map shows). It is drawn by the app from each District's position (`js/cityplan.mjs`), not copied from the games' artwork. Press a District to read its Wing: name, what is known (in our own words, English and Spanish), whether it has fallen or is unknown, and a button to the manual's Wings section (or the Head, Eye and Claw for A, B and C). The search box dims the Wings that do not match. The facts come from the community-maintained Limbus Company wiki and may change; what the games leave open (E, O, Y and others are barely described) stays open on purpose, because each table's City is meant to differ (Part VII). The data is in `js/city.mjs`.
+
+## The Moon look
+
+The app now has a dark look (near-black panels, sodium-lamp gold, red for danger, cut corners) instead of the rulebook's cream paper. The **Look** button in the header switches back to the classic paper look; the choice is remembered on that device. Printing is not affected.
+
 ## Table guide
 
 `guia/index.html` is a short, navigable guide in Spanish and English (29 one-screen pages): opening the app, opening a room as GM, joining as a player, rolling, the map, saving, fixing connection problems. It is a single file that works on GitHub Pages and offline; the app's Help window links to it. `tests/guide.test.mjs` checks that every button name in the guide is the name the app really shows, in both languages.

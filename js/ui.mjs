@@ -26,6 +26,7 @@ import { createThreatUI } from "./threatui.mjs";
 import { createTablesUI } from "./tablesui.mjs";
 import { createClocksUI } from "./clocksui.mjs";
 import { createManualUI } from "./manualui.mjs";
+import { createCityUI } from "./cityui.mjs";
 import { REFS as MAN_REFS, cardRef } from "./manualrefs.mjs";
 import { createScreenUI } from "./screenui.mjs";
 import * as CK from "./clocks.mjs";
@@ -229,6 +230,7 @@ const clocksUI = createClocksUI({
   ask: o => ask(o), toast: m => toast(m)
 });
 const manualUI = createManualUI({ lang: () => state.lang });
+const cityUI = createCityUI({ lang: () => state.lang, closeManual: () => manualUI.close() });
 /** A small "?" that opens the manual at the section about this. */
 const ref = k => `<button type="button" class="man-ref" data-action="manual" data-ref="${MAN_REFS[k]}" title="${esc(t("Open this in the manual"))}" aria-label="${esc(t("Open this in the manual"))}">?</button>`;
 const tablesUI = createTablesUI({
@@ -615,7 +617,7 @@ export function render() {
   renderMain();
   renderLog();
   renderBoard();
-  manualUI.refresh();
+  manualUI.refresh(); cityUI.refresh();
 }
 
 function renderBoard() {
@@ -643,7 +645,7 @@ function renderChrome() {
   $("#phone-tabs").innerHTML = ["people", "sheet", "log"].map(v => `<button type="button" data-action="view" data-view="${v}" class="${view === v ? "active" : ""}">${esc(labels[v])}</button>`).join("");
   $("#t-title").textContent = t("Project Moon: The City");
   $("#t-sub").textContent = t("A free table companion. Your sheets are saved in this browser.");
-  for (const [id, key] of [["b-backup", "Backup"], ["b-export", "Export"], ["b-import", "Import"], ["b-print", "Print"], ["b-kits", "Kits"], ["b-manual", "Manual"], ["b-help", "Help"]]) $("#" + id).textContent = t(key);
+  for (const [id, key] of [["b-backup", "Backup"], ["b-export", "Export"], ["b-import", "Import"], ["b-print", "Print"], ["b-kits", "Kits"], ["b-skin", "Look"], ["b-city", "City"], ["b-manual", "Manual"], ["b-help", "Help"]]) $("#" + id).textContent = t(key);
   renderWarn();
   const sb = $("#b-sound");
   sb.textContent = state.sound.on ? `\u266A ${t("Sound on")}` : `\u266A ${t("Sound off")}`;
@@ -1137,9 +1139,15 @@ async function doDowntime(actors, crew) {
 
 /* ------------------------------------------------------------------ click actions */
 
-const READONLY_OK = new Set(["backups", "export", "exportCharacter", "allowBackupFile", "stopRetry", "applyHurt", "rtab", "sound", "timerGo", ...Object.keys(boardUI.actions), ...Object.keys(handoutUI.actions), ...Object.keys(journalUI.actions), ...Object.keys(threatUI.actions), ...Object.keys(tablesUI.actions), ...Object.keys(clocksUI.actions), ...Object.keys(screenUI.actions), "manual", "manualClose", "view", "select", "selectRemote", "tab", "kits", "print", "awardMarks", "finish", "winMin", "winReset", "undo", "secretRoll", "revealRoll", "newCharacter", "newNpc", "newCrew", "pregens", "lang", "export", "import", "help", "room", "clearLog", "downtimeAll", "newSceneAll"]);
+const READONLY_OK = new Set(["backups", "export", "exportCharacter", "allowBackupFile", "stopRetry", "applyHurt", "rtab", "sound", "timerGo", ...Object.keys(boardUI.actions), ...Object.keys(handoutUI.actions), ...Object.keys(journalUI.actions), ...Object.keys(threatUI.actions), ...Object.keys(tablesUI.actions), ...Object.keys(clocksUI.actions), ...Object.keys(screenUI.actions), "manual", "manualClose", "city", "cityPick", "cityClose", "skin", "view", "select", "selectRemote", "tab", "kits", "print", "awardMarks", "finish", "winMin", "winReset", "undo", "secretRoll", "revealRoll", "newCharacter", "newNpc", "newCrew", "pregens", "lang", "export", "import", "help", "room", "clearLog", "downtimeAll", "newSceneAll"]);
 const actions = {
-  ...threatUI.actions, ...tablesUI.actions, ...clocksUI.actions, ...screenUI.actions, ...manualUI.actions,
+  ...threatUI.actions, ...tablesUI.actions, ...clocksUI.actions, ...screenUI.actions, ...manualUI.actions, ...cityUI.actions,
+  manual: el => { cityUI.close(); return manualUI.actions.manual(el); },
+  skin: () => {                                                  // the Moon look (dark) or the classic paper one
+    const root = document.documentElement, classic = root.dataset.skin !== "classic";
+    if (classic) root.dataset.skin = "classic"; else delete root.dataset.skin;
+    try { localStorage.setItem("project-moon-the-city/skin", classic ? "classic" : "moon"); } catch { /* the choice just is not remembered */ }
+  },
   stopRetry: () => { room?.leave(); room = null; saveSession(); render(); },
   applyHurt: async el => {
     if (!isGM()) return;
