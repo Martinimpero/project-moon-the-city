@@ -4,7 +4,7 @@ A free table companion for the rules in the manual. No accounts, no server, no l
 
 ## Play it
 - **On this computer:** double-click `start.bat` (needs Python). It opens http://localhost:8766/.
-- **On the internet, free:** put this folder on GitHub Pages or Cloudflare Pages (upload the folder; no build step). Share the link.
+- **On the internet, free:** it is live at https://martinimpero.github.io/project-moon-the-city/ (GitHub Pages, from the public repo https://github.com/Martinimpero/project-moon-the-city). To update it, commit and push the `webapp` folder: `git add -A && git commit -m "..." && git push`; the site rebuilds in about a minute.
 - Your sheets are saved in the browser. **Export** downloads a `.json` backup; **Import** loads it on another device.
 
 ## What it does
