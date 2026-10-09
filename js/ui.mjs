@@ -28,6 +28,7 @@ import { createClocksUI } from "./clocksui.mjs";
 import { createScreenUI } from "./screenui.mjs";
 import * as CK from "./clocks.mjs";
 import * as KIT from "./kit.mjs";
+import * as PR from "./printout.mjs";
 import { TOKENS } from "./maplist.mjs";
 import { createSfx } from "./sfx.mjs";
 import { TimerClock, timerOf, fmt as fmtTime } from "./timer.mjs";
@@ -390,6 +391,43 @@ async function kitDialog(kit) {
   persist(); render(); if (room?.role === "host") { room.sendBoard(); room.sendJournal(state.journal); }
   toast(t("Kit imported: {a} Threats, {s} scenes, {h} handouts, {n} notes, {c} Clocks.", { a: out.actors, s: out.scenes, h: out.handouts, n: out.notes, c: out.clocks }) + (out.skipped ? " " + t("{n} left as they were.", { n: out.skipped }) : ""));
 }
+/** Put `html` in the print-only area and open the browser's print dialog ("Save as PDF" makes the file). */
+function printPages(html, title) {
+  const area = $("#print-area"), old = document.title;
+  area.innerHTML = html; document.title = title; document.body.classList.add("printing");
+  const done = () => { area.innerHTML = ""; document.body.classList.remove("printing"); document.title = old; window.removeEventListener("afterprint", done); };
+  window.addEventListener("afterprint", done);
+  setTimeout(() => window.print(), 50);
+}
+async function printDialog() {
+  const a = viewActor(), gm = isGM();
+  const opts = [
+    a ? ["sheet", t("This sheet: {name}", { name: a.name })] : null,
+    ["blank", t("A blank character sheet")],
+    ["handouts", gm ? t("All handouts") : t("The handouts I have been shown")],
+    ["journal", t("The party journal")], ["notes", t("My private notes")],
+    ["screen", t("The rules screen")],
+    gm ? ["clocks", t("The Clocks")] : null
+  ].filter(Boolean);
+  const r = await ask({
+    title: t("Print"), ok: t("Print"), wide: true,
+    body: `<p>${esc(t("This opens your browser's print window. Choose \"Save as PDF\" as the printer to make a file."))}</p>${opts.map(([k, l], i) => `<div class="pm-row"><label class="chk"><input type="radio" name="what" value="${k}" ${i ? "" : "checked"}> ${esc(l)}</label></div>`).join("")}
+      <div class="pm-row"><label class="chk"><input type="checkbox" name="both"> ${esc(t("Handouts: print both languages when there are two"))}</label></div>`,
+    read: f => ({ what: f.elements.what.value, both: f.elements.both.checked })
+  });
+  if (!r) return;
+  const lang = state.lang, tr = (k, d) => t(k, d);
+  const handouts = gm ? state.handouts : received;
+  const map = {
+    sheet: () => PR.actorPage(a, tr), blank: () => PR.characterPage(null, tr),
+    handouts: () => handouts.map(h => PR.handoutPages(h, lang, { both: r.both })).join(""),
+    journal: () => PR.journalPage(t("Party journal"), J.sorted(partyJournal()), tr), notes: () => PR.journalPage(t("My notes"), J.sorted(state.notes), tr),
+    screen: () => PR.screenPages(tr), clocks: () => PR.clocksPage(state.clocks, tr)
+  };
+  const html = map[r.what]();
+  if (!html || (r.what === "handouts" && !handouts.length)) return toast(t("Nothing to print there yet."));
+  printPages(html, r.what === "sheet" ? a.name : t("Print"));
+}
 const BUNDLED_KITS = [["kits/session01.json", "Session 01: The Row Shipment (Risk 3)"]];
 const confirmDlg = (title, message, ok = t("OK")) => ask({ title, body: `<p>${message}</p>`, ok, read: () => true }).then(Boolean);
 
@@ -429,7 +467,7 @@ function renderChrome() {
   $("#phone-tabs").innerHTML = ["people", "sheet", "log"].map(v => `<button type="button" data-action="view" data-view="${v}" class="${view === v ? "active" : ""}">${esc(labels[v])}</button>`).join("");
   $("#t-title").textContent = t("Project Moon: The City");
   $("#t-sub").textContent = t("A free table companion. Your sheets are saved in this browser.");
-  for (const [id, key] of [["b-backup", "Backup"], ["b-export", "Export"], ["b-import", "Import"], ["b-kits", "Kits"], ["b-help", "Help"]]) $("#" + id).textContent = t(key);
+  for (const [id, key] of [["b-backup", "Backup"], ["b-export", "Export"], ["b-import", "Import"], ["b-print", "Print"], ["b-kits", "Kits"], ["b-help", "Help"]]) $("#" + id).textContent = t(key);
   renderWarn();
   const sb = $("#b-sound");
   sb.textContent = state.sound.on ? `\u266A ${t("Sound on")}` : `\u266A ${t("Sound off")}`;
@@ -875,7 +913,7 @@ async function doDowntime(actors, crew) {
 
 /* ------------------------------------------------------------------ click actions */
 
-const READONLY_OK = new Set(["backups", "export", "exportCharacter", "allowBackupFile", "stopRetry", "applyHurt", "rtab", "sound", "timerGo", ...Object.keys(boardUI.actions), ...Object.keys(handoutUI.actions), ...Object.keys(journalUI.actions), ...Object.keys(threatUI.actions), ...Object.keys(tablesUI.actions), ...Object.keys(clocksUI.actions), ...Object.keys(screenUI.actions), "view", "select", "selectRemote", "tab", "kits", "newCharacter", "newNpc", "newCrew", "pregens", "lang", "export", "import", "help", "room", "clearLog", "downtimeAll", "newSceneAll"]);
+const READONLY_OK = new Set(["backups", "export", "exportCharacter", "allowBackupFile", "stopRetry", "applyHurt", "rtab", "sound", "timerGo", ...Object.keys(boardUI.actions), ...Object.keys(handoutUI.actions), ...Object.keys(journalUI.actions), ...Object.keys(threatUI.actions), ...Object.keys(tablesUI.actions), ...Object.keys(clocksUI.actions), ...Object.keys(screenUI.actions), "view", "select", "selectRemote", "tab", "kits", "print", "newCharacter", "newNpc", "newCrew", "pregens", "lang", "export", "import", "help", "room", "clearLog", "downtimeAll", "newSceneAll"]);
 const actions = {
   ...threatUI.actions, ...tablesUI.actions, ...clocksUI.actions, ...screenUI.actions,
   stopRetry: () => { room?.leave(); room = null; saveSession(); render(); },
@@ -998,6 +1036,7 @@ const actions = {
   backups: () => backupDialog(),
   import: () => $("#file").click(),
   clearLog: async () => { if (await confirmDlg(t("Clear log"), esc(t("Delete every message in the log?")), t("Clear log"))) { state.log = []; persist(); render(); } },
+  print: () => printDialog(),
   kits: async () => {
     const r = await ask({
       title: t("Session kits"), ok: t("Open"), wide: true,

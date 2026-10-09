@@ -557,3 +557,32 @@ dialog.wizard { width: min(720px, 98vw); }
 .sc-table th { text-align: left; color: #9aa; font-weight: 700; border-bottom: 1px solid #343744; padding: 3px 6px; }
 .sc-table td { border-bottom: 1px solid #2a2d38; padding: 3px 6px; vertical-align: top; }
 .sc-table td.k { font-weight: 700; white-space: nowrap; }
+
+/* ---- Printing: only #print-area is printed, as black on white pages ---- */
+#print-area { display: none; }
+@media print {
+  @page { size: A4; margin: 14mm; }
+  body.printing > *:not(#print-area) { display: none !important; }
+  body.printing { background: #fff !important; color: #000 !important; }
+  body.printing #print-area { display: block !important; font: 11pt/1.4 Georgia, "Times New Roman", serif; color: #000; }
+  .pr-page { page-break-after: always; break-after: page; }
+  .pr-page:last-child { page-break-after: auto; break-after: auto; }
+  .pr-page h1 { font: 700 20pt Georgia, serif; margin: 0 0 8pt; border-bottom: 2px solid #000; padding-bottom: 4pt; }
+  .pr-page h2 { font: 700 10pt Georgia, serif; text-transform: uppercase; letter-spacing: .08em; margin: 10pt 0 4pt; border-bottom: 1px solid #888; }
+  .pr-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 3pt 14pt; }
+  .pr-f { display: flex; gap: 6pt; border-bottom: 1px solid #aaa; min-height: 15pt; align-items: baseline; }
+  .pr-f b { font-size: 9pt; text-transform: uppercase; white-space: nowrap; }
+  .pr-cols { display: grid; grid-template-columns: 1fr 1.3fr 1fr; gap: 14pt; }
+  .pr-cols2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14pt; }
+  .pr-row { display: flex; justify-content: space-between; gap: 6pt; font-size: 10pt; }
+  .pr-dots { letter-spacing: .15em; white-space: nowrap; }
+  .pr-page ul { margin: 2pt 0; padding-left: 14pt; }
+  .pr-paper { font-size: 12.5pt; line-height: 1.55; }
+  .pr-img img { max-width: 100%; max-height: 120mm; }
+  .pr-entry { break-inside: avoid; margin-bottom: 10pt; }
+  .pr-by { margin: 0; font-size: 9pt; color: #444; }
+  .pr-table { width: 100%; border-collapse: collapse; margin: 4pt 0; font-size: 9.5pt; }
+  .pr-table th, .pr-table td { border: 1px solid #888; padding: 2pt 4pt; text-align: left; vertical-align: top; }
+  .pr-screen .pr-sec { break-inside: avoid-page; }
+  .pr-screen p { margin: 3pt 0; font-size: 9.5pt; }
+}

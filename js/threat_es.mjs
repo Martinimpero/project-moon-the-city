@@ -79,5 +79,17 @@ export const THREAT_ES = {
   "{n} handouts": "{n} documentos",
   "{n} private notes": "{n} notas privadas",
   "{n} journal entries": "{n} entradas del diario",
-  "{n} Clocks": "{n} Relojes"
+  "{n} Clocks": "{n} Relojes",
+  "This sheet: {name}": "Esta ficha: {name}",
+  "A blank character sheet": "Una ficha de personaje en blanco",
+  "All handouts": "Todos los documentos",
+  "The handouts I have been shown": "Los documentos que me han mostrado",
+  "The party journal": "El diario del grupo",
+  "My private notes": "Mis notas privadas",
+  "The rules screen": "La pantalla de reglas",
+  "The Clocks": "Los Relojes",
+  "Print": "Imprimir",
+  "This opens your browser's print window. Choose \"Save as PDF\" as the printer to make a file.": "Esto abre la ventana de impresión del navegador. Elige \"Guardar como PDF\" como impresora para obtener un archivo.",
+  "Handouts: print both languages when there are two": "Documentos: imprimir los dos idiomas cuando haya dos",
+  "Nothing to print there yet.": "Todavía no hay nada que imprimir ahí."
 };

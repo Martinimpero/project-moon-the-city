@@ -108,13 +108,17 @@ The **Clocks** tab keeps the table's Clocks in one place (Open War, Coldwater He
 
 The **Screen** tab (everyone sees it) holds the manual's quick-reference tables from Appendices B to H: the Core Roll (Difficulty, results, opposed rolls, what a 1 does), E.G.O./Stress/Harm and the Hail Mary, Clocks, Threat Grade (with the extra defensive response for named opponents and Retreat), the GM templates and Risk calibration, the Sins (wheel, Swing, Fit, Drift) and Resources/attuned gear. A search box filters sections, paragraphs and table rows in the language you read; a search keeps only matching rows, and sections can be folded. Everything is in English and Spanish. Tests check that every screen string has a Spanish version and that the Threat Grade table agrees with the rules the app computes.
 
+## Printing to PDF
+
+**Print** (header) opens your browser's print window with clean black-on-white pages; choose "Save as PDF" as the printer to make a file. You can print the sheet you are looking at (character, Threat or crew), a **blank character sheet** to fill in by hand (Appendix A layout), all handouts (one page each, in your language, or both languages on two pages), the party journal, your private notes, the whole **rules screen**, and the Clocks (GM). Players print the handouts they have been shown. Nothing is uploaded anywhere: the pages are made in your browser. Not tested on a physical printer or on Safari/Firefox print layouts; the page layout was checked on screen in Edge/Chromium.
+
 ## Not built yet
 Accounts, cloud save, per-player vision, dynamic lighting.
 
 ## Files
 - `index.html`, `css/style.css`: the page and look (same design as the rulebook).
 - `js/rules.mjs`: the pure rules (bands, E.G.O., Sins, Fit, Drift, Hail Mary, upkeep). `js/engine.mjs`: rolls, techniques, downtime. `js/model.mjs`, `js/store.mjs`: data and saving. `js/ui.mjs`: the interface. `js/room.mjs`: the shared-room protocol. `js/board.mjs`, `js/boardui.mjs`, `js/maplist.mjs`: the Exchange tracker and map. `js/handouts.mjs`, `js/handoutui.mjs`: handouts. `js/timer.mjs`: the turn timer. `js/net.mjs`, `js/backup.mjs`, `js/safety.mjs`: connection checks and data safety. `js/creation.mjs`, `js/wizard.mjs`: the character builder. `js/scenes.mjs`: scenes. `js/journal.mjs`, `js/journalui.mjs`: the journal. `js/conditions.mjs`: conditions. `js/sfx.mjs`: sounds. `js/es.mjs`, `js/ui_es.mjs`, `js/room_es.mjs`: Spanish.
-- `tests/`: `node --test tests/*.test.mjs` (needs Node 20+; 202 tests).
+- `tests/`: `node --test tests/*.test.mjs` (needs Node 20+; 210 tests).
 
 ## If you change the rules
 Edit `js/rules.mjs` (and the tests), then the text in `js/config.mjs`, `js/engine.mjs` and Spanish in `js/es.mjs`. Any new English text passed to `t("...")` must get a Spanish entry, or `tests/i18n.test.mjs` fails.
