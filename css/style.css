@@ -380,3 +380,7 @@ body.is-gm .gm-only { display: inline-block !important; }
 .ho-langs button { cursor: pointer; font: 700 11px var(--pm-head); letter-spacing: .12em; text-transform: uppercase; border: 1px solid var(--pm-gold-d); background: var(--pm-gold); color: #14151b; border-radius: 2px; padding: 4px 12px; }
 .ho-note:empty { display: none; }
 .pm-modal .ho-other { border-top: 2px solid var(--pm-gold); padding-top: 6px; }
+
+/* a card written in both languages shows only the reader's */
+html[lang="es"] [data-bi] [lang="en"], html[lang="en"] [data-bi] [lang="es"] { display: none; }
+.pm-modal [data-swap] { cursor: pointer; font: 700 11px var(--pm-head); letter-spacing: .1em; text-transform: uppercase; border: 1px solid var(--pm-rule); background: transparent; padding: 3px 9px; border-radius: 2px; margin-left: auto; }

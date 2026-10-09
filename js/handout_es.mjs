@@ -25,5 +25,6 @@ export const HANDOUT_ES = {
   "Read in {lang}": "Leer en {lang}",
   "This version is in": "Esta versión está en",
   "Optional. Players who read the other language see this version.": "Opcional. Los jugadores que leen el otro idioma ven esta versión.",
-  "Version in {lang} (optional)": "Versión en {lang} (opcional)"
+  "Version in {lang} (optional)": "Versión en {lang} (opcional)",
+  "Swap the two versions": "Intercambiar las dos versiones"
 };

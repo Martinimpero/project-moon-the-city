@@ -60,7 +60,7 @@ export function createHandoutUI(ctx) {
       body: `<div class="pm-row"><label>${esc(t("This version is in"))}</label><select name="lang">${langOpts}</select></div>
         <div class="pm-row"><label>${esc(t("Title"))}</label><input type="text" name="title" value="${esc(h.title)}" maxlength="80"></div>
         <div class="pm-row"><label class="full">${esc(t("Text (blank line = new paragraph; *italic*, **bold**)"))}</label><textarea name="text" rows="7" maxlength="${H.MAX_TEXT}">${esc(h.text)}</textarea></div>
-        <div class="pm-row ho-other"><label class="full alt-label"></label></div>
+        <div class="pm-row ho-other"><label class="full alt-label"></label><button type="button" data-swap title="${esc(t("Swap the two versions"))}">&#8645; ${esc(t("Swap the two versions"))}</button></div>
         <div class="pm-row"><label>${esc(t("Title"))}</label><input type="text" name="altTitle" value="${esc(h.alt.title)}" maxlength="80"></div>
         <div class="pm-row"><textarea name="altText" rows="7" maxlength="${H.MAX_TEXT}" placeholder="${esc(t("Optional. Players who read the other language see this version."))}">${esc(h.alt.text)}</textarea></div>
         <div class="pm-row"><label>${esc(t("Picture"))}</label><input type="file" name="file" accept="image/*"><button type="button" data-clearimg>${esc(t("No picture"))}</button><span class="pm-note imgnote">${img ? esc(t("A picture is attached.")) : ""}</span></div>`,
@@ -68,6 +68,12 @@ export function createHandoutUI(ctx) {
       setup: f => {
         const label = () => { f.querySelector(".alt-label").textContent = t("Version in {lang} (optional)", { lang: H.LANG_NAME[H.otherLang(f.elements.lang.value)] }); };
         label(); f.elements.lang.addEventListener("change", label);
+        f.querySelector("[data-swap]").addEventListener("click", () => {      // the main version was written in the other language: swap them and the label
+          const e = f.elements;
+          [e.title.value, e.altTitle.value] = [e.altTitle.value, e.title.value];
+          [e.text.value, e.altText.value] = [e.altText.value, e.text.value];
+          e.lang.value = H.otherLang(e.lang.value); label();
+        });
         f.elements.file.addEventListener("change", async () => {
           const file = f.elements.file.files[0]; if (!file) return;
           try { img = (await shrinkImage(file, 1400, 0.8)).src; f.querySelector(".imgnote").textContent = t("A picture is attached."); } catch { ctx.toast(t("That image could not be read.")); }

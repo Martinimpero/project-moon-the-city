@@ -58,3 +58,17 @@ export function textToHtml(text, esc) {
   return String(text ?? "").split(/\n{2,}/).filter(p => p.trim()).map(p =>
     `<p>${esc(p).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/\*(.+?)\*/g, "<i>$1</i>").replace(/\n/g, "<br>")}</p>`).join("");
 }
+
+/**
+ * The log card for "the GM shows a handout". The log is shared, and a card is written once by whoever posts it, so this one carries
+ * both languages and the page shows the one that matches its own language (see the `[data-bi]` rule in style.css).
+ * `tr(lang, key)` translates; `esc` escapes.
+ */
+export function announceHtml(h, tr, esc) {
+  normalizeHandout(h);
+  const both = l => `<span lang="${l}">${esc(tr(l, "The GM shows a handout"))}</span>`;
+  const title = hasAlt(h)
+    ? LANGS.map(l => `<span lang="${l}">${esc(versionIn(h, l).title)}</span>`).join("")
+    : esc(h.title);
+  return `<div class="pm-card pm-handout" data-bi><div class="pm-card-head">${LANGS.map(both).join("")}</div><div class="pm-notes"><p><b>${title}</b></p></div></div>`;
+}

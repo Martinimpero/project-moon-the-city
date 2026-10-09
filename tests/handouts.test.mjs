@@ -4,6 +4,7 @@ import * as H from "../js/handouts.mjs";
 import { Room } from "../js/room.mjs";
 import * as S from "../js/store.mjs";
 import { tIn } from "../js/i18n.mjs";
+import { soundForHtml } from "../js/sfx.mjs";
 
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
@@ -106,4 +107,15 @@ test("room: shown handouts reach players live and on joining; taking one back re
   assert.deepEqual(gone, ["h2"]);
   await late.join("HND01", "Ben"); await tick();
   assert.equal(got.length, 3);                                     // h1 again, for Ben
+});
+
+test("the 'GM shows a handout' card carries both languages so each reader sees their own", () => {
+  const h = H.newHandout({ title: "Contrato", text: "x", lang: "es", alt: { title: "Contract", text: "y" } });
+  const html = H.announceHtml(h, tIn, esc);
+  assert.match(html, /data-bi/);
+  assert.match(html, /<span lang="en">The GM shows a handout<\/span><span lang="es">El DJ muestra un documento<\/span>/);
+  assert.match(html, /<span lang="en">Contract<\/span><span lang="es">Contrato<\/span>/);      // the title in each language
+  const solo = H.announceHtml(H.newHandout({ title: "Note <b>", text: "x" }), tIn, esc);
+  assert.match(solo, /<b>Note &lt;b&gt;<\/b>/);                                                // one language: just the title, escaped
+  assert.equal(soundForHtml(html).kind, "handout");
 });

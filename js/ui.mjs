@@ -1,7 +1,7 @@
 /** The interface: sidebar, sheets, dialogs and the roll log. Plain DOM; every change goes through the engine, saves, and re-renders. */
 import * as R from "./rules.mjs";
 import { SIN_LABEL, SKILL_LABEL, ATTRIBUTE_LABEL, HARM_LABEL, GEAR_KIND_LABEL, BOND_TYPE_LABEL, SIN_TEXT, SIGNATURE } from "./config.mjs";
-import { t, setLang } from "./i18n.mjs";
+import { t, tIn, setLang } from "./i18n.mjs";
 import * as E from "./engine.mjs";
 import { esc } from "./engine.mjs";
 import { newActor, newItem, normalizeActor, refresh, gearOf, bondsOf, traumasOf, setPath, getPath, uid } from "./model.mjs";
@@ -70,7 +70,7 @@ const handoutUI = createHandoutUI({
   changed: (h, gone) => {
     persist(); renderBoard();
     if (room?.role === "host") { if (gone || !h.shown) room.sendUnhandout(h.id); else room.sendHandout(H.forPlayers(h)); }
-    if (h.shown && !gone) post(`<div class="pm-card pm-handout"><div class="pm-card-head">${esc(t("The GM shows a handout"))}</div><div class="pm-notes"><p><b>${esc(h.title)}</b></p></div></div>`);
+    if (h.shown && !gone) post(H.announceHtml(h, tIn, esc));
   },
   ask: o => ask(o), toast: m => toast(m)
 });
@@ -131,7 +131,7 @@ const handlers = {
   onHandout: h => {
     H.normalizeHandout(h);
     const i = received.findIndex(x => x.id === h.id);
-    if (i >= 0) received[i] = h; else { received.push(h); toast(t("The GM shows you: {title}", { title: h.title })); handoutUI.view(h); }
+    if (i >= 0) received[i] = h; else { received.push(h); toast(t("The GM shows you: {title}", { title: H.pick(h, state.lang).title })); handoutUI.view(h); }
     renderBoard();
   },
   onUnhandout: id => { const i = received.findIndex(x => x.id === id); if (i >= 0) received.splice(i, 1); renderBoard(); },
