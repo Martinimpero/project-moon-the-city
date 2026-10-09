@@ -1,0 +1,24 @@
+/** Spanish for the handouts. */
+export const HANDOUT_ES = {
+  "The GM shows a handout": "El DJ muestra un documento",
+  "The GM shows you: {title}": "El DJ te muestra: {title}",
+  "Handouts": "Documentos",
+  "Untitled": "Sin título",
+  "Marked as shown": "Marcado como mostrado",
+  "Hidden": "Oculto",
+  "View": "Ver",
+  "Take back": "Retirar",
+  "Handout": "Documento",
+  "Contract": "Contrato",
+  "No handouts yet. Add a note, a contract or a picture, then Show it to the table.": "Todavía no hay documentos. Añade una nota, un contrato o una imagen, y luego Muéstralo a la mesa.",
+  "Nothing has been shown to you yet.": "Todavía no te han mostrado nada.",
+  "Edit handout": "Editar documento",
+  "New handout": "Documento nuevo",
+  "Title": "Título",
+  "Text (blank line = new paragraph; *italic*, **bold**)": "Texto (línea en blanco = párrafo nuevo; *cursiva*, **negrita**)",
+  "A picture is attached.": "Hay una imagen adjunta.",
+  "That is the most handouts this app keeps.": "Es el máximo de documentos que guarda esta aplicación.",
+  "The job": "El trabajo",
+  "Deadline": "Plazo",
+  "Terms": "Condiciones"
+};
