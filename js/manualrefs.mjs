@@ -28,7 +28,7 @@ export const REFS = {
   bonds: "p5#1", crew: "p5#7", heat: "p5#5", clocks: "p2#4",
   sins: "p10#1", resonance: "p10#2", wheel: "p10#3", fit: "p10#4", drift: "p10#6",
   grade: "p9#1", unlocks: "p9#2", threat: "p9#4", growth: "p9#7",
-  glossary: "apx#11"
+  glossary: "apx#11", conditions: "p10#7", contracts: "p5#4", offices: "p7#5", occupation: "p3#5", riding: "p10#4"
 };
 
 /** Which "?" a card in the log gets, from its classes: a roll card reads as "Reading the Result", the Hail Mary and the Voice have their own sections. null: no link. */
@@ -39,6 +39,12 @@ export function cardRef(classes, hasLines) {
   if (c.has("pm-exchange") || c.has("pm-conditions")) return REFS.exchange;
   if (c.has("pm-handout") || c.has("chat")) return null;
   return hasLines ? REFS.result : null;
+}
+
+/** The HTML of a "?" button that opens the manual at REFS[key]; `label` is the (already translated) tooltip. */
+export function refButton(key, label) {
+  const l = String(label).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
+  return `<button type="button" class="man-ref" data-action="manual" data-ref="${REFS[key]}" title="${l}" aria-label="${l}">?</button>`;
 }
 
 const ROMAN = { I: 1, II: 2, III: 3, IV: 4, V: 5, VI: 6, VII: 7, VIII: 8, IX: 9, X: 10 };

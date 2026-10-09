@@ -73,3 +73,10 @@ test("log cards get a '?' by kind: rolls, Hail Mary, Voice, Exchange; chat and h
   assert.equal(R.cardRef(["pm-card", "pm-exchange"], false), R.REFS.exchange);
   assert.equal(R.cardRef(["pm-card", "chat"], true), null); assert.equal(R.cardRef(["pm-card", "pm-handout"], true), null);
 });
+
+test("the extra '?' (conditions, contracts, offices...) point at the right sections, and refButton escapes its label", () => {
+  const title = ref => { const r = R.parseRef(ref, index); return index.parts.find(p => p.id === r.part).en.sections[r.sec - 1]; };
+  assert.match(title(R.REFS.conditions), /Detail/); assert.match(title(R.REFS.contracts), /Contracts/); assert.match(title(R.REFS.offices), /Offices/);
+  assert.match(title(R.REFS.occupation), /Occupation/); assert.match(title(R.REFS.riding), /Riding/); assert.match(title(R.REFS.clocks), /Clocks/);
+  const b = R.refButton("conditions", 'a "b" <c>'); assert.match(b, /data-ref="p10#7"/); assert.doesNotMatch(b, /<c>/); assert.match(b, /&quot;b&quot;/);
+});

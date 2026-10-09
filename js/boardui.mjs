@@ -5,7 +5,7 @@ import { SIN_LABEL, HARM_LABEL, SIN_TEXT } from "./config.mjs";
 import * as C from "./conditions.mjs";
 import { t } from "./i18n.mjs";
 import { esc } from "./engine.mjs";
-import { REFS as MAN_REFS } from "./manualrefs.mjs";
+import { REFS as MAN_REFS, refButton } from "./manualrefs.mjs";
 import { DURATIONS, timerOf, timerStart, timerPause, timerReset, timerNewTurn, timerSetSecs, fmt } from "./timer.mjs";
 
 /**
@@ -46,7 +46,7 @@ export function createBoardUI(ctx) {
       const tip = [t(def.rule), c.note].filter(Boolean).join(" ");
       return `<span class="cond sin-${def.sin || "none"}" title="${esc(tip)}"><b>${label}</b>${gm ? `${def.stacks ? `<button type="button" data-action="condStep" data-slot="${slot.id}" data-id="${c.id}" data-delta="-1" title="${esc(t("Spend one"))}">&minus;</button><button type="button" data-action="condStep" data-slot="${slot.id}" data-id="${c.id}" data-delta="1" title="${esc(t("Add one"))}">+</button>` : ""}<button type="button" data-action="condRemove" data-slot="${slot.id}" data-id="${c.id}" title="${esc(t("Remove"))}">&times;</button>` : ""}</span>`;
     }).join("");
-    return `<div class="conds">${chips}${gm ? `<button type="button" class="condadd" data-action="condAdd" data-slot="${slot.id}">+ ${esc(t("Condition"))}</button>` : ""}</div>`;
+    return `<div class="conds">${chips}${gm ? `<button type="button" class="condadd" data-action="condAdd" data-slot="${slot.id}">+ ${esc(t("Condition"))}</button>` : ""}${refButton("conditions", t("Open this in the manual"))}</div>`;
   }
   function eventText(e) {
     const name = e.slot.name, cond = condName(e.cond);

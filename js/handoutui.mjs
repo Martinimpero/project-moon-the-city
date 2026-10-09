@@ -2,6 +2,7 @@
 import * as H from "./handouts.mjs";
 import { shrinkImage } from "./board.mjs";
 import { t, tIn } from "./i18n.mjs";
+import { refButton } from "./manualrefs.mjs";
 import { esc } from "./engine.mjs";
 
 /** ctx: { state, lang() -> "en"|"es", room(), isGM(), received() -> [handout], changed(), ask(opts), toast(msg), $ } */
@@ -17,7 +18,7 @@ export function createHandoutUI(ctx) {
         <span class="btns"><button type="button" data-action="hoView" data-id="${h.id}">${esc(t("View"))}</button>
         <button type="button" data-action="hoShow" data-id="${h.id}" class="${h.shown ? "on" : ""}">${esc(h.shown ? t("Take back") : t("Show"))}</button>${ctx.room()?.role === "host" ? `<button type="button" data-action="hoShowTo" data-id="${h.id}" title="${esc(t("Show it to some players only"))}">${esc(t("Show to..."))}</button>` : ""}
         <button type="button" data-action="hoEdit" data-id="${h.id}">${esc(t("Edit"))}</button><button type="button" data-action="hoDelete" data-id="${h.id}">&times;</button></span></li>`).join("");
-      return `<div class="m-bar"><button type="button" data-action="hoNew">+ ${esc(t("Handout"))}</button><button type="button" data-action="hoContract">+ ${esc(t("Contract"))}</button></div>
+      return `<div class="m-bar"><button type="button" data-action="hoNew">+ ${esc(t("Handout"))}</button><button type="button" data-action="hoContract">+ ${esc(t("Contract"))}</button>${refButton("contracts", t("Open this in the manual"))}</div>
         ${rows ? `<ul class="ho-list">${rows}</ul>` : `<p class="hint pad">${esc(t("No handouts yet. Add a note, a contract or a picture, then Show it to the table."))}</p>`}`;
     }
     const list = ctx.received();

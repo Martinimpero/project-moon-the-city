@@ -1,6 +1,7 @@
 /** The Clocks tab: everyone sees the Clocks the GM shows; the GM adds, moves, edits and hides them. Built with `createClocksUI(ctx)`. */
 import * as K from "./clocks.mjs";
 import { t, pair } from "./i18n.mjs";
+import { refButton } from "./manualrefs.mjs";
 import { esc } from "./engine.mjs";
 
 /** ctx: { $, isGM(), list() -> clocks to show, mine() -> the GM's own list, svg(size, filled), changed(), post(builder), ask(opts), toast(msg) } */
@@ -15,7 +16,7 @@ export function createClocksUI(ctx) {
 
   function html() {
     const list = ctx.list();
-    const bar = ctx.isGM() ? `<div class="m-bar"><button type="button" data-action="ckNew">+ ${esc(t("Clock"))}</button></div>` : "";
+    const bar = `<div class="m-bar">${ctx.isGM() ? `<button type="button" data-action="ckNew">+ ${esc(t("Clock"))}</button>` : ""}${refButton("clocks", t("Open this in the manual"))}</div>`;
     return `${bar}${list.length ? `<div class="pm-clocks ck-grid">${list.map(card).join("")}</div>` : `<p class="hint pad">${esc(ctx.isGM() ? t("No Clocks yet. Add the ones the table is racing: Open War, Heat, a chase.") : t("The GM has not shown any Clocks."))}</p>`}`;
   }
 

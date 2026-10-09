@@ -787,8 +787,8 @@ function characterTab(a, tab) {
         <td class="hint">${esc(ATTRIBUTE_LABEL[R.DEFAULT_ATTRIBUTE[k]])}</td><td>${num(`system.skills.${k}`, s.skills[k], 0, 5)}</td>
         <td class="fit">${fit ? `${fit > 0 ? "+" : ""}${fit} ${esc(t("Fit"))}` : ""}</td></tr>`;
     }).join("");
-    return `<div class="pm-grid2">${field("Concept", "system.concept", s.concept)}${field("Identity", "system.identity", s.identity)}${field("Occupation", "system.occupation", s.occupation)}${field("Affiliation", "system.affiliation", s.affiliation)}${field("Background", "system.background", s.background)}
-      <label>${esc(t("Grade"))} ${num("system.grade", s.grade, 1, 9)}</label></div>
+    return `<div class="pm-grid2">${field("Concept", "system.concept", s.concept)}${field("Identity", "system.identity", s.identity)}<label>${esc(t("Occupation"))}${ref("occupation")} ${txt("system.occupation", s.occupation)}</label>${field("Affiliation", "system.affiliation", s.affiliation)}${field("Background", "system.background", s.background)}
+      <label>${esc(t("Grade"))}${ref("grade")} ${num("system.grade", s.grade, 1, 9)}</label></div>
       <h3>${esc(t("Attributes"))}${ref("attributes")}</h3><div class="pm-attrs">${R.ATTRIBUTES.map(k => `<div class="pm-attr"><button type="button" data-action="rollAttribute" data-attr="${k}">${esc(ATTRIBUTE_LABEL[k])}</button>${num(`system.attributes.${k}`, s.attributes[k], 1, 5)}</div>`).join("")}</div>
       <h3>${esc(t("Skills"))}${ref("skills")} <small>(${esc(t("click a name to roll"))})</small>${ref("roll")}</h3><table class="pm-skills">${skills}</table>`;
   }
@@ -800,7 +800,7 @@ function characterTab(a, tab) {
       <label>${esc(t("Fear"))} ${txt("system.fear", s.fear)}</label><label>${esc(t("Boundary"))} ${txt("system.boundary", s.boundary)}</label>
       <label>${esc(t("Vice"))}${ref("vice")} <span class="inline-row">${txt("system.vice", s.vice)}<button type="button" data-action="invokeVice" title="${esc(t("+1 E.G.O., once per scene, inside the refund cap"))}">${esc(t("Invoke"))}</button></span></label>
       <label>${esc(t("Desire"))} ${txt("system.desire", s.desire)}</label><label>${esc(t("Principle"))} ${txt("system.principle", s.principle)}</label><label>${esc(t("Ambition"))} ${txt("system.ambition", s.ambition)}</label>
-      <label>${esc(t("Broken Boundaries"))} ${num("system.broken", s.broken, 0, 3)}</label><label>${esc(t("Scars"))} ${txt("system.scars", s.scars)}</label></div>
+      <label>${esc(t("Broken Boundaries"))} ${num("system.broken", s.broken, 0, 3)}</label><label>${esc(t("Scars"))}${ref("distortion")} ${txt("system.scars", s.scars)}</label></div>
       <details class="altlang"><summary>${esc(t("The same words in {lang} (for the Voice and the Verdict)", { lang: H.LANG_NAME[H.otherLang(s.lang)] }))}</summary>
         <div class="pm-grid2"><label>${esc(t("The words above are written in"))} <select data-path="system.lang">${opts({ en: H.LANG_NAME.en, es: H.LANG_NAME.es }, s.lang)}</select></label>
           <label class="wide">${esc(t("Burden"))} <textarea data-path="system.alt.burden" rows="2">${esc(s.alt.burden)}</textarea></label>
@@ -849,7 +849,7 @@ function characterTab(a, tab) {
     }).join("");
     return `<div class="pm-grid2">
       <label>${esc(t("Under a Sin (not Riding)"))} <select data-path="system.under">${opts(sc, s.under)}</select></label>
-      <label>${esc(t("Riding"))} <select data-path="system.riding">${opts(sc, s.riding)}</select></label>
+      <label>${esc(t("Riding"))}${ref("riding")} <select data-path="system.riding">${opts(sc, s.riding)}</select></label>
       <label>${esc(t("Strained by a Scar"))} <select data-path="system.strained">${opts(sc, s.strained)}</select></label></div>
       <div class="scroll-x"><table class="pm-sins"><thead><tr><th>${esc(t("Sin"))}${ref("sins")}</th><th>${esc(t("Resonance"))}${ref("resonance")}</th><th>${esc(t("Tally"))}</th><th>${esc(t("Wheel"))}${ref("wheel")}</th><th>${esc(t("Fit (when Under)"))}${ref("fit")}</th><th></th></tr></thead>${rows}</table></div>
       <p><button type="button" data-action="drift">${esc(t("End-of-fourth-session Drift"))}</button>${ref("drift")}</p>`;
@@ -916,7 +916,7 @@ function crewSheet(a) {
   const rows = members.map(m => `<tr><td>${esc(m.name)}</td><td>${m.system.grade}</td><td>${m.system.resources}</td><td>${m.derived.egoCurrent}/${m.system.ego.max}</td><td>${m.system.stress}</td></tr>`).join("");
   return `<div class="pm-sheet crew">${header(a, badges)}<section class="pm-body">
     <div class="pm-grid2">
-      <label>${esc(t("Office"))} ${txt("system.office", s.office)}</label><label>${esc(t("Association"))} ${txt("system.association", s.association)}</label>
+      <label>${esc(t("Office"))}${ref("offices")} ${txt("system.office", s.office)}</label><label>${esc(t("Association"))} ${txt("system.association", s.association)}</label>
       <label>${esc(t("Function"))} ${txt("system.officeFunction", s.officeFunction)}</label><label>${esc(t("The Grind"))} ${txt("system.grind", s.grind)}</label>
       <label>${esc(t("Person Behind the Desk"))} ${txt("system.personBehindDesk", s.personBehindDesk)}</label>
       <label><input type="checkbox" data-path="system.associate" ${s.associate ? "checked" : ""}> ${esc(t("Associate Office (can't refuse assignments)"))}</label>
@@ -925,7 +925,7 @@ function crewSheet(a) {
       <label>${esc(t("Fund (0 to 5)"))} ${num("system.fund", s.fund, 0, 5)}</label></div>
     <h3>${esc(t("Members"))}${ref("crew")} <button type="button" data-action="editMembers">${esc(t("Choose"))}</button> <button type="button" data-action="downtime">${esc(t("Run downtime upkeep"))}</button></h3>
     <table class="pm-ledger"><thead><tr><th>${esc(t("Character"))}</th><th>${esc(t("Grade"))}</th><th>${esc(t("Resources"))}</th><th>E.G.O.</th><th>${esc(t("Stress"))}</th></tr></thead>${rows || `<tr><td colspan="5" class="hint">${esc(t("No characters yet."))}</td></tr>`}</table>
-    <h3>${esc(t("Assets"))}</h3><ul class="pm-list">${assets}</ul><p class="hint">${esc(t("With three or more Assets the Fund pays 1 each downtime phase to keep them up."))}</p>
+    <h3>${esc(t("Assets"))}${ref("crew")}</h3><ul class="pm-list">${assets}</ul><p class="hint">${esc(t("With three or more Assets the Fund pays 1 each downtime phase to keep them up."))}</p>
     <h3>${esc(t("Heat and other Clocks"))}${ref("heat")} <button type="button" data-action="addClock">${esc(t("Add Clock"))}</button></h3><div class="pm-clocks">${clocks || `<p class="hint">${esc(t("No Clocks."))}</p>`}</div>
     <h3>${esc(t("Ledger"))} <button type="button" data-action="addLedger">${esc(t("Add entry"))}</button></h3>
     <table class="pm-ledger"><thead><tr><th>${esc(t("Client"))}</th><th>${esc(t("Risk"))}</th><th>${esc(t("Paid"))}</th><th>${esc(t("Report"))}</th><th></th></tr></thead>${ledger || `<tr><td colspan="5" class="hint">${esc(t("No Contracts yet."))}</td></tr>`}</table>

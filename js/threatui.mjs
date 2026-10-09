@@ -1,6 +1,7 @@
 /** The Threats tab (GM only): the library, the encounter being built, and your own saved templates. Built with `createThreatUI(ctx)`. */
 import * as T from "./threats.mjs";
 import { t } from "./i18n.mjs";
+import { refButton } from "./manualrefs.mjs";
 import { esc } from "./engine.mjs";
 import { SIN_LABEL } from "./config.mjs";
 import { newActor } from "./model.mjs";
@@ -47,7 +48,7 @@ export function createThreatUI(ctx) {
 
   function html() {
     const cats = T.categories(T.allTemplates(custom())), catName = c => ({ Backstreets: t("Backstreets"), Nests: t("Nests"), "Special humans": t("Special humans"), Colors: t("Colors"), Mine: t("Mine") }[c] ?? c);
-    return `<div class="thr-top"><h3>${esc(t("Encounter"))}</h3><div id="thr-enc">${encounterHtml()}</div></div>
+    return `<div class="thr-top"><h3>${esc(t("Encounter"))}${refButton("threat", t("Open this in the manual"))}</h3><div id="thr-enc">${encounterHtml()}</div></div>
       <div class="thr-filters"><input type="search" data-f="q" value="${esc(f.q)}" placeholder="${esc(t("Search by name"))}" aria-label="${esc(t("Search by name"))}">
         ${select("band", f.band, [["", t("Any Grade")], ["8-9", t("Grade 9-8 (3 dice)")], ["5-7", t("Grade 7-5 (4 dice)")], ["2-4", t("Grade 4-2 (6 dice)")], ["1", t("Grade 1 (8 dice)")]])}
         ${select("sin", f.sin, [["", t("Any Sin")], ...Object.keys(SIN_LABEL).map(k => [k, SIN_LABEL[k]])])}
