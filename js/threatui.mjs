@@ -22,7 +22,7 @@ export function createThreatUI(ctx) {
     const stats = x.atk || x.def || x.res ? `<p><b>${esc(t("Attack"))} ${x.atk} · ${esc(t("Defense"))} ${x.def} · ${esc(t("Resolve"))} ${x.res}</b> <small>${esc(x.track)}</small></p>` : (x.track ? `<p><small>${esc(x.track)}</small></p>` : "");
     const tech = (x.tech ?? []).map(y => `<li>${y.name ? `<b>${esc(y.name)}:</b> ` : ""}${esc(y.text)}</li>`).join("");
     const line = (k, v) => (v ? `<p><b>${esc(t(k))}:</b> ${esc(v)}</p>` : "");
-    return `<div class="thr-more">${stats}${tech ? `<ul>${tech}</ul>` : ""}${line("Want", x.want)}${line("Bond hook", x.bond)}${line("Detail", x.detail)}${line("Use", x.use)}${x.mine ? `<p><button type="button" data-action="thrDel" data-id="${esc(x.id)}">${esc(t("Remove from my library"))}</button></p>` : ""}</div>`;
+    return `<div class="thr-more">${stats}${tech ? `<ul>${tech}</ul>` : ""}${line("Want", x.want)}${line("Bond hook", x.bond)}${line("Detail", x.detail)}${line("Use in play", x.use)}${x.mine ? `<p><button type="button" data-action="thrDel" data-id="${esc(x.id)}">${esc(t("Remove from my library"))}</button></p>` : ""}</div>`;
   }
   const row = x => `<li class="thr ${open.has(x.id) ? "open" : ""}"><div class="thr-head"><button type="button" class="thr-name" data-action="thrOpen" data-id="${esc(x.id)}" aria-expanded="${open.has(x.id)}"><b>${esc(T.nameIn(x, ctx.lang()))}</b><small>${esc(x.danger || x.cat)}</small></button>
     <span class="thr-badges">${badges(x)}</span><button type="button" class="thr-add" data-action="thrAdd" data-id="${esc(x.id)}" title="${esc(t("Add to the encounter"))}">+</button></div>${open.has(x.id) ? details(x) : ""}</li>`;

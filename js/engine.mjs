@@ -445,3 +445,15 @@ export function payMembers(actors, risk, throughOffice = true) {
   for (const a of actors) { a.system.resources = R.addResources(a.system.resources, pay); refresh(a); }
   return pay;
 }
+
+/**
+ * A roll the GM makes in secret: `dice` d10s against a Difficulty, with a label ("the guard's Perception"). Returns the card; the app keeps it
+ * to the GM until it is shown. A plain pool: no Sin, no E.G.O.
+ */
+export function secretRoll({ label = "", dice = 3, difficulty = 2 } = {}, rng = defaultRng()) {
+  const n = Math.max(0, Math.min(20, Math.floor(Number(dice)) || 0)), diff = Math.max(1, Math.min(6, Math.floor(Number(difficulty)) || 1));
+  const base = rollN(n, rng), successes = R.countSuccesses(base), band = R.unopposedBand(successes, diff, base.includes(1));
+  return `<div class="pm-card"><div class="pm-card-head">${esc(t("Secret roll"))}${label ? `: ${esc(label)}` : ""}</div>
+    <div class="pm-card-lines"><div>${n} ${esc(t("dice"))} · ${esc(t("Difficulty {n}", { n: diff }))}</div></div>
+    ${diceHtml(base, [])}<div class="pm-result">${esc(successesText(successes))} <span class="pm-band ${band}">${esc(bandLabel(band))}</span></div></div>`;
+}

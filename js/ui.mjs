@@ -29,6 +29,7 @@ import { createScreenUI } from "./screenui.mjs";
 import * as CK from "./clocks.mjs";
 import * as KIT from "./kit.mjs";
 import * as PR from "./printout.mjs";
+import * as UNDO from "./undo.mjs";
 import { TOKENS } from "./maplist.mjs";
 import { createSfx } from "./sfx.mjs";
 import { TimerClock, timerOf, fmt as fmtTime } from "./timer.mjs";
@@ -74,7 +75,9 @@ function persist() {
   }
   renderWarn();
   scheduleSync();
+  clearTimeout(undoTimer); undoTimer = setTimeout(() => renderUndo(), 60);
 }
+let undoTimer = null;
 
 /** After changes settle: write the backup file (if there is one) and keep a snapshot every ten minutes. */
 async function runAutoBackup() {
@@ -113,9 +116,10 @@ function downloadText(text, name) {
 }
 const stamp = () => new Date().toISOString().slice(0, 10);
 /** Add a message to the log and, in a room, send it on. Private messages (the Voice) stay with the player and the GM. */
-function post(html, { priv = false } = {}) {
+function post(html, { priv = false, secret = false } = {}) {
   html = bilingualHtml(html);
   const entry = S.addLog(html);
+  if (entry && secret) entry.secret = true;
   if (entry) sfx.forHtml(html);
   if (entry && room?.online) room.sendLog({ id: entry.id, html, private: priv });
 }
@@ -428,6 +432,35 @@ async function printDialog() {
   if (!html || (r.what === "handouts" && !handouts.length)) return toast(t("Nothing to print there yet."));
   printPages(html, r.what === "sheet" ? a.name : t("Print"));
 }
+/* ---- undo ---- */
+const undoStack = UNDO.newStack();
+/** What each action is called when it is undone. Anything not here cannot be undone. */
+const UNDO_LABEL = {
+  rollSkill: "Roll", rollAttribute: "Roll", hailMary: "Hail Mary", useTechnique: "Signature Technique", invokeVice: "Vice", rollNpc: "Threat roll", applyHurt: "Apply Hurt",
+  upkeep: "Upkeep", newScene: "New scene", rest: "Rest", ride: "Riding a Sin", drift: "Drift", wear: "Gear wear", downtime: "Downtime", downtimeAll: "Downtime for all", newSceneAll: "New scene for all",
+  clockStep: "Clock change", deleteClock: "Clock change", ckStep: "Clock change", ckEdit: "Clock change",
+  xStart: "Exchange change", xEnd: "Exchange change", xNext: "Exchange change", xFill: "Exchange change", slotMove: "Exchange change", slotActed: "Exchange change", slotRemove: "Exchange change", slotAdd: "Exchange change",
+  condStep: "Condition change", condRemove: "Condition change", condAdd: "Condition change",
+  tokenDel: "Token removed", deleteActor: "Sheet deleted", sceneDel: "Scene deleted", deleteItem: "Item deleted"
+};
+const nowJson = () => JSON.stringify(S.exportData());
+const markUndo = label => UNDO.push(undoStack, label, nowJson());
+function renderUndo() {
+  const b = $("#b-undo"); if (!b) return;
+  const label = UNDO.peek(undoStack, nowJson());
+  b.disabled = !label; b.textContent = t("Undo");
+  b.title = label ? t("Undo: {label}", { label: t(label) }) : t("Nothing to undo.");
+}
+function undoLast() {
+  const r = UNDO.pop(undoStack, nowJson());
+  if (!r) return toast(t("Nothing to undo."));
+  S.importData(r.json); sfx.settings.on = state.sound.on;
+  const label = r.label;
+  post(bi(() => E.card(esc(t("Undone: {label}", { label: t(label) })), `<p>${esc(t("{name} took back the last change.", { name: state.name || t("Someone") }))}</p>`)));
+  persist(); render();
+  if (room?.role === "host") { room.sendBoard(); room.sendJournal(state.journal); }
+  toast(t("Undone: {label}", { label: t(label) }));
+}
 const BUNDLED_KITS = [["kits/session01.json", "Session 01: The Row Shipment (Risk 3)"]];
 const confirmDlg = (title, message, ok = t("OK")) => ask({ title, body: `<p>${message}</p>`, ok, read: () => true }).then(Boolean);
 
@@ -438,6 +471,7 @@ export function render() {
   document.body.classList.toggle("is-gm", isGM());
   document.body.dataset.view = view;
   renderChrome();
+  renderUndo();
   renderSidebar();
   renderMain();
   renderLog();
@@ -450,6 +484,7 @@ function renderBoard() {
   $("#rtabs").innerHTML = tabs.map(([k, l]) => `<button type="button" data-action="rtab" data-tab="${k}" class="${rtab === k ? "active" : ""}">${esc(l)}</button>`).join("");
   for (const [k, id] of [["log", "pane-log"], ["xchg", "pane-xchg"], ["map", "pane-map"], ["ho", "pane-ho"], ["jr", "pane-jr"], ["thr", "pane-thr"], ["tb", "pane-tb"], ["ck", "pane-ck"], ["sc", "pane-sc"]]) $("#" + id).hidden = rtab !== k;
   $("#b-clearlog").hidden = rtab !== "log";
+  $("#b-secret").hidden = rtab !== "log" || !isGM();
   if (rtab === "xchg") boardUI.renderTracker();
   if (rtab === "map") boardUI.renderMap();
   if (rtab === "ho") handoutUI.render();
@@ -534,7 +569,7 @@ function renderMain() {
 function renderLog() {
   const el = $("#log-list");
   const atBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 60;
-  el.innerHTML = state.log.map(e => `<div class="msg">${e.html}</div>`).join("") || `<p class="hint pad">${esc(t("Rolls and results appear here."))}</p>`;
+  el.innerHTML = state.log.map(e => `<div class="msg ${e.secret ? "secret" : ""}">${e.html}${e.secret ? `<div class="msg-acts"><span>${esc(t("Only you can see this"))}</span><button type="button" data-action="revealRoll" data-id="${esc(e.id)}">${esc(t("Show to the table"))}</button></div>` : ""}</div>`).join("") || `<p class="hint pad">${esc(t("Rolls and results appear here."))}</p>`;
   $("#b-clearlog").textContent = t("Clear log");
   if (atBottom || !el.dataset.init) { el.scrollTop = el.scrollHeight; el.dataset.init = "1"; }
 }
@@ -651,7 +686,7 @@ function npcSheet(a) {
   const s = a.system, dd = a.derived;
   const badges = `<span class="pm-badge">${esc(t("Grade"))} ${s.grade}${s.isGroup ? ` · ${esc(t("group"))}` : ""}</span><span class="pm-badge">${dd.dice} ${esc(t("dice"))}</span><span class="pm-badge">${esc(t("Difficulty {n}", { n: dd.difficulty }))}</span>${s.alignment ? `<span class="pm-badge sin sin-${s.alignment}">${esc(SIN_LABEL[s.alignment])} ${dd.sinRating}</span>` : ""}${s.nextPenalty ? `<span class="pm-badge warn">${esc(t("Weighed down"))} ${s.nextPenalty}</span>` : ""}`;
   const threat = { 0: t("Holding"), 1: t("Breaking"), 2: t("Routed") };
-  return `<div class="pm-sheet">${header(a, badges, `<div class="pm-actions"><button type="button" data-action="rollNpc">${esc(t("Roll its pool"))}</button>${isGM() ? `<button type="button" data-action="thrSave" title="${esc(t("Keep this Threat as a template in the Threats tab"))}">${esc(t("Save to library"))}</button>` : ""}${room?.role === "host" ? `<button type="button" data-action="shareNpc" class="${a.shared ? "active" : ""}">${esc(a.shared ? t("Shown to the table") : t("Show to the table"))}</button>` : ""}</div>`)}
+  return `<div class="pm-sheet">${header(a, badges, `<div class="pm-actions"><button type="button" data-action="rollNpc">${esc(t("Roll its pool"))}</button>${isGM() ? `<button type="button" data-action="rollNpcSecret" title="${esc(t("Only you see the result, until you show it to the table."))}">${esc(t("Roll in secret"))}</button>` : ""}${isGM() ? `<button type="button" data-action="thrSave" title="${esc(t("Keep this Threat as a template in the Threats tab"))}">${esc(t("Save to library"))}</button>` : ""}${room?.role === "host" ? `<button type="button" data-action="shareNpc" class="${a.shared ? "active" : ""}">${esc(a.shared ? t("Shown to the table") : t("Show to the table"))}</button>` : ""}</div>`)}
     <section class="pm-body"><div class="pm-grid2">
       <label>${esc(t("Concept"))} ${txt("system.concept", s.concept)}</label>
       <label>${esc(t("Grade"))} ${num("system.grade", s.grade, 1, 9)}</label>
@@ -913,7 +948,7 @@ async function doDowntime(actors, crew) {
 
 /* ------------------------------------------------------------------ click actions */
 
-const READONLY_OK = new Set(["backups", "export", "exportCharacter", "allowBackupFile", "stopRetry", "applyHurt", "rtab", "sound", "timerGo", ...Object.keys(boardUI.actions), ...Object.keys(handoutUI.actions), ...Object.keys(journalUI.actions), ...Object.keys(threatUI.actions), ...Object.keys(tablesUI.actions), ...Object.keys(clocksUI.actions), ...Object.keys(screenUI.actions), "view", "select", "selectRemote", "tab", "kits", "print", "newCharacter", "newNpc", "newCrew", "pregens", "lang", "export", "import", "help", "room", "clearLog", "downtimeAll", "newSceneAll"]);
+const READONLY_OK = new Set(["backups", "export", "exportCharacter", "allowBackupFile", "stopRetry", "applyHurt", "rtab", "sound", "timerGo", ...Object.keys(boardUI.actions), ...Object.keys(handoutUI.actions), ...Object.keys(journalUI.actions), ...Object.keys(threatUI.actions), ...Object.keys(tablesUI.actions), ...Object.keys(clocksUI.actions), ...Object.keys(screenUI.actions), "view", "select", "selectRemote", "tab", "kits", "print", "undo", "secretRoll", "revealRoll", "newCharacter", "newNpc", "newCrew", "pregens", "lang", "export", "import", "help", "room", "clearLog", "downtimeAll", "newSceneAll"]);
 const actions = {
   ...threatUI.actions, ...tablesUI.actions, ...clocksUI.actions, ...screenUI.actions,
   stopRetry: () => { room?.leave(); room = null; saveSession(); render(); },
@@ -1036,6 +1071,27 @@ const actions = {
   backups: () => backupDialog(),
   import: () => $("#file").click(),
   clearLog: async () => { if (await confirmDlg(t("Clear log"), esc(t("Delete every message in the log?")), t("Clear log"))) { state.log = []; persist(); render(); } },
+  undo: () => undoLast(),
+  secretRoll: async () => {
+    if (!isGM()) return;
+    const r = await ask({
+      title: t("Secret roll"), ok: t("Roll"),
+      body: `<p>${esc(t("Only you see the result, until you show it to the table."))}</p><div class="pm-row"><label>${esc(t("What for"))}</label><input type="text" name="label" maxlength="60" placeholder="${esc(t("the guard notices"))}"></div>
+        <div class="pm-row"><label>${esc(t("Dice"))}</label><input type="number" name="dice" value="3" min="0" max="20"><label>${esc(t("Difficulty"))}</label><select name="diff"><option>1</option><option selected>2</option><option>3</option><option>4</option></select></div>`,
+      read: f => ({ label: f.elements.label.value.trim(), dice: Number(f.elements.dice.value), difficulty: Number(f.elements.diff.value) })
+    });
+    if (!r) return;
+    post(bi(() => E.secretRoll(r)), { priv: true, secret: true }); persist(); renderLog(); flashLog();
+  },
+  rollNpcSecret: (el, a) => {
+    const sunk = C.stacksOf(board().tracker, a.id, "sinking");
+    markUndo("Threat roll");
+    post(bi(() => E.npcRoll(a, undefined, { sinking: sunk })), { priv: true, secret: true }); mutate(a, () => {}); if (sunk) useUpConditions(a.id, ["sinking"]); flashLog();
+  },
+  revealRoll: el => {
+    const e = state.log.find(x => x.id === el.dataset.id); if (!e || !e.secret) return;
+    state.log = state.log.filter(x => x !== e); post(e.html, {}); persist(); renderLog(); flashLog();
+  },
   print: () => printDialog(),
   kits: async () => {
     const r = await ask({
@@ -1272,7 +1328,9 @@ export function init() {
     if (!fn) return;
     const a = viewActor();
     if (a?.remote && !READONLY_OK.has(el.dataset.action)) return;
+    if (UNDO_LABEL[el.dataset.action]) markUndo(UNDO_LABEL[el.dataset.action]);
     fn(el, a);
+    setTimeout(renderUndo, 0);
   });
   document.addEventListener("change", e => { if (e.target.closest("#main")) onField(e); else if (e.target.closest("#pane-map") || e.target.closest("#pane-xchg")) boardUI.onChange(e); });
   $("#mapfile").addEventListener("change", e => { const f = e.target.files[0]; e.target.value = ""; if (f) boardUI.onUpload(f); });
@@ -1292,6 +1350,9 @@ export function init() {
       await takeSnapshot("before import", true);
       S.importData(JSON.stringify(parsed.data)); sfx.settings.on = state.sound.on; sfx.setVolume(state.sound.vol); persist(); render(); toast(t("Imported."));
     } catch (err) { toast(t(err?.message?.startsWith("That file") || err?.message?.startsWith("Not a") ? err.message : "That file is not a Project Moon save.")); }
+  });
+  document.addEventListener("keydown", e => {
+    if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key.toLowerCase() === "z" && !e.target.closest("input, textarea, select, dialog, [contenteditable]")) { e.preventDefault(); undoLast(); }
   });
   window.addEventListener("beforeunload", () => S.save());
   $("#chat").addEventListener("submit", onChat);

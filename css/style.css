@@ -586,3 +586,9 @@ dialog.wizard { width: min(720px, 98vw); }
   .pr-screen .pr-sec { break-inside: avoid-page; }
   .pr-screen p { margin: 3pt 0; font-size: 9.5pt; }
 }
+
+/* ---- secret rolls ---- */
+.msg.secret { border-left: 3px dashed #a77bd6; padding-left: 4px; }
+.msg-acts { display: flex; gap: 8px; align-items: center; justify-content: space-between; font-size: 11px; color: #a77bd6; margin: 2px 0 6px; }
+.msg-acts button { cursor: pointer; border: 1px solid #3a3d4a; background: #22242e; color: #cfd6e6; border-radius: 2px; padding: 2px 8px; }
+#b-undo:disabled { opacity: .45; cursor: default; }

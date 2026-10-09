@@ -18,6 +18,7 @@
     <button type="button" data-action="export" id="b-export">Export</button>
     <button type="button" data-action="import" id="b-import">Import</button>
     <button type="button" data-action="room" id="b-room" class="room">Room</button>
+    <button type="button" data-action="undo" id="b-undo" disabled>Undo</button>
     <button type="button" data-action="print" id="b-print">Print</button>
     <button type="button" data-action="kits" id="b-kits">Kits</button>
     <button type="button" data-action="help" id="b-help">Help</button>
@@ -30,7 +31,7 @@
   <aside id="side"></aside>
   <main id="main"></main>
   <aside id="log">
-    <div class="log-head"><nav id="rtabs"></nav><button type="button" data-action="clearLog" id="b-clearlog">Clear log</button></div>
+    <div class="log-head"><nav id="rtabs"></nav><button type="button" data-action="secretRoll" id="b-secret">Secret roll</button><button type="button" data-action="clearLog" id="b-clearlog">Clear log</button></div>
     <div id="pane-log" class="pane"><div id="log-list"></div>
       <form id="chat" hidden><select id="chat-to" hidden></select><input id="chat-text" type="text" maxlength="400" autocomplete="off"><button type="submit" id="chat-send">Send</button></form></div>
     <div id="pane-xchg" class="pane" hidden></div>

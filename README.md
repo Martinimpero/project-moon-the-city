@@ -112,13 +112,19 @@ The **Screen** tab (everyone sees it) holds the manual's quick-reference tables 
 
 **Print** (header) opens your browser's print window with clean black-on-white pages; choose "Save as PDF" as the printer to make a file. You can print the sheet you are looking at (character, Threat or crew), a **blank character sheet** to fill in by hand (Appendix A layout), all handouts (one page each, in your language, or both languages on two pages), the party journal, your private notes, the whole **rules screen**, and the Clocks (GM). Players print the handouts they have been shown. Nothing is uploaded anywhere: the pages are made in your browser. Not tested on a physical printer or on Safari/Firefox print layouts; the page layout was checked on screen in Edge/Chromium.
 
+## Secret rolls and Undo
+
+**Secret roll** (GM, on the Log tab) rolls a pool of dice against a Difficulty with a label ("the guard notices"); a Threat's sheet also has **Roll in secret**. The card is only in the GM's log, marked with a dashed edge, and never travels to the room. **Show to the table** turns it into a normal card for everyone.
+
+**Undo** (header, or Ctrl+Z when you are not typing) takes back the last change: rolls, the Hail Mary, Signature Techniques, Apply Hurt, downtime and scene steps, Clock changes, Exchange and condition changes, and deleting a sheet, token, scene or item. It keeps up to 15 steps for this session (cleared when you reload). The log is **not** rewound: a roll everyone saw stays in the log, and a card tells the table that someone took back the last change. A cancelled dialog is not counted as a step. In a room, a player's undo restores their own sheets and sends them to the GM; it cannot undo something the GM did to them (for example an effect the GM applied). Typing in fields, importing and changing language are not undoable.
+
 ## Not built yet
 Accounts, cloud save, per-player vision, dynamic lighting.
 
 ## Files
 - `index.html`, `css/style.css`: the page and look (same design as the rulebook).
 - `js/rules.mjs`: the pure rules (bands, E.G.O., Sins, Fit, Drift, Hail Mary, upkeep). `js/engine.mjs`: rolls, techniques, downtime. `js/model.mjs`, `js/store.mjs`: data and saving. `js/ui.mjs`: the interface. `js/room.mjs`: the shared-room protocol. `js/board.mjs`, `js/boardui.mjs`, `js/maplist.mjs`: the Exchange tracker and map. `js/handouts.mjs`, `js/handoutui.mjs`: handouts. `js/timer.mjs`: the turn timer. `js/net.mjs`, `js/backup.mjs`, `js/safety.mjs`: connection checks and data safety. `js/creation.mjs`, `js/wizard.mjs`: the character builder. `js/scenes.mjs`: scenes. `js/journal.mjs`, `js/journalui.mjs`: the journal. `js/conditions.mjs`: conditions. `js/sfx.mjs`: sounds. `js/es.mjs`, `js/ui_es.mjs`, `js/room_es.mjs`: Spanish.
-- `tests/`: `node --test tests/*.test.mjs` (needs Node 20+; 210 tests).
+- `tests/`: `node --test tests/*.test.mjs` (needs Node 20+; 217 tests).
 
 ## If you change the rules
 Edit `js/rules.mjs` (and the tests), then the text in `js/config.mjs`, `js/engine.mjs` and Spanish in `js/es.mjs`. Any new English text passed to `t("...")` must get a Spanish entry, or `tests/i18n.test.mjs` fails.

@@ -36,7 +36,7 @@ export function statNotes(tpl, tr = k => k) {
   if (tpl.atk || tpl.def || tpl.res) lines.push(`${tr("Attack")} ${tpl.atk} · ${tr("Defense")} ${tpl.def} · ${tr("Resolve")} ${tpl.res}`);
   if (tpl.track) lines.push(`${tr("Track")}: ${tpl.track}`);
   for (const x of tpl.tech ?? []) lines.push(x.name ? `${x.name}: ${x.text}` : x.text);
-  if (tpl.use) lines.push(`${tr("Use")}: ${tpl.use}`);
+  if (tpl.use) lines.push(`${tr("Use in play")}: ${tpl.use}`);
   return lines.join("\n");
 }
 
