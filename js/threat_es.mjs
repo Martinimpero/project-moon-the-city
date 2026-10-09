@@ -197,5 +197,16 @@ export const THREAT_ES = {
   "Players see drawings and areas": "Los jugadores ven los dibujos y las áreas",
   "Inside: {names}": "Dentro: {names}",
   "Nobody is inside.": "No hay nadie dentro.",
-  "Open the table guide: how to open rooms and play": "Abrir la guía de la mesa: cómo abrir salas y jugar"
+  "Open the table guide: how to open rooms and play": "Abrir la guía de la mesa: cómo abrir salas y jugar",
+  "Finish session": "Terminar sesión",
+  "Finish the session": "Terminar la sesión",
+  "Save and finish": "Guardar y terminar",
+  "This saves a file with everything (it goes to your Downloads folder), keeps a snapshot inside the browser, and writes your backup file if you set one.": "Esto guarda un archivo con todo (va a tu carpeta de Descargas), conserva una copia dentro del navegador y escribe tu archivo de respaldo si has puesto uno.",
+  "Before you close: the Consequence Beat (what ticked, what strained) and Award Marks.": "Antes de cerrar: el Latido de Consecuencias (qué avanzó, qué se tensó) y Dar Marcas.",
+  "Remind the players to save their own sheets": "Recordar a los jugadores que guarden sus fichas",
+  "Session finished": "Sesión terminada",
+  "Everyone: press Finish session to save your own sheet.": "Todos: pulsad Terminar sesión para guardar vuestra ficha.",
+  "Session saved: {file}": "Sesión guardada: {file}",
+  "Before a kit": "Antes de un kit",
+  "End of session": "Fin de sesión"
 };

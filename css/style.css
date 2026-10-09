@@ -616,3 +616,4 @@ dialog.wizard { width: min(720px, 98vw); }
 .visbar input[type=number] { width: 4em; }
 .m-stage.tool-area svg { cursor: crosshair; }
 .markbar input[type=number], .markbar select { max-width: 6em; }
+.side-foot .finish { background: #2c4a3a; border-color: #46aa5a; }

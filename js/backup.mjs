@@ -8,6 +8,12 @@ import { uid, normalizeActor } from "./model.mjs";
 export const DAY = 24 * 60 * 60 * 1000;
 export const REMIND_AFTER = 3 * DAY;
 
+/** The name of the file "Finish session" writes: project-moon-session-2026-10-10-2105.json (local date and time, so files sort in order). */
+export function sessionFileName(d = new Date()) {
+  const p = n => String(n).padStart(2, "0");
+  return `project-moon-session-${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}.json`;
+}
+
 /** A file holding one character (with their gear, Bonds and Traumas), small enough to send to a friend. */
 export function characterFile(actor) {
   const { derived, remote, ...a } = actor;

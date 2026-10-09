@@ -468,6 +468,27 @@ function undoLast() {
   if (room?.role === "host") { room.sendBoard(); room.sendJournal(state.journal); }
   toast(t("Undone: {label}", { label: t(label) }));
 }
+/** "Finish session": snapshot inside the browser, a file in Downloads, the backup file if there is one, and (GM) a reminder for the players. */
+async function finishSession() {
+  const gmInRoom = !!room?.online && room.role === "host";
+  const r = await ask({
+    title: t("Finish the session"), ok: t("Save and finish"), wide: true,
+    body: `<p>${esc(t("This saves a file with everything (it goes to your Downloads folder), keeps a snapshot inside the browser, and writes your backup file if you set one."))}</p>
+      ${isGM() ? `<p class="pm-note">${esc(t("Before you close: the Consequence Beat (what ticked, what strained) and Award Marks."))}</p>` : ""}
+      ${gmInRoom ? `<div class="pm-row"><label class="chk"><input type="checkbox" name="remind" checked> ${esc(t("Remind the players to save their own sheets"))}</label></div>` : ""}`,
+    read: f => ({ remind: !!f.elements.remind?.checked })
+  });
+  if (!r) return;
+  if (r.remind) post(bi(() => E.card(esc(t("Session finished")), `<p>${esc(t("Everyone: press Finish session to save your own sheet."))}</p>`)));
+  persist();
+  await takeSnapshot("end of session", true);
+  const name = K.sessionFileName(new Date());
+  downloadText(JSON.stringify(S.exportData(), null, 1), name);
+  state.seenWarning = true; meta.exportedAt = Date.now(); saveMeta();
+  if (backupFile) await runAutoBackup();
+  renderWarn();
+  toast(t("Session saved: {file}", { file: name }));
+}
 const BUNDLED_KITS = [["kits/session01.json", "Session 01: The Row Shipment (Risk 3)"]];
 const confirmDlg = (title, message, ok = t("OK")) => ask({ title, body: `<p>${message}</p>`, ok, read: () => true }).then(Boolean);
 
@@ -552,7 +573,7 @@ function renderSidebar() {
     </div>
     <ul class="actor-list">${list || `<li class="hint pad">${esc(t("Nobody yet. Add the pregens, or make a character."))}</li>`}</ul>
     ${remoteHtml()}
-    <div class="side-foot"><button type="button" data-action="downtimeAll">${esc(t("Run downtime for all"))}</button><button type="button" data-action="newSceneAll">${esc(t("New scene for all"))}</button>${isGM() ? `<button type="button" data-action="awardMarks">${esc(t("Award Marks"))}</button>` : ""}</div>`;
+    <div class="side-foot"><button type="button" data-action="downtimeAll">${esc(t("Run downtime for all"))}</button><button type="button" data-action="newSceneAll">${esc(t("New scene for all"))}</button>${isGM() ? `<button type="button" data-action="awardMarks">${esc(t("Award Marks"))}</button>` : ""}<button type="button" data-action="finish" class="finish">${esc(t("Finish session"))}</button></div>`;
 }
 
 function remoteHtml() {
@@ -978,7 +999,7 @@ async function doDowntime(actors, crew) {
 
 /* ------------------------------------------------------------------ click actions */
 
-const READONLY_OK = new Set(["backups", "export", "exportCharacter", "allowBackupFile", "stopRetry", "applyHurt", "rtab", "sound", "timerGo", ...Object.keys(boardUI.actions), ...Object.keys(handoutUI.actions), ...Object.keys(journalUI.actions), ...Object.keys(threatUI.actions), ...Object.keys(tablesUI.actions), ...Object.keys(clocksUI.actions), ...Object.keys(screenUI.actions), "view", "select", "selectRemote", "tab", "kits", "print", "awardMarks", "undo", "secretRoll", "revealRoll", "newCharacter", "newNpc", "newCrew", "pregens", "lang", "export", "import", "help", "room", "clearLog", "downtimeAll", "newSceneAll"]);
+const READONLY_OK = new Set(["backups", "export", "exportCharacter", "allowBackupFile", "stopRetry", "applyHurt", "rtab", "sound", "timerGo", ...Object.keys(boardUI.actions), ...Object.keys(handoutUI.actions), ...Object.keys(journalUI.actions), ...Object.keys(threatUI.actions), ...Object.keys(tablesUI.actions), ...Object.keys(clocksUI.actions), ...Object.keys(screenUI.actions), "view", "select", "selectRemote", "tab", "kits", "print", "awardMarks", "finish", "undo", "secretRoll", "revealRoll", "newCharacter", "newNpc", "newCrew", "pregens", "lang", "export", "import", "help", "room", "clearLog", "downtimeAll", "newSceneAll"]);
 const actions = {
   ...threatUI.actions, ...tablesUI.actions, ...clocksUI.actions, ...screenUI.actions,
   stopRetry: () => { room?.leave(); room = null; saveSession(); render(); },
@@ -1129,6 +1150,7 @@ const actions = {
     post(bi(() => E.card(esc(t("Marks awarded")), `<p>${esc(t("Marks each: {n} ({names})", { n, names: given.join(", ") }))}</p>`))); persist(); flashLog();
     if (given.length < r.who.length) toast(t("Some players could not be reached."));
   },
+  finish: () => finishSession(),
   undo: () => undoLast(),
   secretRoll: async () => {
     if (!isGM()) return;
@@ -1331,7 +1353,7 @@ function tickTimer() {
 async function backupDialog() {
   const now = Date.now();
   const [snaps, info] = await Promise.all([safe.snapshots.list(), safe.storageInfo()]);
-  const rows = [...snaps].reverse().map(sn => `<li><span>${esc(sn.label === "auto" ? t("Automatic") : (sn.label === "before import" ? t("Before an import") : sn.label))} &middot; ${esc(K.ageText(sn.at, now, t))} &middot; ${esc(K.sizeText(sn.size))}</span><button type="button" data-restore="${sn.at}">${esc(t("Restore"))}</button></li>`).join("");
+  const rows = [...snaps].reverse().map(sn => `<li><span>${esc(({ "auto": t("Automatic"), "before import": t("Before an import"), "before kit": t("Before a kit"), "end of session": t("End of session") })[sn.label] ?? sn.label)} &middot; ${esc(K.ageText(sn.at, now, t))} &middot; ${esc(K.sizeText(sn.size))}</span><button type="button" data-restore="${sn.at}">${esc(t("Restore"))}</button></li>`).join("");
   const fileLine = !safe.fileSupported() ? esc(t("Your browser cannot write a backup file by itself (Chrome and Edge on a computer can). Use Export now and then."))
     : (backupFile ? esc(t("Writing every change to your backup file. {state}", { state: backupFilePerm === "granted" ? t("It is up to date.") : t("The browser needs you to allow it again.") })) : esc(t("No backup file chosen.")));
   const body = `
