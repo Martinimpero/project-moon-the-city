@@ -151,6 +151,51 @@ export function createBoardUI(ctx) {
 
   function fit(map) { view = { x: 0, y: 0, w: map.w, h: map.h }; viewKey = map.rev; }
 
+  /** The GM's scene bar: pick, make, rename, copy and delete scenes, and show one to the table (or keep preparing it unseen). */
+  function sceneBar() {
+    const info = ctx.sceneInfo(), preparing = info.viewId !== info.shownId;
+    const opts = info.list.map(s => `<option value="${s.id}" ${s.id === info.viewId ? "selected" : ""}>${s.id === info.shownId ? "\u25B6 " : ""}${esc(s.name)}</option>`).join("");
+    return `<div class="m-bar scenebar"><select id="sc-pick" title="${esc(t("Scenes. The one with a triangle is on show to the table."))}">${opts}</select>
+      <button type="button" data-action="sceneNew">+ ${esc(t("Scene"))}</button><button type="button" data-action="sceneRename">${esc(t("Rename"))}</button><button type="button" data-action="sceneDup">${esc(t("Copy"))}</button><button type="button" data-action="sceneDel" ${info.list.length < 2 ? "disabled" : ""}>${esc(t("Delete"))}</button>
+      ${preparing ? `<span class="prep">${esc(t("Preparing: the table cannot see this."))}</span><button type="button" class="primary" data-action="sceneShow">${esc(t("Show to the table"))}</button>` : `<span class="live">${esc(t("On show to the table"))}</span>`}</div>`;
+  }
+
+  /* ---- tokens that know their sheets ---- */
+  const HARM_RING = ["#14151b", "#e0c030", "#f08c28", "#d63031", "#9650c8"];
+  const SIN_HEX = { wrath: "#d63031", lust: "#f08c28", sloth: "#c9aa1e", gluttony: "#46aa5a", gloom: "#2fa9bd", pride: "#4664dc", envy: "#9650c8" };
+  const actorOf = tk => (tk.actorId ? ctx.findActor(tk.actorId) : null);
+  const condsOf = tk => { const s = tk.actorId ? C.slotForActor(ctx.board().tracker, tk.actorId) : null; return s ? C.conditionsOf(s) : []; };
+  /** Condition chips above a token and E.G.O. pips below it. */
+  function tokenExtras(tk, rr) {
+    const a = actorOf(tk), conds = condsOf(tk);
+    const chips = conds.map((c, i, all) => {
+      const def = C.CONDITIONS[c.type], x = (i - (all.length - 1) / 2) * 28, name = condName(c);
+      return `<g transform="translate(${x} ${-rr - 14})"><circle r="12" fill="${SIN_HEX[def.sin] ?? "#8d94a8"}" stroke="#14151b" stroke-width="3"/><text y="4.5" font-size="13" font-weight="800" text-anchor="middle" fill="#fff" style="font-family:var(--pm-head)">${esc(name.slice(0, 1).toUpperCase())}${def.stacks && c.stacks > 1 ? `<tspan font-size="9" dy="-4">${c.stacks}</tspan>` : ""}</text></g>`;
+    }).join("");
+    let pips = "";
+    if (a?.type === "character") {
+      const max = a.system.ego.max, cur = a.derived.egoCurrent;
+      pips = Array.from({ length: max }, (_, i) => `<circle cx="${(i - (max - 1) / 2) * 16}" cy="${rr + 13}" r="6" fill="${i < cur ? "#c9a227" : "#14151b"}" stroke="#c9a227" stroke-width="2"/>`).join("");
+    }
+    return { chips, pips, harm: a?.system?.harm ?? 0, hasPips: !!pips };
+  }
+  /** The panel for the selected token: what its sheet says, and a way to open it. */
+  function tokenInfo(map) {
+    const tk = map.tokens.find(x => x.id === sel);
+    if (!tk) return "";
+    const a = actorOf(tk), gm = ctx.isGM(), conds = condsOf(tk);
+    const lines = [];
+    if (a?.type === "character") lines.push(`E.G.O. ${a.derived.egoCurrent}/${a.system.ego.max} · ${esc(t("Stress"))} ${a.system.stress} · ${esc(HARM_LABEL[a.system.harm])}`);
+    else if (a?.type === "npc") lines.push(`${esc(t("Grade"))} ${a.system.grade} · ${esc([t("Holding"), t("Breaking"), t("Routed")][a.system.threat] ?? "")} · ${esc(HARM_LABEL[a.system.harm])}`);
+    if (conds.length) lines.push(conds.map(c => `<span class="cond sin-${C.CONDITIONS[c.type].sin || "none"}"><b>${esc(condName(c))}${c.stacks > 1 ? ` &times;${c.stacks}` : ""}</b></span>`).join(" "));
+    const others = gm && !a ? ctx.state.actors.concat(ctx.remoteActors()).filter(x => x.type === "character" || x.type === "npc") : [];
+    const link = others.length ? `<select id="tk-link"><option value="">${esc(t("Link to a sheet..."))}</option>${others.map(x => `<option value="${x.id}">${esc(x.name)}${x.remote ? ` (${esc(x.remote.owner)})` : ""}</option>`).join("")}</select>` : "";
+    const inOrder = !!(tk.actorId && C.slotForActor(ctx.board().tracker, tk.actorId));
+    return `<div class="tk-info"><b>${esc(tk.name)}</b>${lines.map(l => `<div>${l}</div>`).join("")}<div class="btns">
+      ${a ? `<button type="button" data-action="tkSheet" data-id="${tk.id}">${esc(t("Open sheet"))}</button>` : ""}
+      ${gm && a && !inOrder ? `<button type="button" data-action="tkExchange" data-id="${tk.id}">${esc(t("Add to Exchange"))}</button>` : ""}${link}</div></div>`;
+  }
+
   function mapHtml() {
     const b = ctx.board(), map = b.map, gm = ctx.isGM();
     const options = `<option value="">${esc(t("No map"))}</option>` + MAPS.map(m => `<option value="${m.id}" ${map?.bundled === m.id ? "selected" : ""}>${esc(m.title)}</option>`).join("") + `<option value="__upload">${esc(t("Upload an image..."))}</option>`;
@@ -165,30 +210,31 @@ export function createBoardUI(ctx) {
     const bar = gm ? `<div class="m-bar"><select id="m-pick">${options}</select>${map ? measureBtn + pingBtn : ""}
       ${map ? `<label class="chk"><input type="checkbox" id="m-grid" ${map.grid ? "checked" : ""}> ${esc(t("Grid"))}</label><label class="chk"><input type="checkbox" id="m-snap" ${map.snap ? "checked" : ""}> ${esc(t("Snap"))}</label>
       <label class="chk">${esc(t("Square"))} <input type="number" id="m-cell" value="${map.cell}" min="10" max="400" step="1"></label>
-      <button type="button" data-action="tokenAdd">+ ${esc(t("Token"))}</button>
+      <button type="button" data-action="tokenAdd">+ ${esc(t("Token"))}</button><button type="button" data-action="tokensAll" title="${esc(t("Put a token on the map for every character"))}">+ ${esc(t("Characters"))}</button>
       ${sel && map.tokens.some(x => x.id === sel) ? `<button type="button" data-action="tokenHide">${esc(map.tokens.find(x => x.id === sel).hidden ? t("Show") : t("Hide"))}</button><button type="button" data-action="tokenDel">${esc(t("Remove"))}</button>` : ""}` : ""}
       </div>` : "";
     const pingOnly = `<button type="button" data-action="toolSet" data-tool="ping" class="${tool === "ping" ? "on" : ""}" title="${esc(t("Click the map to point everyone to a spot"))}">${esc(t("Ping"))}</button>`;
-    const bars = gm ? bar + fogBar : (map ? `<div class="m-bar">${measureBtn}${pingOnly}</div>` : "");
-    if (!map) return `${bar}<p class="hint pad">${esc(gm ? t("Pick a map to show the table.") : t("The GM has not shown a map."))}</p>`;
+    const bars = gm ? sceneBar() + bar + fogBar : (map ? `<div class="m-bar">${measureBtn}${pingOnly}</div>` : "");
+    if (!map) return `${gm ? sceneBar() + bar : ""}<p class="hint pad">${esc(gm ? t("Pick a map for this scene.") : t("The GM has not shown a map."))}</p>`;
     const src = mapSrc();
     if (!view || viewKey !== map.rev) fit(map);
     const r = map.cell * 0.46;
     const grid = map.grid && map.cell > 0 ? `<defs><pattern id="g" width="${map.cell}" height="${map.cell}" patternUnits="userSpaceOnUse"><path d="M ${map.cell} 0 H 0 V ${map.cell}" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="2.5"/></pattern></defs><rect width="${map.w}" height="${map.h}" fill="url(#g)" pointer-events="none"/>` : "";
     const tokens = map.tokens.map(tk => {
       const rr = r * (tk.size || 1);
-      const img = tokenImg(tk);
+      const img = tokenImg(tk), ex = tokenExtras(tk, rr);
       return `<g class="tk ${tk.id === sel ? "sel" : ""} ${tk.hidden ? "hid" : ""}" data-id="${tk.id}" transform="translate(${tk.x} ${tk.y})">
-        <circle r="${rr}" fill="${esc(tk.color)}" stroke="#14151b" stroke-width="4"/>
+        <circle r="${rr}" fill="${esc(tk.color)}" stroke="${HARM_RING[ex.harm] ?? HARM_RING[0]}" stroke-width="${ex.harm ? 9 : 4}"/>
         ${img ? `<clipPath id="c${tk.id}"><circle r="${rr - 3}"/></clipPath><image href="${esc(img)}" x="${-rr}" y="${-rr}" width="${rr * 2}" height="${rr * 2}" clip-path="url(#c${tk.id})"/>` : `<text class="ini" y="${rr * 0.32}" font-size="${rr * 0.9}" text-anchor="middle">${esc(B.initials(tk.name))}</text>`}
         ${tk.id === sel ? `<circle r="${rr + 5}" fill="none" stroke="#c9a227" stroke-width="5"/>` : ""}
-        <text class="lbl" y="${rr + 26}" font-size="22" text-anchor="middle">${esc(tk.name)}</text></g>`;
+        ${ex.chips}${ex.pips}
+        <text class="lbl" y="${rr + (ex.hasPips ? 40 : 26)}" font-size="22" text-anchor="middle">${esc(tk.name)}</text></g>`;
     }).join("");
     const svg = `<svg id="mapsvg" viewBox="${view.x} ${view.y} ${view.w} ${view.h}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
       <rect width="${map.w}" height="${map.h}" fill="#20222a"/>${src ? `<image href="${esc(src)}" width="${map.w}" height="${map.h}"/>` : `<text x="${map.w / 2}" y="${map.h / 2}" fill="#9aa3b5" font-size="40" text-anchor="middle">${esc(t("Loading the map..."))}</text>`}${grid}${fogSvg(map, gm)}${tokens}${pingsSvg(map)}</svg>`;
     const zoom = `<div class="m-zoom"><button type="button" data-action="mapZoom" data-f="0.8">+</button><button type="button" data-action="mapZoom" data-f="1.25">&minus;</button><button type="button" data-action="mapFit">${esc(t("Fit"))}</button></div>`;
     const note = map.name ? `<div class="m-name">${esc(map.name)}</div>` : "";
-    return `${bars}<div class="m-stage ${tool ? "tool-" + tool : ""}">${svg}${zoom}${note}</div>`;
+    return `${bars}<div class="m-stage ${tool ? "tool-" + tool : ""}">${svg}${zoom}${note}${tokenInfo(map)}</div>`;
   }
 
   /** The covered squares as one dark path. The GM sees through it; players do not. */
@@ -312,6 +358,11 @@ export function createBoardUI(ctx) {
     };
     svg.addEventListener("pointerup", end);
     svg.addEventListener("pointercancel", end);
+    svg.addEventListener("dblclick", e => {
+      const g = e.target.closest(".tk"); if (!g) return;
+      const tk = map.tokens.find(x => x.id === g.dataset.id);
+      if (tk?.actorId) ctx.openSheet(tk.actorId);
+    });
     svg.addEventListener("wheel", e => { e.preventDefault(); zoom(e.deltaY < 0 ? 0.85 : 1.18, svgPoint(svg, e)); }, { passive: false });
   }
   /** The measuring line: a gold line and a label with the distance in squares. */
@@ -363,6 +414,37 @@ export function createBoardUI(ctx) {
   /* ---- map actions ---- */
   const mapActions = {
     mapZoom: el => zoom(Number(el.dataset.f)),
+    sceneNew: async () => {
+      const r = await ctx.ask({ title: t("New scene"), ok: t("Add"), body: `<div class="pm-row"><label>${esc(t("Name"))}</label><input type="text" name="name" maxlength="40" placeholder="${esc(t("The warehouse"))}"></div>`, read: f => f.elements.name.value.trim() });
+      if (r === null) return;
+      ctx.sceneDo("add", r); sel = ""; view = null; ctx.changed();
+    },
+    sceneRename: async () => {
+      const info = ctx.sceneInfo(), cur = info.list.find(s => s.id === info.viewId);
+      const r = await ctx.ask({ title: t("Rename scene"), ok: t("Save"), body: `<div class="pm-row"><label>${esc(t("Name"))}</label><input type="text" name="name" maxlength="40" value="${esc(cur?.name ?? "")}"></div>`, read: f => f.elements.name.value.trim() });
+      if (r) { ctx.sceneDo("rename", r); ctx.changed(); }
+    },
+    sceneDup: () => { if (ctx.sceneDo("dup")) { sel = ""; view = null; ctx.changed(); } else ctx.toast(t("That is the most scenes this app keeps.")); },
+    sceneDel: async () => {
+      const info = ctx.sceneInfo(), cur = info.list.find(s => s.id === info.viewId);
+      const ok = await ctx.ask({ title: t("Delete {name}?", { name: cur?.name ?? "" }), ok: t("Delete"), body: `<p>${esc(t("The map, its tokens and its fog go with it. This cannot be undone. Export first if you want a copy."))}</p>`, read: () => true });
+      if (ok && ctx.sceneDo("del")) { sel = ""; view = null; ctx.changed(); }
+    },
+    sceneShow: () => { ctx.sceneDo("show"); view = null; ctx.changed(); ctx.toast(t("The table now sees this scene.")); },
+    tkSheet: el => { const tk = ctx.board().map?.tokens.find(x => x.id === el.dataset.id); if (tk?.actorId && !ctx.openSheet(tk.actorId)) ctx.toast(t("That sheet is not available here.")); },
+    tkExchange: el => { const tk = ctx.board().map?.tokens.find(x => x.id === el.dataset.id); if (tk?.actorId && ctx.addToExchange(tk.actorId)) { ctx.toast(t("{name} added to the Exchange order.", { name: tk.name })); ctx.changed(); } },
+    tokensAll: () => {
+      const map = ctx.board().map; if (!map) return;
+      const all = ctx.state.actors.concat(ctx.remoteActors()).filter(a => a.type === "character" && !map.tokens.some(x => x.actorId === a.id));
+      if (!all.length) return ctx.toast(t("Every character already has a token here."));
+      const cx = view ? view.x + view.w / 2 : map.w / 2, cy = view ? view.y + view.h / 2 : map.h / 2, step = (map.cell > 0 ? map.cell : 70) * 1.5;
+      all.forEach((a, i) => {
+        const guess = TOKENS.find(x => x.endsWith(a.name.replace(/\s+/g, "_"))) ?? "";
+        const tk = B.addToken(map, { name: a.name, x: cx + (i - (all.length - 1) / 2) * step, y: cy, color: B.TOKEN_COLORS[i % (B.TOKEN_COLORS.length - 1)], img: guess, actorId: a.id, pc: true });
+        B.moveToken(map, tk.id, tk.x, tk.y);
+      });
+      ctx.changed();
+    },
     toolSet: el => { tool = tool === el.dataset.tool ? "" : el.dataset.tool; ctx.redrawMap(); },
     fogAll: el => { const m = ctx.board().map; if (m?.fog) { B.fogAll(m, el.dataset.v === "1"); ctx.changed(); } },
     fogAround: () => {
@@ -404,6 +486,12 @@ export function createBoardUI(ctx) {
     const el = e.target;
     if (el.id === "x-secs") { const T = timerOf(ctx.board().tracker); timerSetSecs(T, Number(el.value)); ctx.clock.sync(T); ctx.changed(); return; }
     if (el.id === "x-auto") { timerOf(ctx.board().tracker).auto = el.checked; ctx.changed(); return; }
+    if (el.id === "sc-pick") { ctx.sceneDo("view", el.value); sel = ""; view = null; ctx.changed(); return; }
+    if (el.id === "tk-link") {
+      const tk = ctx.board().map?.tokens.find(x => x.id === sel), a = ctx.findActor(el.value);
+      if (tk && a) { tk.actorId = a.id; tk.pc = a.type === "character"; ctx.changed(); }
+      return;
+    }
     if (el.id === "m-pick") {
       if (el.value === "__upload") { $("#mapfile").click(); el.value = ctx.board().map?.bundled ?? ""; return; }
       if (!el.value) ctx.setMap(null);

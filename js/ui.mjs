@@ -11,6 +11,8 @@ import { verdictCandidates } from "./voice.mjs";
 import { Room, newCode, cleanCode } from "./room.mjs";
 import { peerOptionsFor, parseIceServers, testConnection, DEFAULT_ICE } from "./net.mjs";
 import * as K from "./backup.mjs";
+import * as SC from "./scenes.mjs";
+import { viewedScene } from "./scenes.mjs";
 import { openWizard } from "./wizard.mjs";
 import * as safe from "./safety.mjs";
 import * as B from "./board.mjs";
@@ -118,7 +120,7 @@ const remoteBoard = { tracker: B.newTracker(), map: null, image: null };   // wh
 const dragging = () => !!document.querySelector("#mapsvg")?.dataset.drag;
 const isGM = () => !room?.online || room.role === "host";
 const board = () => (isGM()
-  ? { tracker: state.tracker, map: state.map, image: state.map && !state.map.bundled && state.map.src ? { rev: state.map.rev, src: state.map.src } : null }
+  ? { tracker: state.tracker, map: S.viewedMap(), image: S.viewedMap() && !S.viewedMap().bundled && S.viewedMap().src ? { rev: S.viewedMap().rev, src: S.viewedMap().src } : null }
   : remoteBoard);
 const sfx = createSfx();
 const clock = new TimerClock();
@@ -142,7 +144,23 @@ const boardUI = createBoardUI({
   myName: () => state.name || "",
   sfx: (name, opts) => sfx.play(name, opts),
   showMap: () => { rtab = "map"; view = "log"; render(); },
-  setMap: m => { state.map = m; },
+  setMap: m => { viewedScene(state).map = m; },
+  sceneInfo: () => ({ list: state.scenes.map(s => ({ id: s.id, name: s.name })), shownId: state.sceneId, viewId: state.viewId }),
+  sceneDo: (op, arg) => {
+    const st = state;
+    const r = { view: () => SC.viewScene(st, arg), add: () => SC.addScene(st, arg), rename: () => SC.renameScene(st, st.viewId, arg), dup: () => SC.duplicateScene(st, st.viewId), del: () => SC.removeScene(st, st.viewId), show: () => SC.showScene(st, st.viewId) }[op]?.();
+    if (op === "show" && room?.role === "host") room.sendBoard();
+    return r;
+  },
+  openSheet: id => {                                         // look at a character's or Threat's sheet from a token
+    if (S.byId(id)) { state.selected = id; remoteSel = ""; } else if (findRemote(id)) remoteSel = id; else return false;
+    view = "sheet"; persist(); render(); return true;
+  },
+  addToExchange: id => {
+    const a = findActor(id); if (!a || state.tracker.slots.some(s => s.actorId === id)) return false;
+    B.addSlot(state.tracker, { name: a.name, kind: a.type === "character" ? "pc" : (a.system.isGroup ? "threat" : "named"), actorId: id });
+    return true;
+  },
   post: html => post(html), ask: o => ask(o), toast: m => toast(m)
 });
 const SESSION_KEY = "project-moon-the-city/session";
@@ -183,7 +201,7 @@ const handlers = {
   onScene: () => { state.actors.filter(x => x.type === "character").forEach(E.newScene); persist(); render(); toast(t("The GM started a new scene.")); },
   onPing: p => boardUI.showPing(p, { remote: true }),
   onPlayerPing: (pid, name, { x, y, rev }) => {                   // a player pinged: check it, show it here, pass it to everyone else
-    const map = state.map;
+    const map = S.shownMap();
     if (!map || rev !== map.rev) return;
     const p = B.makePing(map, x, y, false, Date.now(), name);
     if (!p) return;
@@ -193,11 +211,11 @@ const handlers = {
   onBoard: b => { if (dragging()) return; remoteBoard.tracker = b.tracker; remoteBoard.map = b.map; clock.sync(timerOf(b.tracker)); renderBoard(); },
   onMapImg: (rev, src) => { remoteBoard.image = { rev, src }; renderBoard(); },
   onToken: (pid, id, x, y) => {
-    const map = state.map, tk = map?.tokens.find(k => k.id === id), peer = room?.peers.get(pid);
+    const map = S.shownMap(), tk = map?.tokens.find(k => k.id === id), peer = room?.peers.get(pid);
     if (!tk || !peer || !tk.actorId || !peer.actors.some(a => a.id === tk.actorId)) return;     // players move only their own characters' tokens
     B.moveToken(map, id, x, y); persist(); renderBoard(); room.sendBoard();
   },
-  hostBoard: () => { const T = timerOf(state.tracker); return { tracker: { ...state.tracker, timer: { ...T, left: T.running ? Math.ceil(clock.remaining(T)) : T.left } }, map: B.mapForPlayers(state.map), mapImage: state.map && !state.map.bundled && state.map.src ? { rev: state.map.rev, src: state.map.src } : null  }; },
+  hostBoard: () => { const T = timerOf(state.tracker); return { tracker: { ...state.tracker, timer: { ...T, left: T.running ? Math.ceil(clock.remaining(T)) : T.left } }, map: B.mapForPlayers(S.shownMap()), mapImage: S.shownMap() && !S.shownMap().bundled && S.shownMap().src ? { rev: S.shownMap().rev, src: S.shownMap().src } : null  }; },
   onHarm: (actorId, delta) => {
     const a = S.byId(actorId);
     if (!a || a.type !== "character" || delta < 1) return;
@@ -558,7 +576,7 @@ function onField(e) {
   const path = el.dataset.path;
   let v;
   if (el.type === "checkbox") v = el.checked;
-  else if (el.type === "number" || el.hasAttribute("data-num")) { v = Number(el.value); if (Number.isNaN(v)) v = 0; if (el.min !== "") v = Math.max(Number(el.min), v); if (el.max !== "") v = Math.min(Number(el.max), v); }
+  else if (el.type === "number" || el.hasAttribute("data-num")) { v = Number(el.value); if (Number.isNaN(v)) v = 0; if (el.min && el.min !== "") v = Math.max(Number(el.min), v); if (el.max && el.max !== "") v = Math.min(Number(el.max), v); }
   else v = el.value;
   mutate(a, () => { path === "name" ? (a.name = v) : setPath(a, path, v); });
 }

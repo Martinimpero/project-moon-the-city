@@ -464,3 +464,15 @@ dialog.wizard { width: min(720px, 98vw); }
 @media (max-width: 560px) { .wz-two { grid-template-columns: 1fr; } .wz-row small { display: none; } dialog.wizard { max-height: 98vh; } }
 
 .pm-modal.wizard .wz-field input[type=text], .pm-modal.wizard .wz-field select, .pm-modal.wizard .wz-field textarea { flex: 0 0 auto; width: 100%; }
+
+/* ================= scenes and token info ================= */
+.scenebar select { min-width: 150px; max-width: 100%; }
+.scenebar .prep { color: #f3c47a; font: 700 12px var(--pm-head); letter-spacing: .1em; text-transform: uppercase; }
+.scenebar .live { color: #8fe0a8; font: 700 12px var(--pm-head); letter-spacing: .1em; text-transform: uppercase; }
+.scenebar .primary { background: var(--pm-red); border-color: #a33142; color: #fff; }
+.tk-info { position: absolute; left: 8px; bottom: 8px; max-width: min(70%, 320px); background: rgba(20,21,27,.92); border: 1px solid #3a3d4a; border-left: 4px solid var(--pm-gold); padding: 6px 10px; font: 12.5px var(--pm-ui); color: #e6e9f0; z-index: 3; }
+.tk-info > b { font: 800 16px var(--pm-head); letter-spacing: .08em; text-transform: uppercase; display: block; }
+.tk-info .btns { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 5px; }
+.tk-info select { background: #22242e; color: #eceff4; border: 1px solid #3a3d4a; padding: 3px 5px; font: 12px var(--pm-ui); max-width: 100%; }
+.tk-info button { cursor: pointer; font: 700 11px var(--pm-head); letter-spacing: .1em; text-transform: uppercase; border: 1px solid #3a3d4a; background: #22242e; color: #cfd6e6; border-radius: 2px; padding: 4px 9px; }
+.tk-info button:hover { border-color: var(--pm-gold); color: #fff; }

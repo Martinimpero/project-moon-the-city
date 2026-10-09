@@ -4,11 +4,16 @@ import { PREGENS, PREGENS_ES } from "./pregens.mjs";
 import { setLang } from "./i18n.mjs";
 import { newTracker } from "./board.mjs";
 import { normalizeHandout } from "./handouts.mjs";
+import { scenesFrom, ensureScenes, shownMap as shownMapOf, viewedMap as viewedMapOf } from "./scenes.mjs";
 
 const KEY = "project-moon-the-city/v1";
 const LOG_LIMIT = 200;
 
-export const state = { version: 1, lang: "en", name: "", sound: { on: true, vol: 0.6 }, selected: "", actors: [], log: [], seenWarning: false, tracker: newTracker(), map: null, handouts: [] };
+export const state = { version: 1, lang: "en", name: "", sound: { on: true, vol: 0.6 }, selected: "", actors: [], log: [], seenWarning: false, tracker: newTracker(), scenes: [], sceneId: "", viewId: "", handouts: [] };
+ensureScenes(state);
+/** The map the table sees, and the one the GM is looking at (the same unless the GM is preparing another scene). */
+export const shownMap = () => shownMapOf(state);
+export const viewedMap = () => viewedMapOf(state);
 
 export function load(storage = globalThis.localStorage) {
   try {
@@ -26,13 +31,13 @@ function apply(data) {
   state.selected = state.actors.some(a => a.id === data.selected) ? data.selected : (state.actors[0]?.id ?? "");
   state.seenWarning = !!data.seenWarning;
   state.tracker = data.tracker && Array.isArray(data.tracker.slots) ? { active: !!data.tracker.active, exchange: Number(data.tracker.exchange) || 1, slots: data.tracker.slots, timer: data.tracker.timer } : newTracker();
-  state.map = data.map && Array.isArray(data.map.tokens) ? data.map : null;
+  Object.assign(state, scenesFrom(data));
   state.handouts = Array.isArray(data.handouts) ? data.handouts.filter(h => h && h.id && h.title !== undefined).slice(0, 60).map(normalizeHandout) : [];
 }
 
 let dirty = false;
 export function exportData() {
-  return { kind: "project-moon-save", version: 1, lang: state.lang, name: state.name, sound: state.sound, selected: state.selected, seenWarning: state.seenWarning, tracker: state.tracker, map: state.map, handouts: state.handouts, actors: state.actors.map(({ derived, ...a }) => ({ ...a, items: a.items.map(({ derived: _d, ...i }) => i) })), log: state.log.slice(-LOG_LIMIT) };
+  return { kind: "project-moon-save", version: 1, lang: state.lang, name: state.name, sound: state.sound, selected: state.selected, seenWarning: state.seenWarning, tracker: state.tracker, scenes: state.scenes, sceneId: state.sceneId, viewId: state.viewId, handouts: state.handouts, actors: state.actors.map(({ derived, ...a }) => ({ ...a, items: a.items.map(({ derived: _d, ...i }) => i) })), log: state.log.slice(-LOG_LIMIT) };
 }
 let lastJson = "", lastSig = "";
 const hash = str => { let h = 5381; for (let i = 0; i < str.length; i++) h = ((h << 5) + h + str.charCodeAt(i)) | 0; return String(h) + ":" + str.length; };
