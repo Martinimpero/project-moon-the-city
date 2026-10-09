@@ -1,7 +1,7 @@
 /**
- * The shape of the City map: where each lettered District sits (a spiral out from A, District 1, to Y, District 25; Z is on no map). Each District's area is
- * worked out as the part of the City outline nearer to its centre than to any other's (a Voronoi cell), so the schematic keeps the real map's rings without
- * copying its art. Pure geometry; cityui.mjs draws it. Coordinates are in a 1200 x 930 picture.
+ * The shape of the City map: where each lettered District sits (a spiral out from A, District 1, to Y, District 25; Z is on no map). The outlines come
+ * from citycells.mjs, traced from the picture itself by tools/trace_city.py; the nearest-centre cells (`cell`, a Voronoi diagram) are kept as a fallback
+ * and for the tests. Pure geometry; cityui.mjs draws it. Coordinates are in a 1200 x 928 picture.
  */
 export const VIEW = { w: 1200, h: 928 };
 /** The picture the cells lie over (the map of the City, 1200 x 928). */
@@ -39,6 +39,7 @@ export function cell(site, others, outline = OUTLINE) {
 export const area = poly => Math.abs(poly.reduce((s, p, i) => { const q = poly[(i + 1) % poly.length]; return s + p[0] * q[1] - q[0] * p[1]; }, 0)) / 2;
 export const centroid = poly => { const n = poly.length; return [poly.reduce((s, p) => s + p[0], 0) / n, poly.reduce((s, p) => s + p[1], 0) / n]; };
 
+import { CELLS, POINTS } from "./citycells.mjs";
 let cached = null;
 /** { letter: { poly, d, at } } for A to Y: the polygon, its SVG path, and the label position. */
 export function plan() {
@@ -46,7 +47,8 @@ export function plan() {
   const letters = Object.keys(CENTRES), sites = letters.map(l => CENTRES[l]);
   cached = {};
   for (const l of letters) {
-    const poly = cell(CENTRES[l], sites);
+    if (POINTS[l]?.length >= 3) { cached[l] = { poly: POINTS[l], d: CELLS[l], at: CENTRES[l] }; continue; }       // traced from the picture
+    const poly = cell(CENTRES[l], sites);                                                                        // fallback: nearest-centre cell
     cached[l] = { poly, d: poly.length ? "M" + poly.map(p => p[0].toFixed(1) + " " + p[1].toFixed(1)).join("L") + "Z" : "", at: CENTRES[l] };
   }
   return cached;
