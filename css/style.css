@@ -609,3 +609,8 @@ dialog.wizard { width: min(720px, 98vw); }
 .m-stage.tool-erase svg { cursor: not-allowed; }
 .mk.pn { cursor: pointer; }
 .mk.pn .lbl { fill: #fff; stroke: #000; stroke-width: 5px; paint-order: stroke; font-weight: 700; }
+
+/* ---- walls and automatic vision ---- */
+.m-stage.tool-wall svg, .m-stage.tool-door svg { cursor: crosshair; }
+.wl.door { cursor: pointer; }
+.visbar input[type=number] { width: 4em; }

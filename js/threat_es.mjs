@@ -171,5 +171,20 @@ export const THREAT_ES = {
   "Drawing erased": "Dibujo borrado",
   "Drawings cleared": "Dibujos borrados",
   "Note added": "Nota añadida",
-  "Note edited": "Nota editada"
+  "Note edited": "Nota editada",
+  "Player tokens reveal the squares they can see, and walls block the view": "Las fichas de los jugadores revelan las casillas que ven, y los muros bloquean la vista",
+  "Automatic vision": "Visión automática",
+  "Sees": "Ve",
+  "Remember explored": "Recordar lo explorado",
+  "Drag on the map to draw a wall": "Arrastra sobre el mapa para dibujar un muro",
+  "Wall": "Muro",
+  "Drag to draw a door; click a door to open or close it": "Arrastra para dibujar una puerta; haz clic en una puerta para abrirla o cerrarla",
+  "Door": "Puerta",
+  "Clear walls": "Borrar muros",
+  "That is the most walls this map holds.": "Es el máximo de muros que admite este mapa.",
+  "There are no walls to clear.": "No hay muros que borrar.",
+  "Wall added": "Muro añadido",
+  "Wall removed": "Muro quitado",
+  "Walls cleared": "Muros borrados",
+  "Vision setting": "Ajuste de visión"
 };

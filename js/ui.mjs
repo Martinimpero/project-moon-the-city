@@ -448,7 +448,7 @@ const UNDO_LABEL = {
   clockStep: "Clock change", deleteClock: "Clock change", ckStep: "Clock change", ckEdit: "Clock change",
   xStart: "Exchange change", xEnd: "Exchange change", xNext: "Exchange change", xFill: "Exchange change", slotMove: "Exchange change", slotActed: "Exchange change", slotRemove: "Exchange change", slotAdd: "Exchange change",
   condStep: "Condition change", condRemove: "Condition change", condAdd: "Condition change",
-  marksRaise: "Growth", marksUnlock: "Grade unlock", awardMarks: "Marks awarded", tokenDel: "Token removed", marksClear: "Drawings cleared", deleteActor: "Sheet deleted", sceneDel: "Scene deleted", deleteItem: "Item deleted"
+  marksRaise: "Growth", marksUnlock: "Grade unlock", awardMarks: "Marks awarded", tokenDel: "Token removed", marksClear: "Drawings cleared", wallsClear: "Walls cleared", deleteActor: "Sheet deleted", sceneDel: "Scene deleted", deleteItem: "Item deleted"
 };
 const nowJson = () => JSON.stringify(S.exportData());
 const markUndo = label => UNDO.push(undoStack, label, nowJson());

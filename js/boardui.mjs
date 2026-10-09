@@ -15,7 +15,7 @@ export function createBoardUI(ctx) {
   let view = null;               // {x, y, w, h}: the visible part of the map, in image pixels (local to this browser)
   let viewKey = "";
   let sel = "";                  // selected token id
-  let tool = "";                 // "" (pan), "measure", "ping", "reveal", "cover", "draw", "pin" or "erase"
+  let tool = "";                 // "" (pan), "measure", "ping", "reveal", "cover", "draw", "pin", "erase", "wall" or "door"
   let markColor = B.MARK_COLORS[0], markShown = true;   // the colour of the next drawing, and whether players see it
   let look = false;              // a ping also centres everyone's view
   let lastSent = 0;
@@ -206,7 +206,12 @@ export function createBoardUI(ctx) {
       ${fog?.on ? `<button type="button" data-action="toolSet" data-tool="reveal" class="${tool === "reveal" ? "on" : ""}">${esc(t("Reveal"))}</button><button type="button" data-action="toolSet" data-tool="cover" class="${tool === "cover" ? "on" : ""}">${esc(t("Cover up"))}</button>
       <button type="button" data-action="fogAll" data-v="1">${esc(t("Reveal all"))}</button><button type="button" data-action="fogAll" data-v="0">${esc(t("Cover all"))}</button>
       <button type="button" data-action="fogAround" ${sel && map.tokens.some(x => x.id === sel) ? "" : "disabled"} title="${esc(t("Reveal the squares around the selected token"))}">${esc(t("Around token"))}</button>
-      <input type="number" id="m-rad" value="${radius}" min="1" max="12" title="${esc(t("Squares"))}">` : ""}</div>` : "";
+      <input type="number" id="m-rad" value="${radius}" min="1" max="12" title="${esc(t("Squares"))}">` : ""}</div>
+      ${fog?.on ? `<div class="m-bar visbar"><label class="chk" title="${esc(t("Player tokens reveal the squares they can see, and walls block the view"))}"><input type="checkbox" id="m-dyn" ${B.dynOf(map).on ? "checked" : ""}> ${esc(t("Automatic vision"))}</label>
+        ${B.dynOf(map).on ? `<label class="chk">${esc(t("Sees"))} <input type="number" id="m-vrad" value="${B.dynOf(map).radius}" min="1" max="${B.MAX_VISION}" title="${esc(t("Squares"))}"></label><label class="chk"><input type="checkbox" id="m-vrem" ${B.dynOf(map).remember ? "checked" : ""}> ${esc(t("Remember explored"))}</label>` : ""}
+        <button type="button" data-action="toolSet" data-tool="wall" class="${tool === "wall" ? "on" : ""}" title="${esc(t("Drag on the map to draw a wall"))}">${esc(t("Wall"))}</button>
+        <button type="button" data-action="toolSet" data-tool="door" class="${tool === "door" ? "on" : ""}" title="${esc(t("Drag to draw a door; click a door to open or close it"))}">${esc(t("Door"))}</button>
+        <button type="button" data-action="wallsClear">${esc(t("Clear walls"))}</button></div>` : ""}` : "";
     const pingBtn = `<button type="button" data-action="toolSet" data-tool="ping" class="${tool === "ping" ? "on" : ""}" title="${esc(t("Click the map to point everyone to a spot"))}">${esc(t("Ping"))}</button><label class="chk" title="${esc(t("Also centre everyone's view on the spot"))}"><input type="checkbox" id="m-look" ${look ? "checked" : ""}> ${esc(t("Look here"))}</label>`;
     const bar = gm ? `<div class="m-bar"><select id="m-pick">${options}</select>${map ? measureBtn + pingBtn : ""}
       ${map ? `<label class="chk"><input type="checkbox" id="m-grid" ${map.grid ? "checked" : ""}> ${esc(t("Grid"))}</label><label class="chk"><input type="checkbox" id="m-snap" ${map.snap ? "checked" : ""}> ${esc(t("Snap"))}</label>
@@ -239,12 +244,20 @@ export function createBoardUI(ctx) {
     }).join("");
     const marks = marksSvg(map, gm, r);
     const svg = `<svg id="mapsvg" viewBox="${view.x} ${view.y} ${view.w} ${view.h}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
-      <rect width="${map.w}" height="${map.h}" fill="#20222a"/>${src ? `<image href="${esc(src)}" width="${map.w}" height="${map.h}"/>` : `<text x="${map.w / 2}" y="${map.h / 2}" fill="#9aa3b5" font-size="40" text-anchor="middle">${esc(t("Loading the map..."))}</text>`}${grid}${marks}${fogSvg(map, gm)}${tokens}${pingsSvg(map)}</svg>`;
+      <rect width="${map.w}" height="${map.h}" fill="#20222a"/>${src ? `<image href="${esc(src)}" width="${map.w}" height="${map.h}"/>` : `<text x="${map.w / 2}" y="${map.h / 2}" fill="#9aa3b5" font-size="40" text-anchor="middle">${esc(t("Loading the map..."))}</text>`}${grid}${marks}${fogSvg(map, gm)}${gm ? wallsSvg(map) : ""}${tokens}${pingsSvg(map)}</svg>`;
     const zoom = `<div class="m-zoom"><button type="button" data-action="mapZoom" data-f="0.8">+</button><button type="button" data-action="mapZoom" data-f="1.25">&minus;</button><button type="button" data-action="mapFit">${esc(t("Fit"))}</button></div>`;
     const note = map.name ? `<div class="m-name">${esc(map.name)}</div>` : "";
     return `${bars}<div class="m-stage ${tool ? "tool-" + tool : ""}">${svg}${zoom}${note}${tokenInfo(map)}</div>`;
   }
 
+  /** Walls and doors, drawn for the GM only. A door is amber and dashed when closed, green and dotted when open; the wide clear line is the click target. */
+  function wallsSvg(map) {
+    if (!map.fog?.on) return "";
+    return B.wallsOf(map).map(w => {
+      const col = w.kind === "wall" ? "#e0575b" : (w.open ? "#6bd98f" : "#ffb347"), dash = w.kind === "door" ? (w.open ? ' stroke-dasharray="3 12"' : ' stroke-dasharray="16 8"') : "";
+      return `<g class="wl ${w.kind}" data-id="${esc(w.id)}"><line x1="${w.x1}" y1="${w.y1}" x2="${w.x2}" y2="${w.y2}" stroke="transparent" stroke-width="26"/><line x1="${w.x1}" y1="${w.y1}" x2="${w.x2}" y2="${w.y2}" stroke="${col}" stroke-width="7" stroke-linecap="round"${dash} pointer-events="none"/></g>`;
+    }).join("");
+  }
   /** Drawings and note pins. The GM sees all of them (the ones players cannot see are faded); a pin's private note is never drawn. */
   function marksSvg(map, gm, r) {
     return (gm ? B.marksOf(map) : (map.marks ?? [])).map(m => {
@@ -319,6 +332,22 @@ export function createBoardUI(ctx) {
     let drag = null;
     svg.addEventListener("pointerdown", e => {
       if (tool === "ping") { const p = svgPoint(svg, e); sendPing(p.x, p.y); e.preventDefault(); return; }
+      if (ctx.isGM() && tool === "erase" && e.target.closest(".wl")) {
+        const wl = e.target.closest(".wl"); e.preventDefault();
+        ctx.mark?.("Wall removed"); B.removeWall(map, wl.dataset.id); ctx.changed(); return;
+      }
+      if (ctx.isGM() && (tool === "wall" || tool === "door")) {
+        const p = svgPoint(svg, e), c = map.cell > 0 ? map.cell : 70, s = map.snap ? (v => Math.round(v / c) * c) : (v => v), from = { x: s(p.x), y: s(p.y) };
+        const el = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        el.setAttribute("x1", from.x); el.setAttribute("y1", from.y); el.setAttribute("x2", from.x); el.setAttribute("y2", from.y);
+        el.setAttribute("stroke", tool === "wall" ? "#e0575b" : "#ffb347"); el.setAttribute("stroke-width", 7); el.setAttribute("stroke-linecap", "round"); el.setAttribute("pointer-events", "none");
+        svg.appendChild(el); drag = { kind: "wall", from, kind2: tool, el, s };
+        svg.setPointerCapture(e.pointerId); svg.dataset.drag = "1"; e.preventDefault(); return;
+      }
+      if (ctx.isGM() && !tool && e.target.closest(".wl.door")) {
+        const wl = e.target.closest(".wl"); e.preventDefault();
+        ctx.mark?.("Door"); B.toggleDoor(map, wl.dataset.id); ctx.changed(); return;
+      }
       if (ctx.isGM() && tool === "erase") {
         const mk = e.target.closest(".mk"); e.preventDefault();
         if (mk && B.marksOf(map).some(m => m.id === mk.dataset.id)) { ctx.mark?.("Drawing erased"); B.removeMark(map, mk.dataset.id); ctx.changed(); }
@@ -365,6 +394,7 @@ export function createBoardUI(ctx) {
         svg.setAttribute("viewBox", `${view.x} ${view.y} ${view.w} ${view.h}`);
         return;
       }
+      if (drag.kind === "wall") { const p = svgPoint(svg, e); drag.el.setAttribute("x2", drag.s(p.x)); drag.el.setAttribute("y2", drag.s(p.y)); return; }
       if (drag.kind === "stroke") { const p = svgPoint(svg, e), l = drag.pts[drag.pts.length - 1]; if (Math.hypot(p.x - l[0], p.y - l[1]) > 4) { drag.pts.push([p.x, p.y]); drag.el.setAttribute("points", drag.pts.map(q => q.join(",")).join(" ")); } return; }
       if (drag.kind === "measure") { const p = svgPoint(svg, e); showRuler(svg, drag, p); return; }
       if (drag.kind === "fog") {
@@ -385,7 +415,12 @@ export function createBoardUI(ctx) {
     const end = e => {
       if (!drag) return;
       const d = drag; drag = null; delete svg.dataset.drag;
-      if (d.kind === "stroke") {
+      if (d.kind === "wall") {
+        const x2 = Number(d.el.getAttribute("x2")), y2 = Number(d.el.getAttribute("y2")); d.el.remove();
+        if (Math.hypot(x2 - d.from.x, y2 - d.from.y) < 8) { ctx.redrawMap(); return; }
+        ctx.mark?.("Wall added");
+        if (B.addWall(map, { x1: d.from.x, y1: d.from.y, x2, y2, kind: d.kind2, snap: false })) ctx.changed(); else { ctx.toast(t("That is the most walls this map holds.")); ctx.redrawMap(); }
+      } else if (d.kind === "stroke") {
         d.el.remove();
         ctx.mark?.("Drawing");
         if (B.addStroke(map, d.pts, { color: markColor, width: map.cell * 0.08, shown: markShown })) ctx.changed(); else ctx.redrawMap();
@@ -504,6 +539,11 @@ export function createBoardUI(ctx) {
       });
       ctx.changed();
     },
+    wallsClear: async () => {
+      const m = ctx.board().map; if (!m || !ctx.isGM()) return;
+      if (!B.wallsOf(m).length) return ctx.toast(t("There are no walls to clear."));
+      ctx.mark?.("Walls cleared"); B.clearWalls(m); ctx.changed();
+    },
     markColor: el => { markColor = el.dataset.c; ctx.redrawMap(); },
     marksClear: async () => {
       const m = ctx.board().map; if (!m || !ctx.isGM()) return;
@@ -565,7 +605,10 @@ export function createBoardUI(ctx) {
       sel = ""; view = null; ctx.changed();
     } else if (el.id === "m-grid") { ctx.board().map.grid = el.checked; ctx.changed(); }
     else if (el.id === "m-mshown") { markShown = el.checked; return; }
-    else if (el.id === "m-fog") { const m = ctx.board().map; if (!m.fog) m.fog = B.newFog(m); m.fog.on = el.checked; if (!el.checked && (tool === "reveal" || tool === "cover")) tool = ""; ctx.changed(); }
+    else if (el.id === "m-fog") { const m = ctx.board().map; if (!m.fog) m.fog = B.newFog(m); m.fog.on = el.checked; if (!el.checked && (tool === "reveal" || tool === "cover" || tool === "wall" || tool === "door")) tool = ""; B.updateVision(m); ctx.changed(); }
+    else if (el.id === "m-dyn") { const m = ctx.board().map, d = B.dynOf(m); ctx.mark?.("Vision setting"); d.on = el.checked; B.updateVision(m); ctx.changed(); }
+    else if (el.id === "m-vrad") { const m = ctx.board().map, d = B.dynOf(m); d.radius = Math.max(1, Math.min(B.MAX_VISION, Number(el.value) || 8)); B.updateVision(m); ctx.changed(); }
+    else if (el.id === "m-vrem") { const m = ctx.board().map, d = B.dynOf(m); d.remember = el.checked; B.updateVision(m); ctx.changed(); }
     else if (el.id === "m-rad") { radius = Math.max(1, Math.min(12, Number(el.value) || 3)); }
     else if (el.id === "m-look") { look = el.checked; }
     else if (el.id === "m-snap") { ctx.board().map.snap = el.checked; ctx.changed(); }

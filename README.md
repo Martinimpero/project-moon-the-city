@@ -126,13 +126,19 @@ Part IX section 7: at the end of a Contract every player earns **1 Mark**, **+1*
 
 On the map's second toolbar the GM has **Draw** (drag to draw a freehand line in one of eight colours), **Note** (click the map to leave a pin with a label and a **private note**) and **Erase** (click a drawing or a pin to remove it). **Players see drawings** (tick box) decides whether new drawings are shown to the table; each pin has its own "players see this pin" box. Hidden marks look faded and dashed to the GM. Players receive only what is shown: a pin arrives with its label and **never its private note**, and with fog of war a pin in a covered square is not sent. Click a pin to edit it (the GM) or to read its label (players). **Clear drawings** removes the lines and keeps the pins. Marks belong to the scene's map, are saved and exported with it, are copied with **Copy** scene, and the changes can be undone. Players cannot draw. Up to 150 marks per map.
 
+## Walls and automatic vision (GM)
+
+With **Fog of war** on, the GM can tick **Automatic vision**: every player token reveals the squares it can see, up to **Sees N** squares (1 to 15). Draw **Wall**s and **Door**s with their tools (drag on the map; ends snap to the grid corners when Snap is on). A wall blocks the view; a **closed door** blocks it too, and clicking a door opens or closes it (the fog updates at once). **Remember explored** keeps what was seen; without it the fog closes again behind the token and only what is in sight is clear. Tokens that are not player characters do not see. Players move their own tokens as before and the fog follows. The manual Reveal / Cover tools still work. Walls are shown only to the GM and are **never sent to players** (they get the fog that results). Use **Erase** on a wall to remove it, **Clear walls** to remove all; changes can be undone. Up to 300 walls per map.
+
+Limits to know: a square counts as seen when a straight line from the token to its middle crosses no wall (so a view that grazes the end of a wall is blocked, and a square can occasionally be revealed or hidden "wrongly" at a corner); there is no darkness or light sources. Like the rest of the fog, this hides things on screen; it is not a secret from a player who looks at the page's data.
+
 ## Not built yet
 Accounts, cloud save, per-player vision, dynamic lighting.
 
 ## Files
 - `index.html`, `css/style.css`: the page and look (same design as the rulebook).
 - `js/rules.mjs`: the pure rules (bands, E.G.O., Sins, Fit, Drift, Hail Mary, upkeep). `js/engine.mjs`: rolls, techniques, downtime. `js/model.mjs`, `js/store.mjs`: data and saving. `js/ui.mjs`: the interface. `js/room.mjs`: the shared-room protocol. `js/board.mjs`, `js/boardui.mjs`, `js/maplist.mjs`: the Exchange tracker and map. `js/handouts.mjs`, `js/handoutui.mjs`: handouts. `js/timer.mjs`: the turn timer. `js/net.mjs`, `js/backup.mjs`, `js/safety.mjs`: connection checks and data safety. `js/creation.mjs`, `js/wizard.mjs`: the character builder. `js/scenes.mjs`: scenes. `js/journal.mjs`, `js/journalui.mjs`: the journal. `js/conditions.mjs`: conditions. `js/sfx.mjs`: sounds. `js/es.mjs`, `js/ui_es.mjs`, `js/room_es.mjs`: Spanish.
-- `tests/`: `node --test tests/*.test.mjs` (needs Node 20+; 232 tests).
+- `tests/`: `node --test tests/*.test.mjs` (needs Node 20+; 241 tests).
 
 ## If you change the rules
 Edit `js/rules.mjs` (and the tests), then the text in `js/config.mjs`, `js/engine.mjs` and Spanish in `js/es.mjs`. Any new English text passed to `t("...")` must get a Spanish entry, or `tests/i18n.test.mjs` fails.
