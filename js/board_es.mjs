@@ -96,11 +96,11 @@ export const BOARD_ES = {
   "{name} takes Hurt: Harm is now {harm}.": "{name} sufre Golpeado: el Daño ahora es {harm}.",
   "That combatant is no longer in the order.": "Ese combatiente ya no está en el orden.",
   "No Hurt is waiting for {name}.": "No hay Golpeado pendiente para {name}.",
-  "{name} is Wounded. One more Hurt puts them at Maimed / Dying, out of the scene. Apply it?": "{name} está Malherido. Otro Golpeado lo deja Mutilado / Moribundo, fuera de la escena. ¿Aplicarlo?",
   "Apply Hurt": "Aplicar Golpeado",
   "{name} has no sheet here. Mark the Harm yourself.": "{name} no tiene ficha aquí. Anota el Daño tú mismo.",
   "Could not reach {name}'s player.": "No se pudo contactar con el jugador de {name}.",
   "{name} takes Hurt.": "{name} sufre Golpeado.",
-  "Harm advances one tier": "El Daño avanza un nivel",
+  "Harm becomes at least Hurt": "El Daño pasa a ser al menos Golpeado",
+  "{name} burns, but Harm is already {harm}: no change.": "{name} arde, pero el Daño ya es {harm}: sin cambios.",
   "Red": "Rojo", "Orange": "Naranja", "Gold": "Dorado", "Green": "Verde", "Teal": "Turquesa", "Blue": "Azul", "Purple": "Morado", "White": "Blanco"
 };

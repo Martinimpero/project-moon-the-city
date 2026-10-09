@@ -63,7 +63,7 @@ export function createBoardUI(ctx) {
       ${gm ? `<span class="mv"><button type="button" data-action="slotMove" data-id="${s.id}" data-delta="-1" ${i === 0 ? "disabled" : ""}>&uarr;</button><button type="button" data-action="slotMove" data-id="${s.id}" data-delta="1" ${i === tr.slots.length - 1 ? "disabled" : ""}>&darr;</button></span>` : ""}
       <span class="who"><b>${esc(s.name)}</b><small>${esc([kindLabel[s.kind], slotInfo(s)].filter(Boolean).join(" · "))}</small></span>
       ${condsHtml(s, gm)}
-      ${gm && s.hurtDue > 0 ? `<button type="button" class="hurtdue" data-action="applyHurt" data-slot="${s.id}" title="${esc(t("Harm advances one tier"))}">${esc(t("Apply Hurt"))}${s.hurtDue > 1 ? ` &times;${s.hurtDue}` : ""}</button>` : ""}
+      ${gm && s.hurtDue > 0 ? `<button type="button" class="hurtdue" data-action="applyHurt" data-slot="${s.id}" title="${esc(t("Harm becomes at least Hurt"))}">${esc(t("Apply Hurt"))}${s.hurtDue > 1 ? ` &times;${s.hurtDue}` : ""}</button>` : ""}
       ${gm ? `<button type="button" class="act ${s.acted ? "on" : ""}" data-action="slotActed" data-id="${s.id}">${esc(s.acted ? t("Acted") : t("Waiting"))}</button><button type="button" data-action="slotRemove" data-id="${s.id}" title="${esc(t("Remove"))}">&times;</button>`
         : `<span class="state">${esc(s.acted ? t("Acted") : (cur?.id === s.id && tr.active ? t("Up now") : t("Waiting")))}</span>`}</li>`).join("");
     const others = ctx.state.actors.concat(ctx.remoteActors()).filter(a => (a.type === "character" || a.type === "npc") && !tr.slots.some(s => s.actorId === a.id));

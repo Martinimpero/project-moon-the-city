@@ -182,12 +182,14 @@ test("Burn leaves one Hurt waiting per Exchange, and taking them is counted", ()
   assert.equal(s.hurtDue, 0);
 });
 
-test("a Hurt advances Harm one tier, to a top of Maimed, and says when that is reached", () => {
-  assert.deepEqual(C.hurtResult(0), { from: 0, harm: 1, reachesMaimed: false });
-  assert.deepEqual(C.hurtResult(2), { from: 2, harm: 3, reachesMaimed: false });
-  assert.deepEqual(C.hurtResult(3), { from: 3, harm: 4, reachesMaimed: true });
-  assert.deepEqual(C.hurtResult(4), { from: 4, harm: 4, reachesMaimed: false });
+test("Burn's Hurt only sets Harm to Hurt: never worse, and never makes anyone worse", () => {
+  assert.deepEqual(C.hurtResult(0), { from: 0, harm: 1, changed: true });
+  assert.deepEqual(C.hurtResult(1), { from: 1, harm: 1, changed: false });      // already Hurt: no change, however many Burns
+  assert.deepEqual(C.hurtResult(2), { from: 2, harm: 2, changed: false });      // Injured stays Injured
+  assert.deepEqual(C.hurtResult(4), { from: 4, harm: 4, changed: false });
   assert.equal(C.hurtResult("junk").harm, 1);
+  let h = 0; for (let i = 0; i < 5; i++) h = C.hurtResult(h).harm;
+  assert.equal(h, 1);                                                          // five Exchanges of Burn: still just Hurt
 });
 
 test("the Burn line in the log has a GM-only Apply Hurt button; the Hurt due survives saving", () => {

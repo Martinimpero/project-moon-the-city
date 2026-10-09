@@ -111,13 +111,13 @@ export function clearForActor(tracker, actorId, types) {
 /* ---- applying Hurt ---- */
 
 /**
- * One Hurt, taken: "A landed hit advances Harm one tier" (Part VI §2), so Hurt advances Harm one tier, to a top of 4 (Maimed / Dying).
- * Returns { harm, from, reachesMaimed } for a given current tier.
+ * Hurt from Burn only ever sets Harm to Hurt (tier 1): "bruises, winding, a scare", no penalty (Part VI §2). Someone already
+ * Hurt, Injured or worse is not made worse by it. Returns { from, harm, changed } for a given current tier.
  */
 export function hurtResult(currentHarm) {
   const from = Math.max(0, Math.min(4, Math.floor(Number(currentHarm) || 0)));
-  const harm = Math.min(4, from + 1);
-  return { from, harm, reachesMaimed: harm === 4 && from < 4 };
+  const harm = Math.max(from, 1);
+  return { from, harm, changed: harm > from };
 }
 /** Use up one waiting Hurt on a slot. Returns false if none was waiting. */
 export function takeHurtDue(slot) {

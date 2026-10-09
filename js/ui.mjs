@@ -116,8 +116,9 @@ const handlers = {
   onHarm: (actorId, delta) => {
     const a = S.byId(actorId);
     if (!a || a.type !== "character" || delta < 1) return;
-    mutate(a, () => { a.system.harm = C.hurtResult(a.system.harm + delta - 1).harm; });
-    toast(t("{name} takes Hurt: Harm is now {harm}.", { name: a.name, harm: HARM_LABEL[a.system.harm] }));
+    const res = C.hurtResult(a.system.harm);
+    mutate(a, () => { a.system.harm = res.harm; });
+    toast(res.changed ? t("{name} takes Hurt: Harm is now {harm}.", { name: a.name, harm: HARM_LABEL[res.harm] }) : t("{name} burns, but Harm is already {harm}: no change.", { name: a.name, harm: HARM_LABEL[res.harm] }));
   },
   onCond: (pid, actorId, types) => {
     // a player's roll used these up: Sinking on anyone it was rolled against or on, Poise only on their own characters
@@ -649,11 +650,10 @@ const actions = {
     if (!C.takeHurtDue(slot)) return toast(t("No Hurt is waiting for {name}.", { name: slot.name }));
     const actor = slot.actorId ? findActor(slot.actorId) : null;
     const res = actor ? C.hurtResult(actor.system.harm) : null;
-    if (res?.reachesMaimed && !(await confirmDlg(t("Maimed / Dying"), t("{name} is Wounded. One more Hurt puts them at Maimed / Dying, out of the scene. Apply it?", { name: slot.name }), t("Apply Hurt")))) { slot.hurtDue += 1; return; }
     if (!actor) toast(t("{name} has no sheet here. Mark the Harm yourself.", { name: slot.name }));
     else if (actor.remote) { if (!room.sendHarm(actor.id, 1)) { slot.hurtDue += 1; return toast(t("Could not reach {name}'s player.", { name: actor.name })); } }
     else mutate(actor, () => { actor.system.harm = res.harm; });
-    post(`<div class="pm-card pm-conditions"><div class="pm-card-head">${esc(slot.name)}</div><div class="pm-notes"><p>${esc(actor ? t("{name} takes Hurt: Harm is now {harm}.", { name: slot.name, harm: HARM_LABEL[res.harm] }) : t("{name} takes Hurt.", { name: slot.name }))}</p></div></div>`);
+    post(`<div class="pm-card pm-conditions"><div class="pm-card-head">${esc(slot.name)}</div><div class="pm-notes"><p>${esc(actor ? (res.changed ? t("{name} takes Hurt: Harm is now {harm}.", { name: slot.name, harm: HARM_LABEL[res.harm] }) : t("{name} burns, but Harm is already {harm}: no change.", { name: slot.name, harm: HARM_LABEL[res.harm] })) : t("{name} takes Hurt.", { name: slot.name }))}</p></div></div>`);
     persist(); renderBoard(); if (room?.role === "host") room.sendBoard();
   },
   sound: () => { state.sound.on = !state.sound.on; sfx.settings.on = state.sound.on; persist(); renderChrome(); sfx.play("place"); },
