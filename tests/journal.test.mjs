@@ -67,7 +67,7 @@ test("a recap starts from the last log cards, in the reader's language", () => {
   assert.ok(en.some(l => /Dax .*Combat.*(Critical|Success)/i.test(l)), en.join("|"));
   assert.ok(es.some(l => /Dax .*Combate.*(Éxito|Crítico)/i.test(l)), es.join("|"));
   assert.equal(J.logLines([], "en").length, 0);
-  const text = J.recapText(k => k, { lines: en, scenes: ["Backstreet"], handouts: ["Coldwater Contract"] });
+  const text = J.recapText(k => k, { lines: en, scenes: ["Backstreet"], handouts: ["Kurokumo Contract"] });
   assert.match(text, /^What happened\n- Dax/); assert.match(text, /Scenes\n- Backstreet/); assert.match(text, /Open threads\n- $/m);
 });
 

@@ -36,8 +36,8 @@ test("adding the kit sets up scenes, linked tokens, sheets, handout, Clocks, not
   assert.equal(st.scenes[1].map.tokens.find(t => t.name === "Crate").actorId, "");
   assert.equal(st.actors.find(a => a.name === "Enforcers A").derived.dice, 5);        // Grade 8 group: 3 + 2
   assert.deepEqual(st.tracker.slots.map(s => s.name), ["Sable Rennick", "Enforcers A", "Enforcers B"]); assert.equal(st.tracker.active, false);
-  assert.deepEqual(st.clocks.map(c => [c.name, c.filled, c.shown]), [["Open War", 2, true], ["Coldwater Heat", 0, false], ["Reinforcements", 0, false]]);
-  assert.equal(st.handouts[0].title, "The Row Shipment"); assert.equal(st.handouts[0].alt.title, "El Cargamento de la Fila");
+  assert.deepEqual(st.clocks.map(c => [c.name, c.filled, c.shown]), [["Open War", 2, true], ["Kurokumo Heat", 0, false], ["Reinforcements", 0, false]]);
+  assert.equal(st.handouts[0].title, "The Market Street Shipment"); assert.equal(st.handouts[0].alt.title, "El Cargamento de la Calle del Mercado");
   assert.equal(st.journal[0].pinned, true); assert.equal(st.notes.length, 10);
   const saved = JSON.stringify(S.exportData()); S.importData(saved);                  // and it all survives saving
   assert.deepEqual([S.state.scenes.length, S.state.actors.length, S.state.clocks.length], [4, 9, 3]);

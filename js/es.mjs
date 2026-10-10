@@ -162,7 +162,7 @@ export const ES = {
   "Cover (2)": "Tapadera (2)", "The first Heat segment each Contract is not filled": "El primer segmento de Presión de cada Contrato no se llena",
   "There are no characters in this world yet.": "Todavía no hay personajes en este mundo.", "Crew members": "Miembros del equipo",
   "With nobody ticked, the crew is every character in the world.": "Si no marcas a nadie, el equipo son todos los personajes del mundo.",
-  "Save": "Guardar", "New Clock": "Reloj nuevo", "Name": "Nombre", "Coldwater Heat": "Presión de Coldwater", "Segments": "Segmentos", "Add": "Añadir", "Clock": "Reloj",
+  "Save": "Guardar", "New Clock": "Reloj nuevo", "Name": "Nombre", "Kurokumo Heat": "Presión de Kurokumo", "Segments": "Segmentos", "Add": "Añadir", "Clock": "Reloj",
   "Clock full: {name}": "Reloj lleno: {name}",
   "Something concrete happens: an audit, a visit, a contract pulled. Never vague.": "Ocurre algo concreto: una auditoría, una visita, un contrato retirado. Nunca vago.",
   "Ledger entry": "Entrada del registro", "Client": "Cliente", "Risk": "Riesgo", "Report": "Informe", "Honest": "Honesto", "Falsified": "Falsificado",

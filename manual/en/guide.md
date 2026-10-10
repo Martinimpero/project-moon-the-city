@@ -24,7 +24,7 @@ The City is enormous, old and layered: a corporate tower can stand two streets f
 
 ## 3. How people live
 
-**In a Nest.** Safe, well paid and watched. The Wing protects its people with real medical care and real counsellors, and asks for a loyalty that looks a lot like family right up until it doesn't. Nests are made of **feathers**: the people the Wing protects, taxes and may evict. Every Singularity runs on somebody's suffering, and the staff may or may not know whose.
+**In a Nest.** Safe, well paid and watched. The Wing protects its people with real medical care, and asks for a loyalty that looks a lot like family right up until it doesn't. Nests are made of **feathers**: the people the Wing protects, taxes and may evict. Every Singularity runs on somebody's suffering, and the staff may or may not know whose.
 
 **In the Backstreets.** Market stalls under damp scaffolding, deals struck on credit, and a Syndicate that "lends" to anyone who looks like they are struggling and always collects. A **migration permit** from the Backstreets to a Nest is a dream prize, and also a leash: the Wing can take it back. The Backstreets are also where the Night is worst.
 

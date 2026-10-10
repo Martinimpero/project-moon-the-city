@@ -16,7 +16,7 @@
 ## 0. Preparación (3 min)
 
 **DJ**
-1. Abre la web. Pulsa **Kits**, elige "Sesión 01: El Cargamento de la Fila" y pulsa **Abrir**. Deja marcado "Añadir a lo que tengo" y pulsa **Importar kit**.
+1. Abre la web. Pulsa **Kits**, elige "Sesión 01: El Cargamento de la Calle del Mercado" y pulsa **Abrir**. Deja marcado "Añadir a lo que tengo" y pulsa **Importar kit**.
 2. Pulsa **Añadir los 4 prefabricados**.
 
 **Jugador**
@@ -67,12 +67,12 @@
 
 ## 6. Relojes (1 min)
 
-1. DJ: pestaña **Relojes**. "Guerra Abierta" está visible; "Calor de Coldwater" y "Refuerzos" ocultos.
+1. DJ: pestaña **Relojes**. "Guerra Abierta" está visible; "Presión de Kurokumo" y "Refuerzos" ocultos.
 2. **Debe pasar:** el jugador solo ve Guerra Abierta. El DJ lo sube; el jugador lo ve subir. Al llenarlo sale una carta "Reloj completo" en el registro de los dos.
 
 ## 7. Documentos y diario (3 min)
 
-1. DJ: pestaña **Documentos**, en "El Cargamento de la Fila" elige que se muestre solo a Dax y pulsa **Mostrar**. El jugador debe recibirlo. Luego el DJ pulsa **Retirar**: debe desaparecer del jugador.
+1. DJ: pestaña **Documentos**, en "El Cargamento de la Calle del Mercado" elige que se muestre solo a Dax y pulsa **Mostrar**. El jugador debe recibirlo. Luego el DJ pulsa **Retirar**: debe desaparecer del jugador.
 2. DJ: vuelve a mostrarlo a todos. El jugador lo abre y lo lee en su idioma.
 3. Diario: el jugador escribe una entrada. El DJ debe verla con la firma del jugador. El jugador **no** debe poder borrar la entrada del DJ ("Lo que sabemos").
 

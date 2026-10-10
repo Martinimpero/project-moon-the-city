@@ -2,8 +2,8 @@
  "kind": "project-moon-kit",
  "version": 1,
  "title": {
-  "en": "Session 01: The Row Shipment (Risk 3)",
-  "es": "Sesión 01: El Cargamento de la Fila (Riesgo 3)"
+  "en": "Session 01: The Market Street Shipment (Risk 3)",
+  "es": "Sesión 01: El Cargamento de la Calle del Mercado (Riesgo 3)"
  },
  "about": {
   "en": "Four scenes with maps and tokens, the NPCs and Enforcers as Threat sheets, the Contract as a handout, the three Clocks, the session notes for the GM and a first journal entry. The four test PCs come from Pregens (the Characters tab).",
@@ -14,14 +14,14 @@
    "ref": "sorel",
    "name": "Clerk Sorel",
    "system": {
-    "concept": "Clerk Anwen Sorel, The Ninth Registry (Office)",
+    "concept": "Clerk Anwen Sorel, Office dispatcher",
     "grade": 9,
     "isGroup": false,
     "alignment": "gloom",
     "want": "To feel like her job matters to someone.",
     "bondHook": "Affection, forming from the PC's side first, if they treat her like a person. The PCs also need her sign-off (Obligation from their side); a Trust Bond can grow if they cover for a late filing.",
     "detail": "She narrates every stamp she applies under her breath, like a small ritual.",
-    "notes": "Use: She hands over the Contract in Session 01 and mentions the Registry's cut. For anyone who treats her like a person instead of an obstacle, she will quietly round a job up to a better Risk tier."
+    "notes": "Use: She hands over the Contract in Session 01 and mentions the Office's cut. For anyone who treats her like a person instead of an obstacle, she will quietly round a job up to a better Risk tier."
    },
    "portrait": "tokens/NPC_Clerk_Sorel.png"
   },
@@ -33,7 +33,7 @@
     "grade": 7,
     "isGroup": false,
     "alignment": "gluttony",
-    "want": "The shipment must reach the Row's east exit unopened, and nobody must know why it matters.",
+    "want": "The shipment must reach the market street's east exit unopened, and nobody must know why it matters.",
     "bondHook": "Debt - he pays well and expects it to be remembered. Will hide how much the cargo is worth.",
     "detail": "Wears a borrowed coat that still has the previous owner's name stitched in.",
     "notes": "Presence + Deception 4 in the Complication Clause negotiation."
@@ -44,11 +44,11 @@
    "ref": "sable",
    "name": "Sable Rennick",
    "system": {
-    "concept": "Lieutenant, Coldwater Concern",
+    "concept": "Lieutenant, Kurokumo Clan",
     "grade": 3,
     "isGroup": false,
     "alignment": "pride",
-    "want": "Take the shipment for the Concern without starting a war she can't finish.",
+    "want": "Take the shipment for the Clan without starting a war she can't finish.",
     "bondHook": "Fear (she wants the PCs to fear her reach) or Debt (she'll buy a favor if the PCs back off).",
     "detail": "Taps two fingers on whatever she's holding when she's lying.",
     "notes": "Session 01 v2 sizing: Grade 3, Attack 6 / Defense 6, with a counter-reply (Group and Environmental Combat). Resolve 5 in Scene 3 (+1 if the Lookout whistled). Taps two fingers on whatever she holds when she lies."
@@ -66,7 +66,7 @@
     "want": "Collect what he is owed, without ever raising his voice.",
     "bondHook": "Debt 2, held on Dax. Becomes Trust if Dax pays in honest work.",
     "detail": "Never sits down. Waits.",
-    "notes": "Attack 5 · Defense 5 · Resolve 4\nUnmoved (see Sin - Sloth): once per scene, do nothing as your action; attacks and pressure against him are at -2 dice.\nCall the Debt: once per scene, spend the 2-point Debt Bond he holds on Dax Verrin for +2 dice on a social roll against Dax.\nUse: Dax's old crew boss. He wants the Row shipment, and offers to clear Dax's Debt if Dax lets it go. Sloth beats Wrath and Pride, so Dax can't just lean on him. Gloom and Lust beat Sloth: Wren Okoro is the one who can talk him down."
+    "notes": "Attack 5 · Defense 5 · Resolve 4\nUnmoved (see Sin - Sloth): once per scene, do nothing as your action; attacks and pressure against him are at -2 dice.\nCall the Debt: once per scene, spend the 2-point Debt Bond he holds on Dax Verrin for +2 dice on a social roll against Dax.\nUse: Dax's old crew boss. He wants the market street shipment, and offers to clear Dax's Debt if Dax lets it go. Sloth beats Wrath and Pride, so Dax can't just lean on him. Gloom and Lust beat Sloth: Wren Okoro is the one who can talk him down."
    },
    "portrait": "tokens/NPC_Marl_Vessey.png"
   },
@@ -74,14 +74,14 @@
    "ref": "ines",
    "name": "Ines Calloway",
    "system": {
-    "concept": "HR Specialist, Halcyon Wing",
+    "concept": "HR Specialist, H Corp.",
     "grade": 4,
     "isGroup": false,
     "alignment": "lust",
     "want": "Keep staff, whatever it takes.",
-    "bondHook": "Affection: she means every word, and it is a leash. Held on Lena Hart through her Employment Bond with Halcyon.",
+    "bondHook": "Affection: she means every word, and it is a leash. Held on Lena Hart through her Employment Bond with H Corp..",
     "detail": "Always has tissues. Remembers every birthday.",
-    "notes": "Attack 3 · Defense 4 · Resolve 5\nWellness Check: Presence + Empathy against the target's Resolve. On a Success, a forced E.G.O. loss of 1 (the Stress rule adds extra) and an Employment Bond hook.\nUse: Calls Lena before the Row run is over: \"Halcyon would like that crate back. Come in for a wellness check.\" She offers protection and a promotion. Gluttony and Envy beat Lust, so Lena is the one who can resist her."
+    "notes": "Attack 3 · Defense 4 · Resolve 5\nWellness Check: Presence + Empathy against the target's Resolve. On a Success, a forced E.G.O. loss of 1 (the Stress rule adds extra) and an Employment Bond hook.\nUse: Calls Lena before the market street run is over: \"H Corp. would like that crate back. Come in for a wellness check.\" She offers protection and a promotion. Gluttony and Envy beat Lust, so Lena is the one who can resist her."
    },
    "portrait": "tokens/NPC_Ines_Calloway.png"
   },
@@ -96,7 +96,7 @@
     "want": "To be the person who always knows.",
     "bondHook": "Debt: every sale creates one. She holds a 1-point Debt on Tomas Quill after the first favor.",
     "detail": "Keeps her secrets in a ledger of other people's handwriting.",
-    "notes": "Attack 3 · Defense 3 · Resolve 2\nStudy (see Sin Techniques).\nRumor: once per scene, sell one true thing about a target for a 1-point Debt.\nUse: Messages Tomas during the Row run: his licence is reinstated if he gives her the client's name. His Boundary is \"I won't lie to a client about what I found.\" Pride and Wrath beat Envy, so Tomas is the one who can face her down."
+    "notes": "Attack 3 · Defense 3 · Resolve 2\nStudy (see Sin Techniques).\nRumor: once per scene, sell one true thing about a target for a 1-point Debt.\nUse: Messages Tomas during the market street run: his licence is reinstated if he gives her the client's name. His Boundary is \"I won't lie to a client about what I found.\" Pride and Wrath beat Envy, so Tomas is the one who can face her down."
    },
    "portrait": "tokens/NPC_Ottoline_Vance.png"
   },
@@ -111,7 +111,7 @@
     "want": "Report the shipment's route and get paid.",
     "bondHook": "Fear - easily scared; could become an informant (Debt) if spared.",
     "detail": "Chews a coin on a string.",
-    "notes": "Model: Row Lookout. Whistle: tick the local Clock by 1, once per scene."
+    "notes": "Model: Street Lookout. Whistle: tick the local Clock by 1, once per scene."
    },
    "portrait": "tokens/NPC_Rival_Crew_Lookout.png"
   },
@@ -178,8 +178,8 @@
   },
   {
    "name": {
-    "en": "2. The Row: Threadmill Row",
-    "es": "2. La Fila del Telar"
+    "en": "2. The Market Street",
+    "es": "2. La calle del mercado"
    },
    "map": "backstreet",
    "tokens": [
@@ -336,24 +336,24 @@
  ],
  "handouts": [
   {
-   "title": "The Row Shipment",
+   "title": "The Market Street Shipment",
    "lang": "en",
-   "text": "Client: A stranger, no obvious affiliation\nRisk: 3\nThe job: Protect a crate moving through Threadmill Row, from the west entrance to the east exit.\nPayment: Enough to cover a month of Office cuts, in untraceable chits.\nDeadline: Today.\nTerms: If it goes loud, all the Heat lands on the Fixers.",
+   "text": "Client: A stranger, no obvious affiliation\nRisk: 3\nThe job: Protect a crate moving through the market street, from the west entrance to the east exit.\nPayment: Enough to cover a month of Office cuts, in untraceable chits.\nDeadline: Today.\nTerms: If it goes loud, all the Heat lands on the Fixers.",
    "alt": {
-    "title": "El Cargamento de la Fila",
-    "text": "Cliente: Un desconocido, sin filiación clara\nRiesgo: 3\nEl trabajo: Proteger una caja que cruza la Fila del Telar, de la entrada oeste a la salida este.\nPago: Lo bastante para cubrir un mes de recortes de la Oficina, en fichas sin rastro.\nPlazo: Hoy.\nCondiciones: Si la cosa se pone fea, toda la Presión cae sobre los Agentes."
+    "title": "El Cargamento de la Calle del Mercado",
+    "text": "Cliente: Un desconocido, sin filiación clara\nRiesgo: 3\nEl trabajo: Proteger una caja que cruza la calle del mercado, de la entrada oeste a la salida este.\nPago: Lo bastante para cubrir un mes de recortes de la Oficina, en fichas sin rastro.\nPlazo: Hoy.\nCondiciones: Si la cosa se pone fea, toda la Presión cae sobre los Agentes."
    }
   }
  ],
  "journal": [
   {
    "title": {
-    "en": "The Row Shipment: what we know",
-    "es": "El Cargamento de la Fila: lo que sabemos"
+    "en": "The Market Street Shipment: what we know",
+    "es": "El Cargamento de la Calle del Mercado: lo que sabemos"
    },
    "text": {
-    "en": "A stranger hired us to protect a crate across Threadmill Row, west entrance to east exit. Payment covers a month of Office cuts. If it goes loud, the Heat is ours. The Row is tense: Open War sits at 2/6 after a recent knifing.",
-    "es": "Un desconocido nos contrató para proteger una caja a través de la Fila del Telar, de la entrada oeste a la salida este. El pago cubre un mes de recortes de la Oficina. Si se pone fea, la Presión es nuestra. La Fila del Telar está tensa: Guerra Abierta está en 2/6 tras un apuñalamiento reciente."
+    "en": "A stranger hired us to protect a crate across the market street, west entrance to east exit. Payment covers a month of Office cuts. If it goes loud, the Heat is ours. The market street is tense: Open War sits at 2/6 after a recent knifing.",
+    "es": "Un desconocido nos contrató para proteger una caja a través de la calle del mercado, de la entrada oeste a la salida este. El pago cubre un mes de recortes de la Oficina. Si se pone fea, la Presión es nuestra. La calle del mercado está tensa: Guerra Abierta está en 2/6 tras un apuñalamiento reciente."
    },
    "pinned": true
   }
@@ -361,7 +361,7 @@
  "notes": [
   {
    "title": "S01 At a glance and prep",
-   "text": "| | |\n|---|---|\n| Contract | The Row Shipment, Risk 3 |\n| Clocks | Open War (start 2/6), Coldwater Heat (0/6), Reinforcements (4, starts in Scene 3) |\n| Maps | Fixer Office, Threadmill Row, Syndicate Warehouse (if loud), Rooftop (fallback) |\n| Length | about 14 rolls (a test run averages 14) and two or three real choices |\n\nPrep:\n- [x] PCs' Bonds, Desires, Fears, Boundaries reviewed: Wren Okoro, Dax Verrin, Lena Hart, Tomas Quill\n- [x] Unresolved consequence: none yet, so the City's state is the hook: Open War sits at 2/6.\n- [x] Immediate problem: a Halcyon crate must cross the Row today.\n- [x] NPCs: Clerk Sorel, The Stranger (Client), Sable Rennick, Marl Vessey, Ines Calloway, Ottoline Vance, Rival Crew - Lookout\n- [x] Contract (Risk 3): The Row Shipment"
+   "text": "| | |\n|---|---|\n| Contract | The Market Street Shipment, Risk 3 |\n| Clocks | Open War (start 2/6), Kurokumo Heat (0/6), Reinforcements (4, starts in Scene 3) |\n| Maps | Fixer Office, the market street, Syndicate Warehouse (if loud), Rooftop (fallback) |\n| Length | about 14 rolls (a test run averages 14) and two or three real choices |\n\nPrep:\n- [x] PCs' Bonds, Desires, Fears, Boundaries reviewed: Wren Okoro, Dax Verrin, Lena Hart, Tomas Quill\n- [x] Unresolved consequence: none yet, so the City's state is the hook: Open War sits at 2/6.\n- [x] Immediate problem: an H Corp. crate must cross the market street today.\n- [x] NPCs: Clerk Sorel, The Stranger (Client), Sable Rennick, Marl Vessey, Ines Calloway, Ottoline Vance, Rival Crew - Lookout\n- [x] Contract (Risk 3): The Market Street Shipment"
   },
   {
    "title": "S01 Personal choices (Risk 3)",
@@ -373,19 +373,19 @@
   },
   {
    "title": "S01 Riding a Sin",
-   "text": "Ask each player: *are you riding anything?* (Fit and Riding a Sin). Suggestions:\n\n| Scene | Good rides |\n|---|---|\n| 1 Briefing | Tomas Pride (Persuasion favored) |\n| 2 The Row | Wren Sloth (Stealth, Medicine, Investigation); Lena Gluttony (Investigation, Streetwise); Tomas Envy (Stealth, Deception, Technology) |\n| 3 Sable | Dax Wrath (Persuasion as pressure, strong vs Pride); Wren Sloth (strong vs Pride); Tomas Pride |\n| 4 Fight | Dax Wrath (Combat, Athletics); Wren Gloom (strong vs the Wrath Enforcers) |\n\nA rider pays the -2 dice on every Hindered Skill that scene, so call for the off-profile check (\"a hurt vendor, a sealed crate\")."
+   "text": "Ask each player: *are you riding anything?* (Fit and Riding a Sin). Suggestions:\n\n| Scene | Good rides |\n|---|---|\n| 1 Briefing | Tomas Pride (Persuasion favored) |\n| 2 The Market Street | Wren Sloth (Stealth, Medicine, Investigation); Lena Gluttony (Investigation, Streetwise); Tomas Envy (Stealth, Deception, Technology) |\n| 3 Sable | Dax Wrath (Persuasion as pressure, strong vs Pride); Wren Sloth (strong vs Pride); Tomas Pride |\n| 4 Fight | Dax Wrath (Combat, Athletics); Wren Gloom (strong vs the Wrath Enforcers) |\n\nA rider pays the -2 dice on every Hindered Skill that scene, so call for the off-profile check (\"a hurt vendor, a sealed crate\")."
   },
   {
    "title": "S01 Opening",
-   "text": "Name what is already true: the Row is tense, Open War is 2/6, the Office takes a cut of everything, and everyone is carrying something they don't want to say out loud."
+   "text": "Name what is already true: the market street is tense, Open War is 2/6, the Office takes a cut of everything, and everyone is carrying something they don't want to say out loud."
   },
   {
    "title": "S01 Scene 1. The briefing - Fixer Office",
-   "text": "Map: Fixer_Office_Small_Storefront.png\n- Clerk Sorel (The Ninth Registry's clerk) hands over the Contract and mentions the Registry's 30% cut. The Stranger arrives.\n- Social Conflict: negotiate the Complication Clause (Presence + Persuasion against the Stranger's Presence + Deception 4). State the stakes first (Social Conflict): full = Heat shared; partial = Heat shared, payment cut; failure = all Heat on the crew.\n- Curveballs (pick one or two): Empathy to read what the Stranger is hiding; Investigation for the fine print; Corporate Knowledge: the crate has a Halcyon stamp (Lena)."
+   "text": "Map: Fixer_Office_Small_Storefront.png\n- Clerk Sorel (the Office's clerk) hands over the Contract and mentions the Office's cut. The Stranger arrives.\n- Social Conflict: negotiate the Complication Clause (Presence + Persuasion against the Stranger's Presence + Deception 4). State the stakes first (Social Conflict): full = Heat shared; partial = Heat shared, payment cut; failure = all Heat on the crew.\n- Curveballs (pick one or two): Empathy to read what the Stranger is hiding; Investigation for the fine print; Corporate Knowledge: the crate has a Halcyon stamp (Lena)."
   },
   {
-   "title": "S01 Scene 2. The Row - Threadmill Row",
-   "text": "Map: Backstreet_Threadmill_Row.png\n- Quiet move: Body + Stealth or Mind + Streetwise, Difficulty 3 (a crowded market). Say it aloud first.\n- Spot the Rival Lookout: Mind + Investigation, Difficulty 2. Failure: the Lookout whistles and Sable Rennick arrives with an edge (her Resolve +1).\n- The hurt vendor (Wren): invoke her Vice. Treating her is Mind + Medicine, Difficulty 2, and costs a beat.\n- Marl's offer (Dax): a Social Conflict against Marl Vessey (Resolve 4). Dax is weak to Marl's Sloth; Wren is strong. Stakes: full = the Debt is renegotiated; partial = Marl takes a cut and the Debt grows by 1; failure = Marl walks away and his crew will be in the fight.\n- Halcyon's call (Lena): Ines Calloway's Wellness Check: Presence + Empathy against Lena's Resolve. Failure: a forced E.G.O. loss of 1 (Stress adds extra, E.G.O.).\n- Tomas's message: Ottoline Vance offers his licence.\n- Curveballs: Technology on the crate's seal; Empathy to calm a frightened vendor; Fixer Knowledge to place Marl's crew.\n- Pin: Threadmill Row, Open War to the fire barrel."
+   "title": "S01 Scene 2. The Market Street",
+   "text": "Map: Backstreet_Market_Street.png\n- Quiet move: Body + Stealth or Mind + Streetwise, Difficulty 3 (a crowded market). Say it aloud first.\n- Spot the Rival Lookout: Mind + Investigation, Difficulty 2. Failure: the Lookout whistles and Sable Rennick arrives with an edge (her Resolve +1).\n- The hurt vendor (Wren): invoke her Vice. Treating her is Mind + Medicine, Difficulty 2, and costs a beat.\n- Marl's offer (Dax): a Social Conflict against Marl Vessey (Resolve 4). Dax is weak to Marl's Sloth; Wren is strong. Stakes: full = the Debt is renegotiated; partial = Marl takes a cut and the Debt grows by 1; failure = Marl walks away and his crew will be in the fight.\n- H Corp.'s call (Lena): Ines Calloway's Wellness Check: Presence + Empathy against Lena's Resolve. Failure: a forced E.G.O. loss of 1 (Stress adds extra, E.G.O.).\n- Tomas's message: Ottoline Vance offers his licence.\n- Curveballs: Technology on the crate's seal; Empathy to calm a frightened vendor; Fixer Knowledge to place Marl's crew.\n- Pin: the market street, Open War to the fire barrel."
   },
   {
    "title": "S01 Scene 3. Sable Rennick - Social Conflict",
@@ -393,11 +393,11 @@
   },
   {
    "title": "S01 Scene 4. If it goes loud - Combat",
-   "text": "Map: Syndicate_Warehouse_Hideout.png (the cargo's holding house) or stay on the Row; fallback chase Rooftop_Chase.png.\n- Say it aloud: \"this is a fight now\", and what ends it (When Combat Starts).\n- Opposition (Risk 3 sized): Sable Rennick at Grade 3 (Attack 6 / Defense 6) with a counter-reply (Group and Environmental Combat), plus two Enforcer Threat groups (Grade 8 muscle, pool 5 for attack and defense: 3 + 2). If Marl was crossed, his crew is a third group.\n- Exchanges, not turns (The Exchange); Harm uses four tiers (Harm). Wren's Downpour in the first Exchange is strong. Let the other PCs chip the Threat with any fitting roll (Persuasion to break morale, Technology to cut lights).\n- The test run (with the Harm rules of Part VI): the crew wins about 91% of fights and concedes in about 7%; someone is Maimed or Dying in about 15% of fights (1.4% of sessions)."
+   "text": "Map: Syndicate_Warehouse_Hideout.png (the cargo's holding house) or stay on the market street; fallback chase Rooftop_Chase.png.\n- Say it aloud: \"this is a fight now\", and what ends it (When Combat Starts).\n- Opposition (Risk 3 sized): Sable Rennick at Grade 3 (Attack 6 / Defense 6) with a counter-reply (Group and Environmental Combat), plus two Enforcer Threat groups (Grade 8 muscle, pool 5 for attack and defense: 3 + 2). If Marl was crossed, his crew is a third group.\n- Exchanges, not turns (The Exchange); Harm uses four tiers (Harm). Wren's Downpour in the first Exchange is strong. Let the other PCs chip the Threat with any fitting roll (Persuasion to break morale, Technology to cut lights).\n- The test run (with the Harm rules of Part VI): the crew wins about 91% of fights and concedes in about 7%; someone is Maimed or Dying in about 15% of fights (1.4% of sessions)."
   },
   {
    "title": "S01 Closing Consequence Beat",
-   "text": "State aloud: Open War ___/6, Coldwater Heat ___/6, Reinforcements ___/4; Dax's Debt; whether Lena opened the seal; Tomas's licence; who Rode a Sin and what it cost; Bonds strained or formed; the Sin Tally (Drift and Overload)."
+   "text": "State aloud: Open War ___/6, Kurokumo Heat ___/6, Reinforcements ___/4; Dax's Debt; whether Lena opened the seal; Tomas's licence; who Rode a Sin and what it cost; Bonds strained or formed; the Sin Tally (Drift and Overload)."
   }
  ],
  "clocks": [
@@ -409,30 +409,30 @@
    "size": 6,
    "filled": 2,
    "scope": {
-    "en": "Threadmill Row",
-    "es": "La Fila del Telar"
+    "en": "Market street",
+    "es": "La calle del mercado"
    },
    "shown": true,
    "consequence": {
-    "en": "Two Syndicate crews go to open war; the Row's stalls shut and the market becomes a battleground.",
-    "es": "Dos bandas del Sindicato entran en guerra abierta; los puestos de la Fila cierran y el mercado se vuelve un campo de batalla."
+    "en": "Two Syndicate crews go to open war; the market's stalls shut and the market becomes a battleground.",
+    "es": "Dos bandas del Sindicato entran en guerra abierta; los puestos del mercado cierran y el mercado se vuelve un campo de batalla."
    }
   },
   {
    "name": {
-    "en": "Coldwater Heat",
-    "es": "Presión de Coldwater"
+    "en": "Kurokumo Heat",
+    "es": "Presión de Kurokumo"
    },
    "size": 6,
    "filled": 0,
    "scope": {
-    "en": "Coldwater Concern",
-    "es": "Consorcio Coldwater"
+    "en": "Kurokumo Clan",
+    "es": "Clan Kurokumo"
    },
    "shown": false,
    "consequence": {
-    "en": "A Coldwater enforcer visits the PCs' Office; the Office is pressured to drop them.",
-    "es": "Un ejecutor de Coldwater visita la Oficina de los PJ; presionan a la Oficina para que los suelte."
+    "en": "A Kurokumo enforcer visits the PCs' Office; the Office is pressured to drop them.",
+    "es": "Un ejecutor de Kurokumo visita la Oficina de los PJ; presionan a la Oficina para que los suelte."
    }
   },
   {
@@ -448,8 +448,8 @@
    },
    "shown": false,
    "consequence": {
-    "en": "A Coldwater crew boxes the PCs in; Sable no longer needs to talk.",
-    "es": "Una banda de Coldwater arrincona a los PJ; Sable ya no necesita hablar."
+    "en": "A Kurokumo crew boxes the PCs in; Sable no longer needs to talk.",
+    "es": "Una banda de Kurokumo arrincona a los PJ; Sable ya no necesita hablar."
    }
   }
  ],

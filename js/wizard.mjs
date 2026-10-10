@@ -51,7 +51,7 @@ export function openWizard() {
       who: () => {
         const occ = Object.fromEntries(C.OCCUPATIONS.map(o => [o.key, t(o.name)]));
         const cur = C.OCCUPATIONS.find(o => o.key === b.occKey);
-        return `${text("background", t("Background"), { hint: t("Where you are from. It colours your starting Bonds and may give one free Skill point, if your GM allows it."), ph: t("Raised in the Row") })}
+        return `${text("background", t("Background"), { hint: t("Where you are from. It colours your starting Bonds and may give one free Skill point, if your GM allows it."), ph: t("Raised in a Backstreets market") })}
           <div class="wz-two"><label class="wz-field"><span>${esc(t("Free Skill point from the Background (if your GM allows)"))}</span><select data-s="bgSkill"><option value="">${esc(t("none"))}</option>${SKILLS.map(s => `<option value="${s}" ${b.bgSkill === s ? "selected" : ""}>${esc(SKILL_LABEL[s])}</option>`).join("")}</select></label>
             <label class="wz-chk"><input type="checkbox" data-c="bgBond" ${b.bgBond ? "checked" : ""}> ${esc(t("My GM also gives a minor Bond from the Background (Strength 1)"))}</label></div>
           <hr>${select("occKey", t("Occupation package (a template: change the Skills if you like)"), occ, { blank: t("Build my own") })}
@@ -59,9 +59,9 @@ export function openWizard() {
           <div class="wz-count ${b.package.length === 3 ? "ok" : ""}"><b>${b.package.length}</b> ${esc(t("of 3 package Skills (each starts at 2)"))}${cur?.or ? ` <small>${esc(t("The manual offers: {x}", { x: t(cur.or) }))}</small>` : ""}</div>
           <div class="wz-skills">${SKILLS.map(s => `<label class="${b.package.includes(s) ? "on" : ""}"><input type="checkbox" data-p="${s}" ${b.package.includes(s) ? "checked" : ""}> ${esc(SKILL_LABEL[s])}</label>`).join("")}</div>`;
       },
-      ties: () => `${text("affiliation", t("Affiliation"), { hint: t("A Wing, the Association, a Syndicate, a mutual-aid network, or none. It gives you a starting Bond (Strength 1)."), ph: t("Mutual-aid network (Threadmill Row clinic)") })}
+      ties: () => `${text("affiliation", t("Affiliation"), { hint: t("A Wing, the Association, a Syndicate, a mutual-aid network, or none. It gives you a starting Bond (Strength 1)."), ph: t("Mutual-aid network (a market street clinic)") })}
         ${select("affBond", t("What that Bond is"), Object.fromEntries(C.AFFILIATION_BONDS.map(k => [k, BOND_TYPE_LABEL[k]])))}<hr>
-        ${text("relationship", t("Relationship"), { hint: t("One person who matters to you. It gives you a Bond (Strength 2) of a kind you choose."), ph: t("Old Tabbi, who runs the Row clinic") })}
+        ${text("relationship", t("Relationship"), { hint: t("One person who matters to you. It gives you a Bond (Strength 2) of a kind you choose."), ph: t("Old Tabbi, who runs the market street clinic") })}
         ${select("relBond", t("What that Bond is"), Object.fromEntries(C.BOND_TYPES.map(k => [k, BOND_TYPE_LABEL[k]])))}<hr>
         ${text("principle", t("Principle"), { hint: t("One belief, stated so that it can bend under real pressure. It has no number; the GM can bring it up like a Vice."), ph: t("Everyone gets one honest chance to be helped.") })}`,
       wound: () => {

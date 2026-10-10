@@ -392,27 +392,27 @@ To build your own: copy the shape of a card, change the Wound and the Sins so th
 
 *A Backstreets medic who used to work Wing security.*
 
-- **Identity:** The one who fixes people, not machines. · **Occupation:** Backstreets Medic (unlicensed) · **Affiliation:** Mutual-aid network (Threadmill Row clinic) · **Background:** Raised in the Row
+- **Identity:** The one who fixes people, not machines. · **Occupation:** Backstreets Medic (unlicensed) · **Affiliation:** Mutual-aid network (a market street clinic) · **Background:** Raised in a Backstreets market
 - **Attributes:** Body 2, Mind 2, Presence 2, Resolve 4 · **Skills:** Combat 1, Athletics 1, Stealth 1, Investigation 1, Technology 1, Medicine 3, Persuasion 1, Empathy 2, Streetwise 2
 - **Wound.** Burden: A Wing guard bled out in her arms during a night shift after she waited for a supervisor's sign-off. Fear: Dying without anyone knowing what happened to me. Boundary: I won't let someone die on my table because I hesitated.
 - **Vice:** Can't say no to a patient, even when it's obviously a trap. · **Desire:** Open a real clinic with a door that locks and a license on the wall. · **Principle:** Everyone gets one honest chance to be helped. · **Ambition:** Is a clean conscience something the City lets you keep?
 - **E.G.O.** 4 / 4 · **Stress** 1 · **Grade** 9 · **Harm** none
 - **Resonance:** Wrath 0 · Lust 1 · Sloth 2 · Gluttony 0 · Gloom 3 · Pride 0 · Envy 0 · **Alignment:** Gloom
-- **Bonds:** Affection 2: Old Tabbi, who runs the Row clinic and took her in. Obligation 1: the mutual-aid network (she owes them shifts).
+- **Bonds:** Affection 2: Old Tabbi, who runs the market street clinic and took her in. Obligation 1: the mutual-aid network (she owes them shifts).
 - **Resources** 2 · **Gear:** Rain Cape (Gloom Suit, attuned)
-- **First hook:** A wounded vendor staggers into the Row and needs help right now.
+- **First hook:** A wounded vendor staggers into the market street and needs help right now.
 
 ### Dax Verrin
 
 *A former Syndicate collector who now takes honest work, mostly.*
 
-- **Identity:** Someone who finishes what he starts. · **Occupation:** Syndicate Member (ex) · **Affiliation:** Gantry & Sons, a small Office · **Background:** Syndicate kid from the Backstreets
+- **Identity:** Someone who finishes what he starts. · **Occupation:** Syndicate Member (ex) · **Affiliation:** a small Office · **Background:** Syndicate kid from the Backstreets
 - **Attributes:** Body 4, Mind 1, Presence 3, Resolve 2 · **Skills:** Combat 3, Athletics 2, Stealth 1, Investigation 1, Persuasion 2, Deception 1, Streetwise 2, Fixer Knowledge 1
 - **Wound.** Burden: He once broke a debtor's hands on orders, and the debtor was a kid covering for his father. Fear: Becoming the thing he used to collect for. Boundary: I won't hurt someone who can't hit back.
 - **Vice:** Pride: can't walk away from a challenge in front of an audience. · **Desire:** Clear the Debt he still owes his old crew without going back to them. · **Principle:** A deal is a deal. · **Ambition:** Can a man like me be trusted by anyone?
 - **E.G.O.** 2 / 2 · **Stress** 1 · **Grade** 9 · **Harm** none
 - **Resonance:** Wrath 3 · Lust 0 · Sloth 0 · Gluttony 0 · Gloom 0 · Pride 2 · Envy 1 · **Alignment:** Wrath
-- **Bonds:** Debt 2: Marl Vessey, his old crew boss. Obligation 1: Gantry & Sons (quotas and cuts).
+- **Bonds:** Debt 2: Marl Vessey, his old crew boss. Obligation 1: his Office (quotas and cuts).
 - **Resources** 2 · **Gear:** Ember Knife (Wrath Weapon, attuned)
 - **First hook:** His old boss offers to clear his Debt if he lets a shipment go.
 
@@ -420,15 +420,15 @@ To build your own: copy the shape of a card, change the Wound and the Sins so th
 
 *A Wing researcher who started asking questions about her own department.*
 
-- **Identity:** The one who reads the footnotes. · **Occupation:** Wing Researcher · **Affiliation:** Halcyon Wing (Employment Bond) · **Background:** Born inside Wing housing; never lived anywhere else
+- **Identity:** The one who reads the footnotes. · **Occupation:** Wing Researcher · **Affiliation:** H Corp. (Employment Bond) · **Background:** Born inside Wing housing; never lived anywhere else
 - **Attributes:** Body 1, Mind 4, Presence 2, Resolve 3 · **Skills:** Stealth 1, Investigation 2, Technology 3, Medicine 1, Persuasion 1, Deception 1, Streetwise 1, Corporate Knowledge 2, Fixer Knowledge 1
 - **Wound.** Burden: A colleague vanished after sharing a data request with her; she signed off on the 'reassignment'. Fear: Learning she was complicit all along. Boundary: I won't destroy evidence, even to protect myself.
 - **Vice:** Curiosity: will open the file she was told not to. · **Desire:** Find out what her Wing's treatment is actually made from. · **Principle:** Information is a kind of mercy. · **Ambition:** What is the City built on?
 - **E.G.O.** 3 / 3 · **Stress** 1 · **Grade** 9 · **Harm** none
 - **Resonance:** Wrath 0 · Lust 0 · Sloth 0 · Gluttony 3 · Gloom 1 · Pride 2 · Envy 0 · **Alignment:** Gluttony
-- **Bonds:** Trust 2: Pell, a lab technician who covers for her. Obligation 1: Halcyon Wing (Employment; Wing Support applies).
+- **Bonds:** Trust 2: Pell, a lab technician who covers for her. Obligation 1: H Corp. (Employment; Wing Support applies).
 - **Resources** 2 · **Gear:** Appetite Ledger (Gluttony Tool, attuned)
-- **First hook:** The crate carries a Halcyon stamp, and HR calls her back.
+- **First hook:** The crate carries an H Corp. stamp, and HR calls her back.
 
 ### Tomas Quill
 
@@ -440,6 +440,6 @@ To build your own: copy the shape of a card, change the Wound and the Sins so th
 - **Vice:** Needs to be right: will push a point past the point of safety. · **Desire:** Get his license back and his name off a Wing blacklist. · **Principle:** Everyone is telling the truth from where they stand. · **Ambition:** Can the truth survive in the City?
 - **E.G.O.** 2 / 2 · **Stress** 1 · **Grade** 9 · **Harm** none
 - **Resonance:** Wrath 1 · Lust 0 · Sloth 0 · Gluttony 0 · Gloom 0 · Pride 3 · Envy 2 · **Alignment:** Pride
-- **Bonds:** Trust 2: Hale, his one reliable informant. Debt 1: a favor owed to a Gantry & Sons dispatcher.
+- **Bonds:** Trust 2: Hale, his one reliable informant. Debt 1: a favor owed to a dispatcher at his Office.
 - **Resources** 2 · **Gear:** Skeleton Keys (Envy Tool, attuned)
 - **First hook:** A fixer offers his license back in exchange for the client's name.

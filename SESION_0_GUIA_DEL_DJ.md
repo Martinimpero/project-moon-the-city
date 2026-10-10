@@ -1,8 +1,8 @@
-# Sesión 0: «La Fila, antes del Contrato»
+# Sesión 0: «La calle del mercado, antes del Contrato»
 
 **Guía del DJ para una primera sesión en la que toda la mesa aprende a jugar.**
 
-Esta sesión no es la Sesión 01 (el Contrato de *El Cargamento de la Fila*). Es la que va **antes**: se acuerda cómo se juega, se crean los personajes y el equipo, y se ensaya cada regla en una escena corta y sin consecuencias duraderas. Al terminar, todos habéis usado cada pieza del juego al menos una vez.
+Esta sesión no es la Sesión 01 (el Contrato de *El Cargamento de la Calle del Mercado*). Es la que va **antes**: se acuerda cómo se juega, se crean los personajes y el equipo, y se ensaya cada regla en una escena corta y sin consecuencias duraderas. Al terminar, todos habéis usado cada pieza del juego al menos una vez.
 
 ---
 
@@ -43,7 +43,7 @@ Esta sesión no es la Sesión 01 (el Contrato de *El Cargamento de la Fila*). Es
 ### Para ti, el DJ
 
 - [ ] Lee **Parte II §1, §2 y §5**, **Parte III §3 y §8**, **Parte VIII §1 y §11** y el **Apéndice J**. (Todo está en la app: **Manual**.)
-- [ ] En la app, pulsa **Kits** → «Sesión 01: El Cargamento de la Fila» → **Importar kit** (añadir a lo que tengo). Esto te trae la escena de la Fila del Telar, la **Empleada Sorel** y al **vigía de la banda rival**, que usarás en la estación 4 y la 6.
+- [ ] En la app, pulsa **Kits** → «Sesión 01: El Cargamento de la Calle del Mercado» → **Importar kit** (añadir a lo que tengo). Esto te trae la escena de la calle del mercado, la **Empleada Sorel** y al **vigía de la banda rival**, que usarás en la estación 4 y la 6.
 - [ ] Si jugáis en línea: **Sala** → **Probar mi conexión**, y haz una prueba de 5 minutos con un jugador (puntos 1 y 2 de `PRUEBA_CON_JUGADORES.md`).
 - [ ] Crea el Reloj de la estación 5 (pestaña **Relojes**): «La banda rival nos encuentra», 4 segmentos, visible. Déjalo a 0.
 - [ ] Ten abierta la pestaña **Pantalla** (la chuleta de reglas de la app) y el **Apéndice J** (Acuerdo de la Mesa), que vas a rellenar con todos en el bloque 1.
@@ -59,7 +59,7 @@ Esta sesión no es la Sesión 01 (el Contrato de *El Cargamento de la Fila*). Es
 | 0:00 | **1. Bienvenida y seguridad** (25 min) | Qué es el juego, qué contiene, Líneas y Velos, herramientas, Acuerdo de la Mesa |
 | 0:25 | **2. Crear personajes y equipo** (60 min) | La Herida, los Pecados, la compra de puntos, la Oficina y el Vínculo del Equipo |
 | 1:25 | *Pausa (10 min)* | |
-| 1:35 | **3. Taller: la Fila antes del Contrato** (90 min) | Siete estaciones, una regla en cada una |
+| 1:35 | **3. Taller: la calle del mercado antes del Contrato** (90 min) | Siete estaciones, una regla en cada una |
 | 3:05 | **4. Cierre** (20 min) | Momento de Consecuencias, Estrellas y Deseos, comprobación y siguiente paso |
 
 ---
@@ -148,7 +148,7 @@ Recuerda a todos: **la mesa necesita un detonante, no la peor versión.** Nadie 
 
 ### El equipo (10 min, todos juntos)
 
-1. **La Oficina.** Proponed la **Novena Oficina de Registro** (donde trabaja la Empleada Sorel de la Sesión 01), o inventad otra. Un recorte sobre cada pago, siempre.
+1. **La Oficina.** Poned nombre a vuestra **Oficina** (en la Sesión 01 es donde trabaja la Empleada Sorel). Un recorte sobre cada pago, siempre.
 2. **Vínculo del Equipo.** Confianza u Obligación, Fuerza 2 (Parte V §7). Si cae a 0, el equipo queda *Fracturado* y no puede ayudarse entre sí.
 3. **Cómo os conocéis.** Cada uno completa: «Conozco a la persona de mi izquierda porque…» (30 segundos cada uno). Esto sirve para un Vínculo entre personajes.
 
@@ -162,17 +162,17 @@ Cada jugador elige uno de los cuatro, lee su Herida, su Vicio y su Pecado en voz
 
 ---
 
-## 6. Bloque 3: taller «La Fila, antes del Contrato» (90 min)
+## 6. Bloque 3: taller «La calle del mercado, antes del Contrato» (90 min)
 
 ### Cómo plantearlo
 
-Mete a los personajes en la escena **Fila del Telar** del kit, a media tarde. En ficción:
+Mete a los personajes en la escena **Calle del mercado** del kit, a media tarde. En ficción:
 
-> *La Empleada Sorel, de la Novena Oficina de Registro, os cita en su mostrador. «Antes de daros un Contrato de verdad quiero veros trabajar. Hay un tendero en la Fila del Telar que tiene unos papeles míos. Recogedlos antes de que caiga la Noche. Riesgo uno. No me deis problemas.»*
+> *La Empleada Sorel, de vuestra Oficina, os cita en su mostrador. «Antes de daros un Contrato de verdad quiero veros trabajar. Hay un tendero en la calle del mercado que tiene unos papeles míos. Recogedlos antes de que caiga la Noche. Riesgo uno. No me deis problemas.»*
 
 Todo lo de abajo es el camino hacia ese tendero. Cada **estación** enseña una regla. Las primeras (1 a 3) son imprescindibles; si vas justo de tiempo, mira «Versión corta» al final.
 
-**Tu apoyo en la app:** pulsa **Mapa** y muestra la escena «La Fila del Telar»; usa **Pantalla** para consultar reglas y el botón **?** de cualquier ficha o tarjeta para abrir el manual en la sección exacta. Los jugadores hacen sus tiradas desde su ficha (clic en el nombre de una Habilidad).
+**Tu apoyo en la app:** pulsa **Mapa** y muestra la escena «La calle del mercado»; usa **Pantalla** para consultar reglas y el botón **?** de cualquier ficha o tarjeta para abrir el manual en la sección exacta. Los jugadores hacen sus tiradas desde su ficha (clic en el nombre de una Habilidad).
 
 ---
 
@@ -317,7 +317,7 @@ Si tres o más preguntas quedan sin responder, repásalas al inicio de la próxi
 
 1. Abre el **Diario** y repasa: Vínculos, Deseos, Miedos, Límites y Aceptaciones. Apunta **una cosa que cada jugador no quiere perder**.
 2. **Reescribe las «Elecciones personales» de la Sesión 01** (nota «S01 Personal choices» del kit) con **quién ofrece qué a cada personaje y qué cuesta** (usa los Vínculos y el Límite reales de cada uno).
-3. Revisa las **Líneas y Velos**: ¿el Contrato de Riesgo 3 (cargamento de Halcyon, banda rival) pisa algo? Si sí, cambia el Contrato.
+3. Revisa las **Líneas y Velos**: ¿el Contrato de Riesgo 3 (cargamento de H Corp., banda rival) pisa algo? Si sí, cambia el Contrato.
 4. Pregúntate: ¿qué **consecuencia sin resolver** dejó el taller? Será el gancho de la Sesión 01.
 
 ---
@@ -389,7 +389,7 @@ Las estaciones que se quedan fuera (**4. Pecados**, **5. Reloj**, **7. Último R
 |---|---|
 | Acuerdo de la Mesa, apuntes | pestaña **Diario** |
 | Crear personajes | **+ Personaje** (asistente) · **Añadir los 4 prefabricados** |
-| Escena de la Fila | pestaña **Mapa** → «La Fila del Telar» → **Mostrar a la mesa** |
+| Escena del mercado | pestaña **Mapa** → «La calle del mercado» → **Mostrar a la mesa** |
 | Vigía y Ejecutores | **Amenazas**, o ya importados con el kit |
 | Reloj | pestaña **Relojes** |
 | Pelea | pestaña **Intercambio** → **Rellenar con la mesa** → **Empezar la pelea** |

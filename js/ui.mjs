@@ -602,7 +602,7 @@ function placeMap() {
   if (pane && target && pane.parentElement !== target) target.appendChild(pane);
   document.body.classList.toggle("stage-map", desktop());
 }
-const BUNDLED_KITS = [["kits/session01.json", "Session 01: The Row Shipment (Risk 3)"]];
+const BUNDLED_KITS = [["kits/session01.json", "Session 01: The Market Street Shipment (Risk 3)"]];
 const confirmDlg = (title, message, ok = t("OK")) => ask({ title, body: `<p>${message}</p>`, ok, read: () => true }).then(Boolean);
 
 /* ------------------------------------------------------------------ rendering */
@@ -1213,7 +1213,7 @@ const actions = {
   wear: (el, a) => { const g = a.items.find(i => i.id === el.dataset.id); if (g) { E.adjustWear(g, Number(el.dataset.delta)); persist(); render(); } },
   rollNpc: (el, a) => { const sunk = C.stacksOf(board().tracker, a.id, "sinking"); post(bi(() => E.npcRoll(a, undefined, { sinking: sunk }))); mutate(a, () => {}); if (sunk) useUpConditions(a.id, ["sinking"]); flashLog(); },
   addClock: async (el, a) => {
-    const data = await ask({ title: t("New Clock"), ok: t("Add"), body: `<div class="pm-row"><label>${esc(t("Name"))}</label><input type="text" name="name" placeholder="${esc(t("Coldwater Heat"))}"><label>${esc(t("Segments"))}</label><select name="size"><option>4</option><option selected>6</option><option>8</option></select></div>`, read: f => ({ name: f.elements.name.value || t("Clock"), size: Number(f.elements.size.value) }) });
+    const data = await ask({ title: t("New Clock"), ok: t("Add"), body: `<div class="pm-row"><label>${esc(t("Name"))}</label><input type="text" name="name" placeholder="${esc(t("Kurokumo Heat"))}"><label>${esc(t("Segments"))}</label><select name="size"><option>4</option><option selected>6</option><option>8</option></select></div>`, read: f => ({ name: f.elements.name.value || t("Clock"), size: Number(f.elements.size.value) }) });
     if (data) mutate(a, () => a.system.clocks.push({ name: data.name, size: data.size, filled: 0 }));
   },
   clockStep: (el, a) => {

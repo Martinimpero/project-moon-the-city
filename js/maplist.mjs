@@ -2,7 +2,7 @@
 export const MAPS = [
  {
   "id": "backstreet",
-  "title": "Backstreet: Threadmill Row",
+  "title": "Backstreet: market street",
   "file": "maps/backstreet.jpg",
   "w": 2100,
   "h": 1400,

@@ -7,8 +7,8 @@ import { ATTRIBUTES, SKILLS, SINS } from "../js/rules.mjs";
 function wren() {
   const b = C.blankBuild();
   Object.assign(b, {
-    name: "Wren Okoro", concept: "A Backstreets medic who used to work Wing security.", identity: "The one who fixes people, not machines.", background: "Raised in the Row",
-    affiliation: "Mutual-aid network (Threadmill Row clinic)", affBond: "obligation", relationship: "Old Tabbi, who runs the Row clinic", relBond: "affection",
+    name: "Wren Okoro", concept: "A Backstreets medic who used to work Wing security.", identity: "The one who fixes people, not machines.", background: "Raised in a Backstreets market",
+    affiliation: "Mutual-aid network (a market street clinic)", affBond: "obligation", relationship: "Old Tabbi, who runs the market street clinic", relBond: "affection",
     principle: "Everyone gets one honest chance to be helped.", burden: "A Wing guard bled out in her arms during a night shift after she waited for a supervisor's sign-off.",
     fear: "Dying without anyone knowing what happened to me.", boundary: "I won't let someone die on my table because I hesitated.",
     desire: "Open a real clinic.", vice: "Can't say no to a patient.", ambition: "Is a clean conscience something the City lets you keep?",
@@ -113,6 +113,6 @@ test("an unfinished build still makes a legal character (nothing is invented, no
   assert.equal(a.system.ego.max, 1);                                                   // Resolve 1
   const mundane = C.blankBuild(); mundane.gearName = "Toolkit"; mundane.gearKind = "mundane"; mundane.gearSin = "wrath";
   assert.equal(C.buildCharacter(mundane).items[0].system.sin, "");                      // mundane gear is not attuned
-  const bg = C.blankBuild(); bg.bgBond = true; bg.background = "Raised in the Row";
+  const bg = C.blankBuild(); bg.bgBond = true; bg.background = "Raised in a Backstreets market";
   assert.deepEqual(C.buildCharacter(bg).items.map(i => [i.type, i.system.strength]), [["bond", 1]]);   // a Background's minor Bond is Strength 1
 });

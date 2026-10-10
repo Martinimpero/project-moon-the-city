@@ -24,7 +24,7 @@ La Ciudad es enorme, antigua y está hecha de capas: una torre corporativa puede
 
 ## 3. Cómo vive la gente
 
-**En un Nido.** Seguro, bien pagado y vigilado. El Ala protege a su gente con atención médica de verdad y consejeros de verdad, y pide una lealtad que se parece mucho a la de una familia, hasta que deja de parecérsele. Los Nidos están hechos de **plumas**: la gente a la que el Ala protege, cobra impuestos y puede desahuciar. Toda Singularidad se alimenta del sufrimiento de alguien, y el personal puede saber de quién, o no.
+**En un Nido.** Seguro, bien pagado y vigilado. El Ala protege a su gente con atención médica de verdad, y pide una lealtad que se parece mucho a la de una familia, hasta que deja de parecérsele. Los Nidos están hechos de **plumas**: la gente a la que el Ala protege, cobra impuestos y puede desahuciar. Toda Singularidad se alimenta del sufrimiento de alguien, y el personal puede saber de quién, o no.
 
 **En los Callejones.** Puestos de mercado bajo andamios húmedos, tratos a crédito, y un Sindicato que «presta» a cualquiera que parezca estar pasándolo mal y siempre cobra. Un **permiso de migración** de los Callejones a un Nido es un premio soñado, y también una correa: el Ala puede quitarlo. Los Callejones son además donde la Noche es peor.
 

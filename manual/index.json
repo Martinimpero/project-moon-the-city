@@ -29,7 +29,7 @@
      "The City in four lines",
      "When you play",
      "Where you can be from (your Affiliation)",
-     "A place to start: Threadmill Row",
+     "A place to start: a market street in the Backstreets",
      "The Night",
      "Everyday life",
      "Ideas for a Background",
@@ -43,7 +43,7 @@
      "La Ciudad en cuatro líneas",
      "Cuándo se juega",
      "De dónde puedes venir (tu Afiliación)",
-     "Un sitio para empezar: la Fila del Telar (Threadmill Row)",
+     "Un sitio para empezar: una calle de mercado de los Callejones",
      "La Noche",
      "La vida diaria",
      "Ideas de Trasfondo",
@@ -411,5 +411,5 @@
    }
   }
  ],
- "version": "6437fad639"
+ "version": "500d16227d"
 }

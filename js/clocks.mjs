@@ -1,5 +1,5 @@
 /**
- * The Clocks board: the table's Clocks (Open War, Coldwater Heat, a chase...) in one place. The GM keeps them and chooses which ones the players
+ * The Clocks board: the table's Clocks (Open War, Kurokumo Heat, a chase...) in one place. The GM keeps them and chooses which ones the players
  * can see; players see the name, the segments and how full each is, never the consequence until the Clock is full. Plain functions, so Node can test them.
  */
 import { uid } from "./model.mjs";

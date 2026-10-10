@@ -9,7 +9,7 @@ out = here / "maps"; out.mkdir(exist_ok=True)
 tok = here / "tokens"; tok.mkdir(exist_ok=True)
 
 MAPS = [  # id, vault file, title, grid on by default
-    ("backstreet", "Backstreet_Threadmill_Row", "Backstreet: Threadmill Row", True),
+    ("backstreet", "Backstreet_Market_Street", "Backstreet: market street", True),
     ("storefront", "Fixer_Office_Small_Storefront", "Fixer Office (small storefront)", True),
     ("branch", "Association_Branch_Office", "Association Branch", True),
     ("atrium", "Wing_Nest_Atrium", "Wing Nest Atrium", True),

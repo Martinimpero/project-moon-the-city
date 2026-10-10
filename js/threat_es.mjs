@@ -72,7 +72,7 @@ export const THREAT_ES = {
   "A kit file from my computer...": "Un archivo de kit de mi ordenador...",
   "That kit could not be opened.": "No se pudo abrir ese kit.",
   "That file is not a Project Moon kit.": "Ese archivo no es un kit de Project Moon.",
-  "Session 01: The Row Shipment (Risk 3)": "Sesión 01: El Cargamento de la Fila (Riesgo 3)",
+  "Session 01: The Market Street Shipment (Risk 3)": "Sesión 01: El Cargamento de la Calle del Mercado (Riesgo 3)",
   "{n} scenes with maps": "{n} escenas con mapas",
   "{n} tokens": "{n} fichas",
   "{n} Threat sheets": "{n} fichas de Amenaza",

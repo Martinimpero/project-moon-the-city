@@ -404,27 +404,27 @@ Para crear los tuyos: copia la forma de una ficha, cambia la Herida y los Pecado
 
 *Una médica de los Callejones que antes trabajó en seguridad de un Ala.*
 
-- **Identidad:** La que arregla personas, no máquinas. · **Ocupación:** Médica de los Callejones (sin licencia) · **Afiliación:** Red de ayuda mutua (clínica de la Fila Threadmill) · **Trasfondo:** Criada en la Fila
+- **Identidad:** La que arregla personas, no máquinas. · **Ocupación:** Médica de los Callejones (sin licencia) · **Afiliación:** Red de ayuda mutua (clínica de una calle de mercado) · **Trasfondo:** Criada en un mercado de los Callejones
 - **Atributos:** Cuerpo 2, Mente 2, Presencia 2, Voluntad 4 · **Habilidades:** Combate 1, Atletismo 1, Sigilo 1, Investigación 1, Tecnología 1, Medicina 3, Persuasión 1, Empatía 2, Callejeo 2
 - **Herida.** Carga: Un guardia del Ala se desangró en sus brazos durante un turno de noche mientras ella esperaba la firma de un supervisor. Miedo: Morir sin que nadie sepa lo que me pasó. Límite: No dejaré que alguien muera en mi mesa porque dudé.
 - **Vicio:** No puede decir que no a un paciente, aunque sea obviamente una trampa. · **Deseo:** Abrir una clínica de verdad, con una puerta que cierre y una licencia en la pared. · **Principio:** Todo el mundo merece una oportunidad honesta de recibir ayuda. · **Ambición:** ¿Es una conciencia limpia algo que la Ciudad te deja conservar?
 - **E.G.O.** 4 / 4 · **Estrés** 1 · **Grado** 9 · **Daño** ninguno
 - **Resonancia:** Ira 0 · Lujuria 1 · Pereza 2 · Gula 0 · Melancolía 3 · Orgullo 0 · Envidia 0 · **Alineamiento:** Melancolía
-- **Vínculos:** Afecto 2: la vieja Tabbi, que lleva la clínica de la Fila y la acogió. Obligación 1: la red de ayuda mutua (les debe turnos).
+- **Vínculos:** Afecto 2: la vieja Tabbi, que lleva la clínica de la calle del mercado y la acogió. Obligación 1: la red de ayuda mutua (les debe turnos).
 - **Recursos** 2 · **Equipo:** Capa de Lluvia (Melancolía, Traje, sintonizado)
-- **Primer gancho:** Un vendedor herido se tambalea hasta la Fila y necesita ayuda ahora mismo.
+- **Primer gancho:** Un vendedor herido se tambalea hasta la calle del mercado y necesita ayuda ahora mismo.
 
 ### Dax Verrin
 
 *Un antiguo cobrador de un Sindicato que ahora acepta trabajo honrado, casi siempre.*
 
-- **Identidad:** Alguien que termina lo que empieza. · **Ocupación:** Miembro de Sindicato (ex) · **Afiliación:** Gantry e Hijos, una Oficina pequeña · **Trasfondo:** Chico de Sindicato de los Callejones
+- **Identidad:** Alguien que termina lo que empieza. · **Ocupación:** Miembro de Sindicato (ex) · **Afiliación:** una Oficina pequeña · **Trasfondo:** Chico de Sindicato de los Callejones
 - **Atributos:** Cuerpo 4, Mente 1, Presencia 3, Voluntad 2 · **Habilidades:** Combate 3, Atletismo 2, Sigilo 1, Investigación 1, Persuasión 2, Engaño 1, Callejeo 2, Conocimiento de Agentes 1
 - **Herida.** Carga: Una vez rompió las manos de un deudor por orden de su jefe, y el deudor era un chico que cubría a su padre. Miedo: Convertirse en aquello para lo que cobraba. Límite: No haré daño a quien no pueda devolver el golpe.
 - **Vicio:** Orgullo: no puede alejarse de un desafío delante de un público. · **Deseo:** Saldar la Deuda que aún tiene con su antigua banda sin volver con ellos. · **Principio:** Un trato es un trato. · **Ambición:** ¿Puede alguien como yo ser de fiar para alguien?
 - **E.G.O.** 2 / 2 · **Estrés** 1 · **Grado** 9 · **Daño** ninguno
 - **Resonancia:** Ira 3 · Lujuria 0 · Pereza 0 · Gula 0 · Melancolía 0 · Orgullo 2 · Envidia 1 · **Alineamiento:** Ira
-- **Vínculos:** Deuda 2: Marl Vessey, el jefe de su antigua banda. Obligación 1: Gantry e Hijos (cuotas y recortes).
+- **Vínculos:** Deuda 2: Marl Vessey, el jefe de su antigua banda. Obligación 1: su Oficina (cuotas y recortes).
 - **Recursos** 2 · **Equipo:** Cuchillo de Brasas (Ira, Arma, sintonizado)
 - **Primer gancho:** Su antiguo jefe se ofrece a saldar su Deuda si deja pasar un cargamento.
 
@@ -432,15 +432,15 @@ Para crear los tuyos: copia la forma de una ficha, cambia la Herida y los Pecado
 
 *Una investigadora de un Ala que empezó a hacer preguntas sobre su propio departamento.*
 
-- **Identidad:** La que lee las notas al pie. · **Ocupación:** Investigadora de un Ala · **Afiliación:** Ala Halcyon (Vínculo de Empleo) · **Trasfondo:** Nació dentro de la vivienda del Ala; nunca ha vivido en otro sitio
+- **Identidad:** La que lee las notas al pie. · **Ocupación:** Investigadora de un Ala · **Afiliación:** H Corp. (Vínculo de Empleo) · **Trasfondo:** Nació dentro de la vivienda del Ala; nunca ha vivido en otro sitio
 - **Atributos:** Cuerpo 1, Mente 4, Presencia 2, Voluntad 3 · **Habilidades:** Sigilo 1, Investigación 2, Tecnología 3, Medicina 1, Persuasión 1, Engaño 1, Callejeo 1, Conocimiento Corporativo 2, Conocimiento de Agentes 1
 - **Herida.** Carga: Un colega desapareció tras compartir con ella una petición de datos; ella firmó la 'reasignación'. Miedo: Descubrir que fue cómplice desde el principio. Límite: No destruiré pruebas, ni siquiera para protegerme.
 - **Vicio:** Curiosidad: abrirá el expediente que le dijeron que no abriera. · **Deseo:** Averiguar de qué está hecho en realidad el tratamiento de su Ala. · **Principio:** La información es una forma de misericordia. · **Ambición:** ¿Sobre qué está construida la Ciudad?
 - **E.G.O.** 3 / 3 · **Estrés** 1 · **Grado** 9 · **Daño** ninguno
 - **Resonancia:** Ira 0 · Lujuria 0 · Pereza 0 · Gula 3 · Melancolía 1 · Orgullo 2 · Envidia 0 · **Alineamiento:** Gula
-- **Vínculos:** Confianza 2: Pell, un técnico de laboratorio que la cubre. Obligación 1: Ala Halcyon (Empleo; se aplica el Apoyo del Ala).
+- **Vínculos:** Confianza 2: Pell, un técnico de laboratorio que la cubre. Obligación 1: H Corp. (Empleo; se aplica el Apoyo del Ala).
 - **Recursos** 2 · **Equipo:** Libro de Apetitos (Gula, Herramienta, sintonizado)
-- **Primer gancho:** El cajón lleva un sello de Halcyon, y Recursos Humanos la llama de vuelta.
+- **Primer gancho:** El cajón lleva un sello de H Corp., y Recursos Humanos la llama de vuelta.
 
 ### Tomas Quill
 
@@ -452,6 +452,6 @@ Para crear los tuyos: copia la forma de una ficha, cambia la Herida y los Pecado
 - **Vicio:** Necesita tener razón: llevará un punto más allá de lo seguro. · **Deseo:** Recuperar su licencia y que su nombre salga de la lista negra de un Ala. · **Principio:** Todos dicen la verdad desde donde están. · **Ambición:** ¿Puede sobrevivir la verdad en la Ciudad?
 - **E.G.O.** 2 / 2 · **Estrés** 1 · **Grado** 9 · **Daño** ninguno
 - **Resonancia:** Ira 1 · Lujuria 0 · Pereza 0 · Gula 0 · Melancolía 0 · Orgullo 3 · Envidia 2 · **Alineamiento:** Orgullo
-- **Vínculos:** Confianza 2: Hale, su único informante fiable. Deuda 1: un favor que debe a un despachador de Gantry e Hijos.
+- **Vínculos:** Confianza 2: Hale, su único informante fiable. Deuda 1: un favor que debe a un despachador de su Oficina.
 - **Recursos** 2 · **Equipo:** Ganzúas (Envidia, Herramienta, sintonizado)
 - **Primer gancho:** Una Agente le ofrece recuperar su licencia a cambio del nombre del cliente.

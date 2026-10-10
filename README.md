@@ -94,15 +94,15 @@ The **Threats** tab (only the GM, or someone playing alone, sees it) holds 39 re
 
 ## Random tables (GM)
 
-The **Tables** tab rolls the manual's own generators: a **Contract** (Client, Objective, Complication seed, Risk with its calibration; Part VIII §3), an **Abnormality** (Behavior, Trigger, Breach category; §7), an **NPC seed** (Want, Bond hook, One detail, Sin; §2, drawn from the Bestiary, in English) and a **Complication by Sin** (the Sin's Complication text). Each part has its own re-roll button. **Show to the table** posts the result as a log card that every player reads in their own language; **Keep as a note** saves it to your private notes. There are no name or per-district rumour tables because the manual and vault have no source lists for them yet (only Threadmill Row exists).
+The **Tables** tab rolls the manual's own generators: a **Contract** (Client, Objective, Complication seed, Risk with its calibration; Part VIII §3), an **Abnormality** (Behavior, Trigger, Breach category; §7), an **NPC seed** (Want, Bond hook, One detail, Sin; §2, drawn from the Bestiary, in English) and a **Complication by Sin** (the Sin's Complication text). Each part has its own re-roll button. **Show to the table** posts the result as a log card that every player reads in their own language; **Keep as a note** saves it to your private notes. There are no name or per-district rumour tables because the manual and vault have no source lists for them yet (only the market street exists).
 
 ## Clocks board
 
-The **Clocks** tab keeps the table's Clocks in one place (Open War, Coldwater Heat, a chase...). The GM adds, moves (+/-), edits and deletes them and chooses which ones the players can see. Players see the name, segments and how full each is, and the consequence only once a Clock is full. When one fills, a log card says so in both languages. Clocks are saved and exported with everything else. (The crew sheet still has its own Clocks.)
+The **Clocks** tab keeps the table's Clocks in one place (Open War, Kurokumo Heat, a chase...). The GM adds, moves (+/-), edits and deletes them and chooses which ones the players can see. Players see the name, segments and how full each is, and the consequence only once a Clock is full. When one fills, a log card says so in both languages. Clocks are saved and exported with everything else. (The crew sheet still has its own Clocks.)
 
 ## Session kits
 
-**Kits** (header) sets up a whole session from one file: scenes with maps and tokens linked to their sheets, Threat sheets, handouts, private notes, journal entries, Clocks and the Exchange order (listed, not started). A kit ships with the app: **Session 01: The Row Shipment** (4 scenes, 9 Threat sheets, the Contract in both languages, 10 GM notes from the vault, 3 Clocks); any kit file can also be opened with Kits or Import. Three modes: add what is missing (existing names are kept), scenes and notes only, or replace the Threats, scenes, handouts, notes, journal and Clocks (characters are never touched). A snapshot is kept first. The kit's descriptive text is the vault's English; names, the Contract, the journal entry and the Clocks are in both languages. `kits/session01.json` is generated from the vault; the Grade of the Stranger (7) and the Enforcers (8, group) are my sizing, since the vault gives no number for the Stranger.
+**Kits** (header) sets up a whole session from one file: scenes with maps and tokens linked to their sheets, Threat sheets, handouts, private notes, journal entries, Clocks and the Exchange order (listed, not started). A kit ships with the app: **Session 01: The Market Street Shipment** (4 scenes, 9 Threat sheets, the Contract in both languages, 10 GM notes from the vault, 3 Clocks); any kit file can also be opened with Kits or Import. Three modes: add what is missing (existing names are kept), scenes and notes only, or replace the Threats, scenes, handouts, notes, journal and Clocks (characters are never touched). A snapshot is kept first. The kit's descriptive text is the vault's English; names, the Contract, the journal entry and the Clocks are in both languages. `kits/session01.json` is generated from the vault; the Grade of the Stranger (7) and the Enforcers (8, group) are my sizing, since the vault gives no number for the Stranger.
 
 ## GM screen (rules lookup)
 
@@ -180,7 +180,7 @@ The app now has a dark look (near-black panels, sodium-lamp gold, red for danger
 
 ## Session 0 for a new table
 
-`SESION_0_GUIA_DEL_DJ.md` (in Spanish) is a script for a first session that teaches the game before the Session 01 Contract: safety agreement, creating characters and the crew, and a seven-station workshop (the roll, Help, E.G.O./Vice/Bonds, Sins, Clocks, the Exchange and Harm, the Hail Mary) played on the Threadmill Row scene. About 3 h 45 min, or 2 h 30 min in the short version; it ends with what the GM must prepare for Session 01.
+`SESION_0_GUIA_DEL_DJ.md` (in Spanish) is a script for a first session that teaches the game before the Session 01 Contract: safety agreement, creating characters and the crew, and a seven-station workshop (the roll, Help, E.G.O./Vice/Bonds, Sins, Clocks, the Exchange and Harm, the Hail Mary) played on the the market street scene. About 3 h 45 min, or 2 h 30 min in the short version; it ends with what the GM must prepare for Session 01.
 
 ## Table guide
 

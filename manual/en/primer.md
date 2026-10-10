@@ -16,14 +16,14 @@ The game starts just after the **White Nights and the Dark Days**: seven days wh
 | You work for... | Example | What it is like |
 |---|---|---|
 | An **Office** (most Fixers) | Your GM names it: Offices are many, from small outfits to large dispatchers. | Quotas, and a cut off every payment before it reaches you. How big the cut is, and how clear the formula, is for your GM to say. |
-| A **Wing** | One of the City's lettered corporations, one per District (see the **City** map in the app): for example **Nagel und Hammer** (N Corp.), **WARP Corp.** (W) or **TimeTrack Corporation** (T). **Lobotomy Corporation** (L) has fallen. | It pays well, protects you and has real counselors. That makes the Employment Bond hard to want to spend against it. Every Singularity runs on someone's suffering; your character may or may not know whose. |
+| A **Wing** | One of the City's lettered corporations, one per District (see the **City** map in the app): for example **Nagel und Hammer** (N Corp.), **WARP Corp.** (W) or **TimeTrack Corporation** (T). **Lobotomy Corporation** (L) has fallen. | It pays well and protects you. That makes the Employment Bond hard to want to spend against it. Every Singularity runs on someone's suffering; your character may or may not know whose. |
 | A **Syndicate** | The **Five Fingers**, the five great ones that hold the Backstreets: **Thumb** (strict hierarchy), **Index** (obeys written Prescripts), **Middle** (a family that takes Vengeance), **Ring** (art), **Pinky** (secret members, infiltration). Smaller Syndicates exist; some answer to a Finger. | It offers Debt to anyone who looks like they are struggling, and collects. |
 | An **Association** | **The Hana Association**, the largest and most trusted of the City's twelve. | It licenses and grades you. You file a Report after every job. |
 | **Nobody**, or a mutual-aid network | Independents are free, rare, and rarely last. | No salary and no cover, and nobody much trusts you. |
 
-## A place to start: Threadmill Row
+## A place to start: a market street in the Backstreets
 
-*(A Backstreets block invented for this game's example Contract; your GM may place it in any District, or use another.)* Stacked market stalls under permanently damp scaffolding; the smell of frying oil and machine coolant. Two Syndicate crews are fighting over the same stretch of black-market trade, and a recent knifing has the whole Row tense.
+Stacked market stalls under permanently damp scaffolding; the smell of frying oil and machine coolant. Two Syndicate crews are fighting over the same stretch of black-market trade, and a recent knifing has the whole street tense.
 
 ## The Night
 
