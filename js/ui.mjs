@@ -644,7 +644,7 @@ function renderChrome() {
   const labels = { people: t("People"), sheet: t("Sheet"), log: t("Table") };
   $("#phone-tabs").innerHTML = ["people", "sheet", "log"].map(v => `<button type="button" data-action="view" data-view="${v}" class="${view === v ? "active" : ""}">${esc(labels[v])}</button>`).join("");
   $("#t-title").textContent = t("Project Moon: The City");
-  $("#t-sub").textContent = t("A free table companion. Your sheets are saved in this browser.");
+  $("#t-sub").textContent = $("#t-sub").title = t("A free table companion. Your sheets are saved in this browser.");
   for (const [id, key] of [["b-backup", "Backup"], ["b-export", "Export"], ["b-import", "Import"], ["b-print", "Print"], ["b-kits", "Kits"], ["b-menu", "Menu"], ["b-skin", "Look"], ["b-city", "City"], ["b-manual", "Manual"], ["b-help", "Help"]]) $("#" + id).textContent = t(key);
   renderWarn();
   const sb = $("#b-sound");

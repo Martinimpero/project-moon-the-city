@@ -871,3 +871,18 @@ html:not([data-skin="classic"]) * { scrollbar-color: #3a3d4f #0f1015; }
   body.menu-open .top-actions { display: flex; flex-wrap: wrap; gap: 4px; width: 100%; }
 }
 @media (max-width: 820px) { #top .brand { flex: 1 1 0; min-width: 0; } #top h1 { flex: none; max-width: 100%; font-size: 15px; letter-spacing: .12em; } #top { flex-wrap: wrap; align-items: center; } }
+
+/* the header keeps the title on one line; the buttons wrap among themselves when the window is narrow */
+@media (min-width: 821px) {
+  #top .brand { flex: 0 1 auto; min-width: 0; }
+  #top h1 { white-space: nowrap; }
+  #top p { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 34ch; }
+  .top-actions { flex-wrap: wrap; justify-content: flex-end; row-gap: 4px; }
+}
+@media (min-width: 821px) {
+  .top-actions { gap: 4px; }
+  .top-actions button { padding: 5px 8px; letter-spacing: .08em; }
+  #vol { width: 56px; }
+  html:not([data-skin="classic"]) #top h1 { letter-spacing: .14em; }
+  #top h1 { font-size: 20px; }
+}
