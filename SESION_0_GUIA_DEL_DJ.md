@@ -31,12 +31,13 @@ Esta sesión no es la Sesión 01 (el Contrato de *El Cargamento de la Fila*). Es
 ### Para los jugadores (envíalo con dos o tres días de margen)
 
 > Antes del sábado, abrid la app (https://martinimpero.github.io/project-moon-the-city/), pulsad **Manual** y leed **«Antes de crear»** (la guía del jugador, cinco minutos). Traed contestadas, aunque sea con una frase, estas cinco preguntas:
-> 1. ¿Para quién trabajas y qué se queda de cada trabajo?
-> 2. ¿Dónde duermes, y es una zona residencial?
-> 3. ¿Quién notaría, y quién lloraría, si no volvieras?
-> 4. ¿Qué te hizo la Ciudad que nunca has dicho en voz alta?
-> 5. ¿A qué Pecado se parece eso?
->
+
+1. ¿Para quién trabajas y qué se queda de cada trabajo?
+2. ¿Dónde duermes, y es una zona residencial?
+3. ¿Quién notaría, y quién lloraría, si no volvieras?
+4. ¿Qué te hizo la Ciudad que nunca has dicho en voz alta?
+5. ¿A qué Pecado se parece eso?
+
 > No hace falta saber las reglas. Y pensad **una cosa que no queréis ver en la partida** (la hablaremos al empezar).
 
 ### Para ti, el DJ
