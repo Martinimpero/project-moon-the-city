@@ -57,7 +57,7 @@ export function render(md) {
         while (i < lines.length && lines[i].trim() && /^\s{2,}\S/.test(lines[i]) && !/^\s*([-*]|\d+\.) /.test(lines[i])) { item += " " + lines[i].trim(); i++; }
         items.push(item);
       }
-      out.push(`<${ordered ? "ol" : "ul"}>${items.map(x => `<li>${inline(x)}</li>`).join("")}</${ordered ? "ol" : "ul"}>`);
+      out.push(`<${ordered ? "ol" : "ul"}>${items.map(x => /^\[ \] /.test(x) ? `<li class="chk">☐ ${inline(x.slice(4))}</li>` : `<li>${inline(x)}</li>`).join("")}</${ordered ? "ol" : "ul"}>`);
       continue;
     }
     const para = [];

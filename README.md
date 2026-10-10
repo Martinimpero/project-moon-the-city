@@ -170,6 +170,10 @@ On a phone the header is just the title and a **Menu** button; Menu opens the re
 
 The app now has a dark look (near-black panels, sodium-lamp gold, red for danger, cut corners) instead of the rulebook's cream paper. The **Look** button in the header switches back to the classic paper look; the choice is remembered on that device. Printing is not affected.
 
+## Player's Quick Guide
+
+`Manual_PlayerGuide.md` / `Manual_PlayerGuide_ES.md` (in the project folder, shown in the app under **Manual** as "The City: a player's quick guide") is a four-page guide for new players: the City and who runs it, how each kind of person lives (Nest, Backstreets, Fixer), the Night and the Taboos, the words you will hear, the game in a minute, and the 14-step character build with the Wound and the Sins. The printable PDFs (`Project Moon - The City - Player Guide.pdf` and `Project Moon - La Ciudad - Guia del Jugador.pdf`) come from `design/build/make_gm_docs.py guide`.
+
 ## Session 0 for a new table
 
 `SESION_0_GUIA_DEL_DJ.md` (in Spanish) is a script for a first session that teaches the game before the Session 01 Contract: safety agreement, creating characters and the crew, and a seven-station workshop (the roll, Help, E.G.O./Vice/Bonds, Sins, Clocks, the Exchange and Harm, the Hail Mary) played on the Threadmill Row scene. About 3 h 45 min, or 2 h 30 min in the short version; it ends with what the GM must prepare for Session 01.

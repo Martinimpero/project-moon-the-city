@@ -6,6 +6,7 @@
 export const PARTS = [
   { id: "front", en: "Manual_00_FrontMatter.md", es: "Manual_00_FrontMatter_ES.md" },
   { id: "primer", en: "Manual_PlayerPrimer.md", es: "Manual_PlayerPrimer_ES.md" },
+  { id: "guide", en: "Manual_PlayerGuide.md", es: "Manual_PlayerGuide_ES.md" },
   { id: "p1", en: "Manual_Part1_TheCity.md", es: "Manual_Part1_TheCity_ES.md" },
   { id: "p2", en: "Manual_Part2_PlayingTheGame.md", es: "Manual_Part2_PlayingTheGame_ES.md" },
   { id: "p3", en: "Manual_Part3_Characters.md", es: "Manual_Part3_Characters_ES.md" },

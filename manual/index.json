@@ -53,6 +53,37 @@
    }
   },
   {
+   "id": "guide",
+   "en": {
+    "title": "THE CITY: A PLAYER'S QUICK GUIDE",
+    "sections": [
+     "1. Where you are",
+     "2. Who runs things",
+     "3. How people live",
+     "4. The Night and the Taboos",
+     "5. Words you will hear",
+     "6. The game in a minute",
+     "7. Build your character in 14 steps",
+     "8. Your Wound, your Sin, your Vice",
+     "9. Before you sit down"
+    ]
+   },
+   "es": {
+    "title": "LA CIUDAD: GUÍA RÁPIDA DEL JUGADOR",
+    "sections": [
+     "1. Dónde estás",
+     "2. Quién manda",
+     "3. Cómo vive la gente",
+     "4. La Noche y los Tabúes",
+     "5. Palabras que oirás",
+     "6. El juego en un minuto",
+     "7. Crea tu personaje en 14 pasos",
+     "8. Tu Herida, tu Pecado, tu Vicio",
+     "9. Antes de sentarte"
+    ]
+   }
+  },
+  {
    "id": "p1",
    "en": {
     "title": "PART I — THE CITY",
@@ -378,5 +409,5 @@
    }
   }
  ],
- "version": "2c7d93f33a"
+ "version": "4b5136201b"
 }
