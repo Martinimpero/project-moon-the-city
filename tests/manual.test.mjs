@@ -60,7 +60,7 @@ test("the sheet's links go to sections about the same thing (spot checks against
   assert.match(title(R.REFS.glossary), /Glossary/); assert.match(title(R.REFS.threat), /Threat/); assert.match(title(R.REFS.vice), /Vice/);
 });
 
-test("the copies in manual/ are the manual's current text (skipped when the sources are not next to the app)", { skip: !fs.existsSync(file("../Manual_Part1_TheCity.md")) }, () => {
+test("the copies in manual/ are the manual's current text (skipped when the sources are not next to the app)", { skip: !fs.existsSync(file("../Manual/en/Manual_Part1_TheCity.md")) }, () => {
   const out = execFileSync(process.execPath, [fileURLToPath(new URL("../tools/make_manual.mjs", import.meta.url)), "--check"], { encoding: "utf8" });
   assert.match(out, /up to date/);
 });

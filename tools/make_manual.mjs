@@ -1,7 +1,7 @@
 /**
  * Copies the manual's Markdown files into webapp/manual/ so the app can show them, and writes manual/index.json (parts, sections, a content hash).
  * Run it after the manual changes:   node tools/make_manual.mjs         (add --check to only report whether manual/ is up to date)
- * English comes from the project folder, Spanish from spanish_source/. A part's sections are matched by order, so both languages must have the same number of "## " sections.
+ * English comes from Manual/en/ in the project folder, Spanish from Manual/es/. A part's sections are matched by order, so both languages must have the same number of "## " sections.
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -22,7 +22,7 @@ const sectionsOf = md => [...md.matchAll(/^## (.+)$/gm)].map(m => m[1].trim());
 
 const index = { parts: [] }, files = new Map();
 for (const p of PARTS) {
-  const en = read(path.join(root, p.en)), es = read(path.join(root, "spanish_source", p.es));
+  const en = read(path.join(root, "Manual", "en", p.en)), es = read(path.join(root, "Manual", "es", p.es));
   const se = sectionsOf(en), ss = sectionsOf(es);
   if (se.length !== ss.length) throw new Error(`${p.id}: ${se.length} English sections but ${ss.length} Spanish ones`);
   files.set(`manual/en/${p.id}.md`, forApp(en, "en")); files.set(`manual/es/${p.id}.md`, forApp(es, "es"));
