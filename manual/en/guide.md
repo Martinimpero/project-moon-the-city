@@ -112,7 +112,36 @@ The table needs a trigger, **not the worst version**. Share as much of the Burde
 
 **A worked example.** Mira Sato, a Backstreets medic who used to work Wing security. *Identity:* "the one who fixes people, not machines". *Vice:* can't say no to a patient. *Boundary:* "I won't let someone die on my table because I hesitated". *Burden:* the night her hands went still and a patient she could have saved bled out. Her Wound feels like grief and guilt, so her Resonance goes mostly into **Gloom**.
 
-## 9. Before you sit down
+## 9. Reading your character sheet
+
+The sheet is the same on paper (Appendix A of the manual) and in the app. Read it from the top down.
+
+**The header is always in view.** Your name; a few badges (**Grade**, **Resources**, your **Alignment**, and warnings such as *Unsteady* or *Empty* when your E.G.O. runs low); and three meters you will look at all night:
+
+| Meter | What it shows | What to do with it |
+|---|---|---|
+| **E.G.O.** | Dots for your current E.G.O. out of your maximum (your Resolve, lowered by Stress). | Spend 1 for an extra die. The **+1** button is a rest. |
+| **Stress** | 0 to 5. What the City has cost you. | It rises on Trauma triggers, crossed Boundaries and Critical Failures. High Stress lowers your E.G.O. maximum. |
+| **Harm** | Unhurt, Hurt, Injured, Wounded, or out of the scene. | Injured costs you 1 die and Wounded 2 on rolls the wound affects. |
+
+Two buttons sit beside them: **Hail Mary** (your last stand, section 6) and **New scene** (resets the per-scene things when a scene ends).
+
+**The tabs** hold everything else:
+
+| Tab | What is on it | When you use it |
+|---|---|---|
+| **Character** | Concept, Identity, Occupation, Affiliation, Background and Grade. Your four **Attributes** and twelve **Skills**, each with a **click-to-roll** name. | Every roll. Click a Skill to roll it with its usual Attribute. |
+| **The Self** | Your Wound: **Burden**, **Fear**, **Boundary**. Also **Vice** (with an **Invoke** button), **Desire**, **Principle**, **Ambition**, **Broken Boundaries** (0 to 3), **Scars** and your **Traumas**. | When the GM invokes your Vice, and when your Burden or Boundary is touched. |
+| **Sins** | Your **Resonance** (0 to 4) in each Sin, who each Sin beats and loses to on the **Wheel**, and your Signature Technique. | When you tag a roll with a Sin. |
+| **Gear and Bonds** | **Resources** (0 to 5), your **Gear** (its kind, its Sin and its **Wear** from 0 to 3) and your **Bonds** (Type, Strength and the person). | When you spend a Bond, buy something or run downtime. |
+| **Growth** | Your **Marks** and the buttons to **Raise** a Skill or Attribute. | Between sessions. |
+| **Notes** | Free text. | Whenever you want. |
+
+**Ignore at first:** the **Tally**, **Fit**, **Ride** and **Drift** parts of the Sins tab, and the Growth tab. Come back to them after a few sessions; the GM will tell you when.
+
+**On paper**, the same fields run down one page in this order: the identity lines (Concept, Identity, Background, Occupation, Affiliation, Desire, Fear, Relationship, Principle, Vice, Boundary, Burden, Ambition), then Attributes and Skills, then E.G.O., Stress, Resonance, Resources and Gear, Harm and Trauma. A blank sheet is in the manual's Appendix A, and the **Pregens** in the app are filled-in examples you can read.
+
+## 10. Before you sit down
 
 - [ ] I can say in one line **who my character works for** and what they keep from each job.
 - [ ] I have written my **Burden, Fear and Boundary** from one moment, and I am comfortable sharing the Fear and the Boundary aloud.

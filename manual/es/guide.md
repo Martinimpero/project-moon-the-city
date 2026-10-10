@@ -112,7 +112,36 @@ La mesa necesita un detonante, **no la peor versión**. Comparte de la Carga lo 
 
 **Un ejemplo.** Mira Sato, una médica de los Callejones que antes trabajó para la seguridad de un Ala. *Identidad:* «la que arregla personas, no máquinas». *Vicio:* no sabe decir que no a un paciente. *Límite:* «no dejaré que alguien muera en mi mesa porque dudé». *Carga:* la noche en que sus manos se quedaron quietas y un paciente al que podía salvar se desangró. Su Herida se siente como duelo y culpa, así que su Resonancia va sobre todo a **Melancolía**.
 
-## 9. Antes de sentarte
+## 9. Cómo leer tu ficha de personaje
+
+La ficha es la misma en papel (Apéndice A del manual) y en la app. Léela de arriba abajo.
+
+**La cabecera está siempre a la vista.** Tu nombre; unas insignias (**Grado**, **Recursos**, tu **Alineamiento** y avisos como *Inestable* o *Vacío* cuando tu E.G.O. baja); y tres medidores que mirarás toda la noche:
+
+| Medidor | Qué muestra | Qué hacer con él |
+|---|---|---|
+| **E.G.O.** | Puntos de tu E.G.O. actual sobre tu máximo (tu Voluntad, reducida por el Estrés). | Gasta 1 para un dado extra. El botón **+1** es un descanso. |
+| **Estrés** | De 0 a 5. Lo que te ha costado la Ciudad. | Sube con los disparadores de Trauma, los Límites cruzados y los Fallos Críticos. Un Estrés alto baja tu E.G.O. máximo. |
+| **Daño** | Ileso, Golpeado, Herido, Malherido, o fuera de la escena. | Herido te cuesta 1 dado y Malherido 2 en las tiradas que la herida afecte. |
+
+A su lado hay dos botones: **Último Recurso** (tu última resistencia, sección 6) y **Escena nueva** (reinicia lo que vale por escena cuando esta termina).
+
+**Las pestañas** guardan todo lo demás:
+
+| Pestaña | Qué hay en ella | Cuándo la usas |
+|---|---|---|
+| **Personaje** | Concepto, Identidad, Ocupación, Afiliación, Trasfondo y Grado. Tus cuatro **Atributos** y doce **Habilidades**, con el nombre **clicable para tirar**. | En cada tirada. Pulsa una Habilidad para tirarla con su Atributo habitual. |
+| **El Yo** | Tu Herida: **Carga**, **Miedo**, **Límite**. Además **Vicio** (con un botón **Invocar**), **Deseo**, **Principio**, **Ambición**, **Límites rotos** (0 a 3), **Cicatrices** y tus **Traumas**. | Cuando el DJ invoca tu Vicio, y cuando se toca tu Carga o tu Límite. |
+| **Pecados** | Tu **Resonancia** (0 a 4) en cada Pecado, a quién vence y de quién pierde cada Pecado en la **Rueda**, y tu Técnica Distintiva. | Cuando etiquetas una tirada con un Pecado. |
+| **Equipo y Vínculos** | **Recursos** (0 a 5), tu **Equipo** (su clase, su Pecado y su **Desgaste** de 0 a 3) y tus **Vínculos** (Tipo, Fuerza y la persona). | Cuando gastas un Vínculo, compras algo o haces tiempo libre. |
+| **Crecimiento** | Tus **Marcas** y los botones para **Subir** una Habilidad o un Atributo. | Entre sesiones. |
+| **Notas** | Texto libre. | Cuando quieras. |
+
+**Ignora al principio:** las partes de **Cuenta**, **Encaje**, **Cabalgar** y **Deriva** de la pestaña Pecados, y la pestaña Crecimiento. Vuelve a ellas tras unas cuantas sesiones; el DJ te dirá cuándo.
+
+**En papel,** los mismos campos bajan por una página en este orden: las líneas de identidad (Concepto, Identidad, Trasfondo, Ocupación, Afiliación, Deseo, Miedo, Relación, Principio, Vicio, Límite, Carga, Ambición), luego Atributos y Habilidades, y después E.G.O., Estrés, Resonancia, Recursos y Equipo, Daño y Trauma. Hay una hoja en blanco en el Apéndice A del manual, y los **Prefabricados** de la app son ejemplos ya rellenados que puedes leer.
+
+## 10. Antes de sentarte
 
 - [ ] Puedo decir en una línea **para quién trabaja mi personaje** y qué se queda de cada trabajo.
 - [ ] He escrito mi **Carga, mi Miedo y mi Límite** desde un mismo momento, y me siento cómodo compartiendo en voz alta el Miedo y el Límite.

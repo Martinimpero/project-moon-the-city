@@ -65,7 +65,8 @@
      "6. The game in a minute",
      "7. Build your character in 14 steps",
      "8. Your Wound, your Sin, your Vice",
-     "9. Before you sit down"
+     "9. Reading your character sheet",
+     "10. Before you sit down"
     ]
    },
    "es": {
@@ -79,7 +80,8 @@
      "6. El juego en un minuto",
      "7. Crea tu personaje en 14 pasos",
      "8. Tu Herida, tu Pecado, tu Vicio",
-     "9. Antes de sentarte"
+     "9. Cómo leer tu ficha de personaje",
+     "10. Antes de sentarte"
     ]
    }
   },
@@ -409,5 +411,5 @@
    }
   }
  ],
- "version": "4b5136201b"
+ "version": "20fceb4e56"
 }
