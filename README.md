@@ -170,6 +170,10 @@ On a phone the header is just the title and a **Menu** button; Menu opens the re
 
 The app now has a dark look (near-black panels, sodium-lamp gold, red for danger, cut corners) instead of the rulebook's cream paper. The **Look** button in the header switches back to the classic paper look; the choice is remembered on that device. Printing is not affected.
 
+## Session 0 for a new table
+
+`SESION_0_GUIA_DEL_DJ.md` (in Spanish) is a script for a first session that teaches the game before the Session 01 Contract: safety agreement, creating characters and the crew, and a seven-station workshop (the roll, Help, E.G.O./Vice/Bonds, Sins, Clocks, the Exchange and Harm, the Hail Mary) played on the Threadmill Row scene. About 3 h 45 min, or 2 h 30 min in the short version; it ends with what the GM must prepare for Session 01.
+
 ## Table guide
 
 `guia/index.html` is a short, navigable guide in Spanish and English (29 one-screen pages): opening the app, opening a room as GM, joining as a player, rolling, the map, saving, fixing connection problems. It is a single file that works on GitHub Pages and offline; the app's Help window links to it. `tests/guide.test.mjs` checks that every button name in the guide is the name the app really shows, in both languages.
