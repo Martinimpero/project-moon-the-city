@@ -174,6 +174,10 @@ The app now has a dark look (near-black panels, sodium-lamp gold, red for danger
 
 `Manual_PlayerGuide.md` / `spanish_source/Manual_PlayerGuide_ES.md` (shown in the app under **Manual** as \"The City: a player's guide\") is the complete guide for players, about eleven pages: the City and who runs it, how each kind of person lives, the Night and the Taboos, **the character sheet shown exactly as the app prints it** (a filled-in pregenerated character, with every field explained, and the app's header and tabs), **how every rule a player touches works** (the roll, E.G.O. and the Unsteady and Empty states, Stress, Harm, Bonds, Vice and Trauma, the Hail Mary, Manifestation, Distortion and the Reckoning, the Sins with the Wheel, Fit and the Signature Techniques, fights, social conflict, gear, Marks and Grade), the 14-step character build with the Wound, a one-page reference and a pre-session checklist. The printable PDFs (`Project Moon - The City - Player Guide.pdf` and `Project Moon - La Ciudad - Guia del Jugador.pdf`) come from `design/build/make_gm_docs.py guide`, which runs `tools/sheet_html.mjs` to print the real sheet into them; in the app's copy the sheet is replaced by a note, because the app shows the real one.
 
+## Blank character sheet to print
+
+`Project Moon - The City - Character Sheet.pdf` and `Project Moon - La Ciudad - Hoja de Personaje.pdf` (one A4 page each, in the project folder) are blank sheets with room to write: the same fields as the app's printed sheet, plus a notes area. They come from `design/build/make_gm_docs.py blank`. The app can also print a blank sheet from **Print**.
+
 ## Session 0 for a new table
 
 `SESION_0_GUIA_DEL_DJ.md` (in Spanish) is a script for a first session that teaches the game before the Session 01 Contract: safety agreement, creating characters and the crew, and a seven-station workshop (the roll, Help, E.G.O./Vice/Bonds, Sins, Clocks, the Exchange and Harm, the Hail Mary) played on the Threadmill Row scene. About 3 h 45 min, or 2 h 30 min in the short version; it ends with what the GM must prepare for Session 01.
