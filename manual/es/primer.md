@@ -15,15 +15,15 @@ El juego empieza justo después de las **Noches Blancas y los Días Oscuros**: s
 
 | Trabajas para... | Ejemplo | Cómo es |
 |---|---|---|
-| Una **Oficina** (la mayoría de los Agentes) | **Gantry e Hijos**, una Oficina pequeña. **La Novena Oficina de Registro**, que reparte trabajo a Agentes independientes. | Cuotas, y un recorte sobre cada pago antes de que te llegue. En la Novena Oficina de Registro es el 30%, con una fórmula que nadie ha visto escrita. |
-| Un **Ala** | **El Ala Halcyon**: farmacéutica y asesoría de duelo. | Paga bien, te protege y tiene consejeros de verdad. Eso hace difícil querer gastar el Vínculo de Empleo contra ella. Toda Singularidad se alimenta del sufrimiento de alguien; tu personaje puede saber de quién, o no. |
-| Un **Sindicato** | **El Consorcio Coldwater**, en la Fila del Telar. Los **Cinco Dedos**, los cinco grandes: Pulgar (jerarquía), Índice (Prescripciones escritas), Corazón (venganza), Anular (arte y espectáculo), Meñique (infiltración). | Ofrece Deuda a cualquiera que parezca estar pasándolo mal, y cobra. |
-| Una **Asociación** | **La Asociación Hana**, la mayor y más fiable. **El Cambio de Rill**, discretamente fiable para las Oficinas. | Te da licencia y grado. Presentas un Informe después de cada trabajo. Regla del Cambio de Rill: nunca aceptes un trabajo contra otro Agente registrado. |
+| Una **Oficina** (la mayoría de los Agentes) | Tu DJ la nombra: hay muchas, desde pequeños negocios hasta grandes repartidoras de trabajo. | Cuotas, y un recorte sobre cada pago antes de que te llegue. De cuánto es el recorte, y lo clara que sea la fórmula, decide tu DJ. |
+| Un **Ala** | Una de las corporaciones con letra de la Ciudad, una por Distrito (mira el mapa de **Ciudad** en la app): por ejemplo **Nagel und Hammer** (N Corp.), **WARP Corp.** (W) o **TimeTrack Corporation** (T). **Lobotomy Corporation** (L) ha caído. | Paga bien, te protege y tiene consejeros de verdad. Eso hace difícil querer gastar el Vínculo de Empleo contra ella. Toda Singularidad se alimenta del sufrimiento de alguien; tu personaje puede saber de quién, o no. |
+| Un **Sindicato** | Los **Cinco Dedos**, los cinco grandes que dominan los Callejones: **Pulgar** (jerarquía estricta), **Índice** (obedece Prescripciones escritas), **Corazón** (una familia que se toma la Venganza), **Anular** (arte), **Meñique** (miembros secretos, infiltración). Hay Sindicatos menores; algunos responden a un Dedo. | Ofrece Deuda a cualquiera que parezca estar pasándolo mal, y cobra. |
+| Una **Asociación** | **La Asociación Hana**, la mayor y más fiable de las doce de la Ciudad. | Te da licencia y grado. Presentas un Informe después de cada trabajo. |
 | **Nadie**, o una red de ayuda mutua | Los independientes son libres, raros y duran poco. | Sin sueldo y sin respaldo, y casi nadie se fía de ti. |
 
 ## Un sitio para empezar: la Fila del Telar (Threadmill Row)
 
-Puestos de mercado apilados bajo andamios permanentemente húmedos; olor a aceite frito y a refrigerante de máquina. Dos bandas del Sindicato se disputan el mismo tramo de comercio negro, y un apuñalamiento reciente tiene tensa a toda la Fila.
+*(Una manzana de los Callejones inventada para el Contrato de ejemplo de este juego; tu DJ puede ponerla en cualquier Distrito, o usar otra.)* Puestos de mercado apilados bajo andamios permanentemente húmedos; olor a aceite frito y a refrigerante de máquina. Dos bandas del Sindicato se disputan el mismo tramo de comercio negro, y un apuñalamiento reciente tiene tensa a toda la Fila.
 
 ## La Noche
 
