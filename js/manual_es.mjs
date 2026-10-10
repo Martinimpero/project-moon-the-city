@@ -16,6 +16,7 @@ export const MANUAL_ES = {
   "A schematic of the City, not to scale: the spiral out from A (District 1). The letter is the District's number. What the games leave open stays open: your table's City is yours to invent (Part VII).": "Un esquema de la Ciudad, sin escala: la espiral que sale de A (Distrito 1). La letra es el número del Distrito. Lo que los juegos dejan abierto sigue abierto: la Ciudad de tu mesa es tuya para inventarla (Parte VII).",
   "District 26 is on no map.": "El Distrito 26 no aparece en ningún mapa.",
   "Look": "Estilo", "Menu": "Menú",
+  "Institutional Grade": "Grado Institucional",
   "Nothing found.": "No se encontró nada.",
   "Manual opens the rulebook beside the sheet. The small ? on the sheet opens it at the section about that.": "Manual abre el libro de reglas junto a la ficha. La pequeña ? de la ficha lo abre en la sección que habla de eso."
 };

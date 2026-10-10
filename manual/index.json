@@ -55,32 +55,32 @@
   {
    "id": "guide",
    "en": {
-    "title": "THE CITY: A PLAYER'S QUICK GUIDE",
+    "title": "THE CITY: A PLAYER'S GUIDE",
     "sections": [
      "1. Where you are",
      "2. Who runs things",
      "3. How people live",
      "4. The Night and the Taboos",
      "5. Words you will hear",
-     "6. The game in a minute",
-     "7. Build your character in 14 steps",
-     "8. Your Wound, your Sin, your Vice",
-     "9. Reading your character sheet",
+     "6. Your character sheet",
+     "7. How the game works",
+     "8. Create your character in 14 steps",
+     "9. One-page reference",
      "10. Before you sit down"
     ]
    },
    "es": {
-    "title": "LA CIUDAD: GUÍA RÁPIDA DEL JUGADOR",
+    "title": "LA CIUDAD: GUÍA DEL JUGADOR",
     "sections": [
      "1. Dónde estás",
      "2. Quién manda",
      "3. Cómo vive la gente",
      "4. La Noche y los Tabúes",
      "5. Palabras que oirás",
-     "6. El juego en un minuto",
-     "7. Crea tu personaje en 14 pasos",
-     "8. Tu Herida, tu Pecado, tu Vicio",
-     "9. Cómo leer tu ficha de personaje",
+     "6. Tu hoja de personaje",
+     "7. Cómo funciona el juego",
+     "8. Crea tu personaje en 14 pasos",
+     "9. Referencia de una página",
      "10. Antes de sentarte"
     ]
    }
@@ -411,5 +411,5 @@
    }
   }
  ],
- "version": "20fceb4e56"
+ "version": "414684188f"
 }

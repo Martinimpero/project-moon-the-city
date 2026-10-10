@@ -14,6 +14,9 @@ const root = path.resolve(web, "..");
 const check = process.argv.includes("--check");
 
 const read = p => fs.readFileSync(p, "utf8").replace(/\r\n/g, "\n");
+/** The player guide prints a filled-in character sheet in its PDF; the app shows the real sheet on screen, so its copy points there instead. */
+const SHEET_NOTE = { en: "*(The PDF version of this guide prints a filled-in sheet here. In the app, open any character to see the real one.)*", es: "*(La versión en PDF de esta guía imprime aquí una hoja rellenada. En la app, abre cualquier personaje para ver la real.)*" };
+const forApp = (md, lang) => md.replace("{{SHEET}}", SHEET_NOTE[lang]);
 const titleOf = md => (md.match(/^# (.+)$/m)?.[1] ?? "").trim();
 const sectionsOf = md => [...md.matchAll(/^## (.+)$/gm)].map(m => m[1].trim());
 
@@ -22,7 +25,7 @@ for (const p of PARTS) {
   const en = read(path.join(root, p.en)), es = read(path.join(root, "spanish_source", p.es));
   const se = sectionsOf(en), ss = sectionsOf(es);
   if (se.length !== ss.length) throw new Error(`${p.id}: ${se.length} English sections but ${ss.length} Spanish ones`);
-  files.set(`manual/en/${p.id}.md`, en); files.set(`manual/es/${p.id}.md`, es);
+  files.set(`manual/en/${p.id}.md`, forApp(en, "en")); files.set(`manual/es/${p.id}.md`, forApp(es, "es"));
   index.parts.push({ id: p.id, en: { title: titleOf(en), sections: se }, es: { title: titleOf(es), sections: ss } });
 }
 const hash = crypto.createHash("sha1"); for (const [k, v] of files) hash.update(k + "\n" + v);

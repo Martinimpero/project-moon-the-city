@@ -170,9 +170,9 @@ On a phone the header is just the title and a **Menu** button; Menu opens the re
 
 The app now has a dark look (near-black panels, sodium-lamp gold, red for danger, cut corners) instead of the rulebook's cream paper. The **Look** button in the header switches back to the classic paper look; the choice is remembered on that device. Printing is not affected.
 
-## Player's Quick Guide
+## Player's Guide (complete)
 
-`Manual_PlayerGuide.md` / `Manual_PlayerGuide_ES.md` (in the project folder, shown in the app under **Manual** as "The City: a player's quick guide") is a four-page guide for new players: the City and who runs it, how each kind of person lives (Nest, Backstreets, Fixer), the Night and the Taboos, the words you will hear, the game in a minute, and the 14-step character build with the Wound and the Sins. The printable PDFs (`Project Moon - The City - Player Guide.pdf` and `Project Moon - La Ciudad - Guia del Jugador.pdf`) come from `design/build/make_gm_docs.py guide`.
+`Manual_PlayerGuide.md` / `spanish_source/Manual_PlayerGuide_ES.md` (shown in the app under **Manual** as \"The City: a player's guide\") is the complete guide for players, about eleven pages: the City and who runs it, how each kind of person lives, the Night and the Taboos, **the character sheet shown exactly as the app prints it** (a filled-in pregenerated character, with every field explained, and the app's header and tabs), **how every rule a player touches works** (the roll, E.G.O. and the Unsteady and Empty states, Stress, Harm, Bonds, Vice and Trauma, the Hail Mary, Manifestation, Distortion and the Reckoning, the Sins with the Wheel, Fit and the Signature Techniques, fights, social conflict, gear, Marks and Grade), the 14-step character build with the Wound, a one-page reference and a pre-session checklist. The printable PDFs (`Project Moon - The City - Player Guide.pdf` and `Project Moon - La Ciudad - Guia del Jugador.pdf`) come from `design/build/make_gm_docs.py guide`, which runs `tools/sheet_html.mjs` to print the real sheet into them; in the app's copy the sheet is replaced by a note, because the app shows the real one.
 
 ## Session 0 for a new table
 
