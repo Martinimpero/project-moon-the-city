@@ -164,6 +164,8 @@ The right-hand tabs (Log, Exchange, Handouts, Journal, Clocks, Screen, Threats, 
 
 **City** in the header opens a map of the City, A to Z: the 25 mapped Districts in their spiral out from A (District 1), plus Z (District 26, which no map shows). The picture behind it is the City map you supplied (`city/the-city.webp`, the games' artwork: replace the file to change it); the clickable Districts on top follow its real borders: `tools/trace_city.py` finds them in the picture (a flood that stops at the thin border lines, with two borders too faint to see added by hand) and writes `js/citycells.mjs`. If you replace the picture, run `python tools/trace_city.py --debug` (needs Pillow and numpy) and look at the drawn result before trusting it. Press a District to read its Wing: name, what is known (in our own words, English and Spanish), whether it has fallen or is unknown, and a button to the manual's Wings section (or the Head, Eye and Claw for A, B and C). The search box dims the Wings that do not match. The facts come from the community-maintained Limbus Company wiki and may change; what the games leave open (E, O, Y and others are barely described) stays open on purpose, because each table's City is meant to differ (Part VII). The data is in `js/city.mjs`.
 
+On a phone the header is just the title and a **Menu** button; Menu opens the rest (Backup, Export, Room, Undo, Print, Look, City, Manual, Help, language) and closes again after you press one.
+
 ## The Moon look
 
 The app now has a dark look (near-black panels, sodium-lamp gold, red for danger, cut corners) instead of the rulebook's cream paper. The **Look** button in the header switches back to the classic paper look; the choice is remembered on that device. Printing is not affected.

@@ -645,7 +645,7 @@ function renderChrome() {
   $("#phone-tabs").innerHTML = ["people", "sheet", "log"].map(v => `<button type="button" data-action="view" data-view="${v}" class="${view === v ? "active" : ""}">${esc(labels[v])}</button>`).join("");
   $("#t-title").textContent = t("Project Moon: The City");
   $("#t-sub").textContent = t("A free table companion. Your sheets are saved in this browser.");
-  for (const [id, key] of [["b-backup", "Backup"], ["b-export", "Export"], ["b-import", "Import"], ["b-print", "Print"], ["b-kits", "Kits"], ["b-skin", "Look"], ["b-city", "City"], ["b-manual", "Manual"], ["b-help", "Help"]]) $("#" + id).textContent = t(key);
+  for (const [id, key] of [["b-backup", "Backup"], ["b-export", "Export"], ["b-import", "Import"], ["b-print", "Print"], ["b-kits", "Kits"], ["b-menu", "Menu"], ["b-skin", "Look"], ["b-city", "City"], ["b-manual", "Manual"], ["b-help", "Help"]]) $("#" + id).textContent = t(key);
   renderWarn();
   const sb = $("#b-sound");
   sb.textContent = state.sound.on ? `\u266A ${t("Sound on")}` : `\u266A ${t("Sound off")}`;
@@ -1139,10 +1139,11 @@ async function doDowntime(actors, crew) {
 
 /* ------------------------------------------------------------------ click actions */
 
-const READONLY_OK = new Set(["backups", "export", "exportCharacter", "allowBackupFile", "stopRetry", "applyHurt", "rtab", "sound", "timerGo", ...Object.keys(boardUI.actions), ...Object.keys(handoutUI.actions), ...Object.keys(journalUI.actions), ...Object.keys(threatUI.actions), ...Object.keys(tablesUI.actions), ...Object.keys(clocksUI.actions), ...Object.keys(screenUI.actions), "manual", "manualClose", "city", "cityPick", "cityClose", "skin", "view", "select", "selectRemote", "tab", "kits", "print", "awardMarks", "finish", "winMin", "winReset", "undo", "secretRoll", "revealRoll", "newCharacter", "newNpc", "newCrew", "pregens", "lang", "export", "import", "help", "room", "clearLog", "downtimeAll", "newSceneAll"]);
+const READONLY_OK = new Set(["backups", "export", "exportCharacter", "allowBackupFile", "stopRetry", "applyHurt", "rtab", "sound", "timerGo", ...Object.keys(boardUI.actions), ...Object.keys(handoutUI.actions), ...Object.keys(journalUI.actions), ...Object.keys(threatUI.actions), ...Object.keys(tablesUI.actions), ...Object.keys(clocksUI.actions), ...Object.keys(screenUI.actions), "manual", "manualClose", "city", "cityPick", "cityClose", "skin", "menu", "view", "select", "selectRemote", "tab", "kits", "print", "awardMarks", "finish", "winMin", "winReset", "undo", "secretRoll", "revealRoll", "newCharacter", "newNpc", "newCrew", "pregens", "lang", "export", "import", "help", "room", "clearLog", "downtimeAll", "newSceneAll"]);
 const actions = {
   ...threatUI.actions, ...tablesUI.actions, ...clocksUI.actions, ...screenUI.actions, ...manualUI.actions, ...cityUI.actions,
   manual: el => { cityUI.close(); return manualUI.actions.manual(el); },
+  menu: () => { const on = document.body.classList.toggle("menu-open"); $("#b-menu").setAttribute("aria-expanded", String(on)); },   // phone: the header buttons live behind one Menu button
   skin: () => {                                                  // the Moon look (dark) or the classic paper one
     const root = document.documentElement, classic = root.dataset.skin !== "classic";
     if (classic) root.dataset.skin = "classic"; else delete root.dataset.skin;
@@ -1562,6 +1563,7 @@ export function init() {
     if (a?.remote && !READONLY_OK.has(el.dataset.action)) return;
     if (UNDO_LABEL[el.dataset.action]) markUndo(UNDO_LABEL[el.dataset.action]);
     fn(el, a);
+    if (el.closest(".top-actions") && el.dataset.action !== "menu") { document.body.classList.remove("menu-open"); $("#b-menu").setAttribute("aria-expanded", "false"); }
     setTimeout(renderUndo, 0);
   });
   document.addEventListener("change", e => { if (e.target.closest("#main")) onField(e); else if (e.target.closest("#pane-map") || e.target.closest("#pane-xchg")) boardUI.onChange(e); });
